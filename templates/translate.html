@@ -9,6 +9,8 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
   }
 
   .textarea-container {
@@ -16,15 +18,20 @@
     flex-direction: column;
     align-items: center;
     margin: 0 20px;
+    width: 100%;
+    max-width: 600px;
   }
 
   .textarea {
-    width: 300px;
-    height: 200px;
+    width: 100%;
+    min-height: 150px;
+    max-height: 80vh;
     border-radius: 15px;
     padding: 10px;
     border: 1px solid #ccc;
     resize: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
   }
 
   .buttons {
@@ -35,44 +42,80 @@
 
   .button {
     margin: 10px 0;
-    padding: 10px;
+    padding: 10px 20px;
     border: none;
     background-color: #007bff;
     color: white;
     border-radius: 5px;
     cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.3s;
   }
 
   .button:hover {
     background-color: #0056b3;
+    transform: scale(1.05);
+  }
+
+  label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
   }
 </style>
 {% endblock %}
 
 {% block body %}
 
-{{kk}}
-  <div class="container">
-    <div class="textarea-container">
-      <label for="chinese">中文</label>
-      <textarea id="chinese" class="textarea"></textarea>
-    </div>
-    <div class="buttons">
-      <button class="button" onclick="translate('zh_to_en')">aa</button>
-      <button class="button" onclick="translate('en_to_zh')">bb</button>
-    </div>
-    <div class="textarea-container">
-      <label for="english">英文</label>
-      <textarea id="english" class="textarea"></textarea>
-    </div>
+<div class="container">
+  <div class="textarea-container">
+    <label for="chinese">中文</label>
+    <textarea id="chinese" class="textarea" oninput="autoResize(this)"></textarea>
   </div>
+  <div class="buttons">
+    <button class="button" onclick="do_translate('zh_to_en')">→</button>
+    <button class="button" onclick="do_translate('en_to_zh')">←</button>
+  </div>
+  <div class="textarea-container">
+    <label for="english">英文</label>
+    <textarea id="english" class="textarea" oninput="autoResize(this)"></textarea>
+  </div>
+</div>
 
-  <script src="{{ url_for('static', filename='js/api.js') }}"></script>
-  <script>
-     function translate(direction) {
-      alert(1)
-      
-    }
-  </script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script>
+  function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight) + 'px';
+  }
+
+  function do_translate(direction) {
+    const chineseText = $('#chinese').val();
+    const englishText = $('#english').val();
+
+    $.ajax({
+      url: '/do_translate',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        direction: direction,
+        chinese: chineseText,
+        english: englishText
+      }),
+      success: function(data) {
+        if (direction === 'zh_to_en') {
+          $('#english').val(data.translation);
+        } else if (direction === 'en_to_zh') {
+          $('#chinese').val(data.translation);
+        }
+        autoResize(document.getElementById('english'));
+        autoResize(document.getElementById('chinese'));
+      },
+      error: function(error) {
+        console.error('Error:', error);
+      }
+    });
+  }
+</script>
 
 {% endblock %}
