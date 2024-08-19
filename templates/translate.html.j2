@@ -1,0 +1,78 @@
+{% extends "_base.html" %}
+
+{% block title %}翻译页面{% endblock %}
+
+{% block head %}
+<style>
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .textarea-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 20px;
+  }
+
+  .textarea {
+    width: 300px;
+    height: 200px;
+    border-radius: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    resize: none;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button {
+    margin: 10px 0;
+    padding: 10px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .button:hover {
+    background-color: #0056b3;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{{kk}}
+  <div class="container">
+    <div class="textarea-container">
+      <label for="chinese">中文</label>
+      <textarea id="chinese" class="textarea"></textarea>
+    </div>
+    <div class="buttons">
+      <button class="button" onclick="translate('zh_to_en')">aa</button>
+      <button class="button" onclick="translate('en_to_zh')">bb</button>
+    </div>
+    <div class="textarea-container">
+      <label for="english">英文</label>
+      <textarea id="english" class="textarea"></textarea>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+  <script>
+     function translate(direction) {
+      alert(1)
+      
+    }
+  </script>
+
+{% endblock %}
