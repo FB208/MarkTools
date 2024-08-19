@@ -5,7 +5,7 @@ from services.translate_service import translate_text
 
 @translate_bp.route('/translate_page')
 def translate_page():
-    return render_template('translate.html.j2',kk="asdadsdas")
+    return render_template('translate.html',kk="asdadsdas")
 
 @translate_bp.route('/translate', methods=['POST'])
 def translate():

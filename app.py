@@ -12,11 +12,11 @@ def login():
 
 @app.route('/home')
 def home():
-    return render_template('home.html.j2')
+    return render_template('home.html')
 
 @app.route('/translate')
 def translate_page():
-    return render_template('translate.html.j2')
+    return render_template('translate.html')
 
 @app.route('/translate_api', methods=['POST'])
 def translate():

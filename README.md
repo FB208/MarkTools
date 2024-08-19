@@ -10,7 +10,7 @@ marktools.venv\Scripts\activate
 ## 安装依赖
 ```
 pip install -r requirements.txt
-
+```
 ## 启动项目
 ```
 # 普通启动

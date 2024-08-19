@@ -12,4 +12,4 @@ def login():
 
 @main_bp.route('/home')
 def home():
-    return render_template('home.html.j2')
+    return render_template('home.html')
