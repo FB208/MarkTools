@@ -55,7 +55,7 @@ def translate_text(chinese_text, english_text, direction):
    
     return get_chat_completion(messages).choices[0].message.content
 
-def extract_content_zh(old_text, new_text, direction):
+def extract_content(old_text, new_text):
     user_prompt = f"""
         <OLD_TEXT>
         {old_text}
