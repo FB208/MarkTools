@@ -11,7 +11,10 @@ marktools.venv\Scripts\activate
 ```
 pip install -r requirements.txt
 # 编译样式
+## 一次性编译
 npm run build:css
+## 实时编译（在开发时候开启这个命令，会根据项目中的样式文件变化，实时编译styles.css文件）
+npx postcss static/css/main.css -o static/css/styles.css --watch
 ```
 
 ## 启动项目
