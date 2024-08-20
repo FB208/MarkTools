@@ -1,3 +1,4 @@
 Flask==3.0.2
 Jinja2==3.1.2
 openai==1.40.6
+pytest==7.4.3

@@ -19,6 +19,9 @@ pip install -r requirements.txt
 flask --app app run
 # 调试模式
 flask --app run run --debug
+
+# 单元测试
+pytest tests/translate_test.py
 ```
 
 ## 构建docker镜像

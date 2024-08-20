@@ -18,3 +18,14 @@ def get_chat_completion(messages):
         messages=messages
     )
     return response
+
+def get_json_completion(messages):
+    client = get_client()
+    response = client.chat.completions.create(
+        model="deepseek-coder",
+        messages=messages,
+            response_format={
+        'type': 'json_object'
+    }
+    )
+    return response
