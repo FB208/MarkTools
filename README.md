@@ -21,7 +21,12 @@ flask --app app run
 flask --app run run --debug
 
 # 单元测试
+## 测试所有
+pytest
+## 测试单个文件
 pytest tests/translate_test.py
+## 测试单个测试函数
+pytest tests/translate_test.py::test_translate_text
 ```
 
 ## 构建docker镜像
