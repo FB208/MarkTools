@@ -28,10 +28,12 @@
     max-height: 80vh;
     border-radius: 15px;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #4b5563; /* Darker border for dark mode */
     resize: none;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
+    background-color: #1f2937; /* Dark background */
+    color: #d1d5db; /* Light text color */
   }
 
   .buttons {
@@ -44,7 +46,7 @@
     margin: 10px 0;
     padding: 10px 20px;
     border: none;
-    background-color: #007bff;
+    background-color: #3b82f6; /* Blue button */
     color: white;
     border-radius: 5px;
     cursor: pointer;
@@ -53,14 +55,14 @@
   }
 
   .button:hover {
-    background-color: #0056b3;
+    background-color: #2563eb; /* Darker blue on hover */
     transform: scale(1.05);
   }
 
   label {
     margin-bottom: 5px;
     font-weight: bold;
-    color: #333;
+    color: #d1d5db; /* Light text color */
   }
 </style>
 {% endblock %}
@@ -82,16 +84,36 @@
   </div>
 </div>
 
+<!-- 提示组件 -->
+<div id="success-toast" class="fixed bottom-4 right-4 hidden bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+  翻译成功！
+</div>
 
 <script>
+  $(document).ready(function() {
+    // 清空cookie
+    $.removeCookie('mt_chinese_old');
+    $.removeCookie('mt_english_old');
+  });
+
   function autoResize(textarea) {
     textarea.style.height = 'auto';
     textarea.style.height = (textarea.scrollHeight) + 'px';
   }
 
+  function showSuccessToast() {
+    const toast = document.getElementById('success-toast');
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+      toast.classList.add('hidden');
+    }, 3000); // 3秒后隐藏提示
+  }
+
   function do_translate(direction) {
     const chineseText = $('#chinese').val();
     const englishText = $('#english').val();
+    const chineseOld = $.cookie('mt_chinese_old') || '';
+    const englishOld = $.cookie('mt_english_old') || '';
 
     $.ajax({
       url: '/do_translate',
@@ -100,16 +122,23 @@
       data: JSON.stringify({
         direction: direction,
         chinese: chineseText,
-        english: englishText
+        english: englishText,
+        chinese_old: chineseOld,
+        english_old: englishOld
       }),
       success: function(data) {
         if (direction === 'zh_to_en') {
           $('#english').val(data.translation);
+          $.cookie('mt_chinese_old', chineseText);
+          $.cookie('mt_english_old', data.translation);
         } else if (direction === 'en_to_zh') {
           $('#chinese').val(data.translation);
+          $.cookie('mt_english_old', englishText);
+          $.cookie('mt_chinese_old', data.translation);
         }
         autoResize(document.getElementById('english'));
         autoResize(document.getElementById('chinese'));
+        showSuccessToast(); // 显示成功提示
       },
       error: function(error) {
         console.error('Error:', error);

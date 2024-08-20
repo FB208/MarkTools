@@ -10,6 +10,8 @@ marktools.venv\Scripts\activate
 ## 安装依赖
 ```
 pip install -r requirements.txt
+# 编译样式
+npm run build:css
 ```
 
 ## 启动项目
