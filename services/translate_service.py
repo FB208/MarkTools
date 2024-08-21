@@ -1,4 +1,4 @@
-from utils.deepseek import get_chat_completion, get_json_completion
+from llm.llm_factory import LLMFactory
 
 def translate_text(chinese_text, english_text,chinese_old,english_old, direction):
     # 中英文都不为空，表示是二次翻译
@@ -71,8 +71,8 @@ def translate_text(chinese_text, english_text,chinese_old,english_old, direction
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ]
-   
-    return get_chat_completion(messages).choices[0].message.content
+    llm_service = LLMFactory.get_llm_service()
+    return llm_service.get_chat_completion(messages).choices[0].message.content
 
 def extract_content(old_text, new_text):
     user_prompt = f"""
@@ -109,7 +109,8 @@ def extract_content(old_text, new_text):
         {"role": "system", "content": f"{system_prompt}"},
         {"role": "user", "content": f"{user_prompt}"}
     ]
-    completion = get_json_completion(messages)
+    llm_service = LLMFactory.get_llm_service()
+    completion = llm_service.get_json_completion(messages)
     print(completion.choices[0].message.content)
     return completion.choices[0].message.content
 

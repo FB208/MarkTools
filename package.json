@@ -4,6 +4,9 @@
   "description": "## 创建虚拟环境 ``` python -m venv marktools.venv",
   "main": "index.js",
   "scripts": {
+    "install": "pip install -r requirements.txt",
+    "watch:css": "npx postcss static/css/main.css -o static/css/styles.css --watch",
+    "dev": "flask --app run run --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "postcss static/css/main.css -o static/css/styles.css"
   },
