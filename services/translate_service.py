@@ -72,7 +72,8 @@ def translate_text(chinese_text, english_text,chinese_old,english_old, direction
         {"role": "user", "content": user_prompt}
     ]
     llm_service = LLMFactory.get_llm_service()
-    return llm_service.get_chat_completion(messages).choices[0].message.content
+    completion = llm_service.get_chat_completion(messages)
+    return llm_service.get_message(completion)
 
 def extract_content(old_text, new_text):
     user_prompt = f"""
@@ -111,6 +112,6 @@ def extract_content(old_text, new_text):
     ]
     llm_service = LLMFactory.get_llm_service()
     completion = llm_service.get_json_completion(messages)
-    print(completion.choices[0].message.content)
-    return completion.choices[0].message.content
+    return llm_service.get_message(completion)
+
 

@@ -75,8 +75,8 @@
     <textarea id="chinese" class="textarea" oninput="autoResize(this)"></textarea>
   </div>
   <div class="buttons">
-    <button class="button" onclick="do_translate('zh_to_en')">→</button>
-    <button class="button" onclick="do_translate('en_to_zh')">←</button>
+    <button id="zh_to_en" class="button" onclick="do_translate('zh_to_en')">→</button>
+    <button id="en_to_zh" class="button" onclick="do_translate('en_to_zh')">←</button>
   </div>
   <div class="textarea-container">
     <label for="english">英文</label>
@@ -94,6 +94,22 @@
     // 清空cookie
     $.removeCookie('mt_chinese_old');
     $.removeCookie('mt_english_old');
+
+    // 为中文文本框添加回车事件
+    $('#chinese').keypress(function(e) {
+      if (e.which === 13 && !e.shiftKey) {
+        e.preventDefault();
+        do_translate('zh_to_en');
+      }
+    });
+
+    // 为英文文本框添加回车事件
+    $('#english').keypress(function(e) {
+      if (e.which === 13 && !e.shiftKey) {
+        e.preventDefault();
+        do_translate('en_to_zh');
+      }
+    });
   });
 
   function autoResize(textarea) {
