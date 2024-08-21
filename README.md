@@ -36,15 +36,15 @@ pytest tests/translate_test.py::test_translate_text
 
 ## 构建docker镜像
 ```
-docker build -f docker/Dockerfile -t marktools .
+
 # 登录到Docker Hub
 docker login
 
-# 为镜像打标签
-docker tag marktools fb208/marktools:0.0.1
+# 打包镜像
+docker build -f docker/Dockerfile -t fb208/marktools:0.1.1 .
 
 # 推送镜像到Docker Hub
-docker push fb208/marktools:0.0.1
+docker push fb208/marktools:0.1.1
 
 # 运行docker镜像
 docker run -p 5000:5000 \

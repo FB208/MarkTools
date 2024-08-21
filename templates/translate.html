@@ -1,68 +1,121 @@
 {% extends "_base.html" %}
 
-{% block title %}翻译页面{% endblock %}
+{% block title %}提示词翻译{% endblock %}
 
 {% block head %}
 <style>
-  .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    padding: 20px;
-    box-sizing: border-box;
-  }
 
-  .textarea-container {
+
+  .translate-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 20px;
     width: 100%;
-    max-width: 600px;
+    max-width: 1000px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  }
+
+  .translate-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .textarea-container {
+    flex: 1;
+    max-width: 45%;
   }
 
   .textarea {
     width: 100%;
-    min-height: 150px;
-    max-height: 80vh;
-    border-radius: 15px;
-    padding: 10px;
-    border: 1px solid #4b5563; /* Darker border for dark mode */
+    min-height: 200px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #e3e3e3;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px;
     resize: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    background-color: #1f2937; /* Dark background */
-    color: #d1d5db; /* Light text color */
+    transition: all 0.3s ease;
+  }
+
+  .textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.6);
   }
 
   .buttons {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    margin: 0 20px;
   }
 
   .button {
-    margin: 10px 0;
-    padding: 10px 20px;
-    border: none;
-    background-color: #3b82f6; /* Blue button */
+    background: linear-gradient(45deg, #4f46e5, #7c3aed);
     color: white;
-    border-radius: 5px;
+    border: none;
+    padding: 12px 24px;
+    margin: 5px 0;
+    border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, transform 0.3s;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
   }
 
   .button:hover {
-    background-color: #2563eb; /* Darker blue on hover */
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
   }
 
   label {
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #d1d5db; /* Light text color */
+    color: #a5b4fc;
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 500;
+  }
+
+  .title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    background: linear-gradient(45deg, #4f46e5, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(79, 70, 229, 0.6);
+  }
+
+  .label-text {
+    text-shadow: 0 0 3px #a5b4fc;
+  }
+
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .translate-area {
+      flex-direction: column;
+    }
+
+    .textarea-container {
+      max-width: 100%;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .buttons {
+      flex-direction: row;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .button {
+      margin: 0 5px;
+    }
   }
 </style>
 {% endblock %}
@@ -70,17 +123,22 @@
 {% block body %}
 
 <div class="container">
-  <div class="textarea-container">
-    <label for="chinese">中文</label>
-    <textarea id="chinese" class="textarea" oninput="autoResize(this)"></textarea>
-  </div>
-  <div class="buttons">
-    <button id="zh_to_en" class="button" onclick="do_translate('zh_to_en')">→</button>
-    <button id="en_to_zh" class="button" onclick="do_translate('en_to_zh')">←</button>
-  </div>
-  <div class="textarea-container">
-    <label for="english">英文</label>
-    <textarea id="english" class="textarea" oninput="autoResize(this)"></textarea>
+  <div class="translate-content">
+    <h1 class="title">AI 翻译助手</h1>
+    <div class="translate-area">
+      <div class="textarea-container">
+        <label for="chinese" class="label-text">中文</label>
+        <textarea id="chinese" class="textarea" oninput="autoResize(this)"></textarea>
+      </div>
+      <div class="buttons">
+        <button id="zh_to_en" class="button" onclick="do_translate('zh_to_en')">→</button>
+        <button id="en_to_zh" class="button" onclick="do_translate('en_to_zh')">←</button>
+      </div>
+      <div class="textarea-container">
+        <label for="english" class="label-text">英文</label>
+        <textarea id="english" class="textarea" oninput="autoResize(this)"></textarea>
+      </div>
+    </div>
   </div>
 </div>
 

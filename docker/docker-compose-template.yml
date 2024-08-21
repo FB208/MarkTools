@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  web:
+    image: fb208/marktools:0.1.1
+    container_name: marktools
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    environment:
+      - OPENAI_API_KEY=your api key
+      - OPENAI_BASE_URL=your api url
+      - LLM_SERVICE=deepseek
+      - GOOGLE_API_KEY=your google api key(optional)
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge

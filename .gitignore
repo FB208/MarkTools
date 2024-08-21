@@ -286,3 +286,4 @@ ios/
 node_modules/
 marktools.venv/
 .vscode/
+*.local

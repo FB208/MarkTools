@@ -1,76 +1,163 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+{% extends "_base.html" %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>主页</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    .card {
-      width: 100px;
-      height: 100px;
-      border-radius: 15px;
-      background-color: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s;
-      cursor: pointer; /* Added mouse pointer style */
-    }
+{% block title %}MarkTools{% endblock %}
 
-    .card:hover {
-      transform: scale(1.05);
-    }
+{% block head %}
+<style>
+  .header {
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(26, 26, 46, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+  }
 
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+  .title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #4f46e5, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(79, 70, 229, 0.6);
+  }
 
-    .label {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 16px;
-      color: #333;
-    }
-  </style>
-</head>
+  .card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    max-width: 800px;
+    margin-top: 100px;
+    /* 为固定的header留出空间 */
+  }
 
-<body class="bg-gray-100">
-  <div class="container">
-    <div class="text-center">
-      <div class="card" onclick="window.location.href='{{ url_for('translate.translate') }}'">
-        <img src="https://via.placeholder.com/50" alt="翻译">
-      </div>
-      <div class="label">翻译</div>
+  .card {
+    width: 150px;
+    height: 150px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+  }
+
+  .card img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+  }
+
+  .label {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 16px;
+    color: #a5b4fc;
+    font-weight: 500;
+  }
+  #toast {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #f3f4f6;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+
+  #toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <header class="fixed top-0 left-0 w-full bg-opacity-80 backdrop-blur-md z-50 py-4">
+    <h1 class="text-4xl font-bold text-center bg-gradient-to-r from-purple-500 to-indigo-600 text-transparent bg-clip-text">MarkTools</h1>
+  </header>
+  
+  <div class="flex flex-wrap justify-center gap-6 mt-24">
+    <div class="card" data-url="{{ url_for('translate.translate') }}">
+      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 8l6 6" />
+        <path d="M4 14l6-6 2-3" />
+        <path d="M2 5h12" />
+        <path d="M7 2v3" />
+        <path d="M22 22l-5-10-5 10" />
+        <path d="M14 18h6" />
+      </svg>
+      <div class="text-lg font-medium text-indigo-200">翻译</div>
     </div>
-    <div class="text-center">
-      <div class="card">
-        <img src="https://via.placeholder.com/50" alt="语音识别">
-      </div>
-      <div class="label">语音识别</div>
+    <div class="card" data-message="语音识别功能暂未开放">
+      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+      <div class="text-lg font-medium text-indigo-200">语音识别</div>
     </div>
-    <div class="text-center">
-      <div class="card">
-        <img src="https://via.placeholder.com/50" alt="代码助手">
-      </div>
-      <div class="label">代码助手</div>
+    <div class="card" data-message="代码助手功能暂未开放">
+      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 18 22 12 16 6"/>
+        <polyline points="8 6 2 12 8 18"/>
+        <circle cx="12" cy="12" r="1"/>
+        <line x1="12" y1="8" x2="12" y2="16"/>
+      </svg>
+      <div class="text-lg font-medium text-indigo-200">代码助手</div>
     </div>
-    <div class="text-center">
-      <div class="card">
-        <img src="https://via.placeholder.com/50" alt="网络测试">
-      </div>
-      <div class="label">网络测试</div>
+    <div class="card" data-message="网络测试功能暂未开放">
+      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+      <div class="text-lg font-medium text-indigo-200">网络测试</div>
     </div>
   </div>
+</div>
 
-  <script src="{{ url_for('static', filename='js/api.js') }}"></script>
-</body>
+<!-- 提示组件 -->
+<div id="toast" class="fixed top-4 right-4 hidden bg-yellow-500 text-white px-4 py-2 rounded shadow-lg z-[2000]">
+  功能开发中
+</div>
 
-</html>
+<script>
+$(document).ready(function() {
+  $('.card').on('click', function() {
+    const url = $(this).data('url');
+    const message = $(this).data('message');
+    if (url) {
+      window.location.href = url;
+    } else if (message) {
+      showToast(message);
+    }
+  });
+
+  function showToast(message) {
+    const toast = $('#toast');
+    toast.text(message).removeClass('hidden');
+    setTimeout(() => {
+      toast.addClass('hidden');
+    }, 3000);
+  }
+});
+</script>
+{% endblock %}

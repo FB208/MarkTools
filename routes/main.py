@@ -4,7 +4,7 @@ from . import main_bp
 
 @main_bp.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('home.html')
 
 @main_bp.route('/login')
 def login():
