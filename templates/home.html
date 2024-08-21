@@ -4,26 +4,7 @@
 
 {% block head %}
 <style>
-  .header {
-    width: 100%;
-    padding: 20px 0;
-    text-align: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: rgba(26, 26, 46, 0.8);
-    backdrop-filter: blur(10px);
-    z-index: 1000;
-  }
 
-  .title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: linear-gradient(45deg, #4f46e5, #7c3aed);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 10px rgba(79, 70, 229, 0.6);
-  }
 
   .card-container {
     display: flex;
@@ -52,7 +33,7 @@
 
   .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5), 0 0 20px rgba(79, 70, 229, 0.6);
   }
 
   .card img {
@@ -89,8 +70,8 @@
 
 {% block body %}
 <div class="container mx-auto px-4 py-8">
-  <header class="fixed top-0 left-0 w-full bg-opacity-80 backdrop-blur-md z-50 py-4">
-    <h1 class="text-4xl font-bold text-center bg-gradient-to-r from-purple-500 to-indigo-600 text-transparent bg-clip-text">MarkTools</h1>
+  <header class="fixed top-0 left-0 w-full bg-opacity-80 backdrop-blur-md z-50 py-4 flex justify-center items-center">
+    <h1 class="title text-5xl font-bold mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent shadow-lg">MarkTools</h1>
   </header>
   
   <div class="flex flex-wrap justify-center gap-6 mt-24">
@@ -105,7 +86,7 @@
       </svg>
       <div class="text-lg font-medium text-indigo-200">翻译</div>
     </div>
-    <div class="card" data-message="语音识别功能暂未开放">
+    <div class="card" data-message="“语音识别”正在使劲儿开发中！！！！">
       <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
         <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
@@ -114,7 +95,7 @@
       </svg>
       <div class="text-lg font-medium text-indigo-200">语音识别</div>
     </div>
-    <div class="card" data-message="代码助手功能暂未开放">
+    <div class="card" data-message="“代码助手”正在使劲儿开发中！！！！">
       <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="16 18 22 12 16 6"/>
         <polyline points="8 6 2 12 8 18"/>
@@ -123,7 +104,7 @@
       </svg>
       <div class="text-lg font-medium text-indigo-200">代码助手</div>
     </div>
-    <div class="card" data-message="网络测试功能暂未开放">
+    <div class="card" data-message="“网络测试”正在使劲儿开发中！！！！">
       <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/>
         <line x1="2" y1="12" x2="22" y2="12"/>
