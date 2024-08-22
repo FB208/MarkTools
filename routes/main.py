@@ -13,3 +13,6 @@ def login():
 @main_bp.route('/home')
 def home():
     return render_template('home.html')
+
+
+
