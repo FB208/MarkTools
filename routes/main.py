@@ -6,9 +6,9 @@ from . import main_bp
 def index():
     return render_template('home.html')
 
-@main_bp.route('/login')
+@main_bp.route('/test')
 def login():
-    return render_template('login.html')
+    return render_template('test.html')
 
 @main_bp.route('/home')
 def home():

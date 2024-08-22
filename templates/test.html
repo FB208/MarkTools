@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户信息收集</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            background-color: #00CED1;
+            font-family: 'Arial', sans-serif;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+        }
+        .input-field {
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #00CED1;
+            box-shadow: 0 0 0 3px rgba(0, 206, 209, 0.2);
+        }
+        .submit-btn {
+            background-color: #00CED1;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            background-color: #00A9A9;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-4">
+    <div class="card">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">用户信息收集</h1>
+        <form id="info-form" class="space-y-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">姓名</label>
+                <input type="text" id="name" name="name" required 
+                       class="input-field w-full">
+            </div>
+            <div>
+                <label for="age" class="block text-sm font-medium text-gray-700 mb-2">年龄</label>
+                <input type="number" id="age" name="age" required 
+                       class="input-field w-full">
+            </div>
+            <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">手机号</label>
+                <input type="tel" id="phone" name="phone" required 
+                       class="input-field w-full">
+            </div>
+            <div class="pt-6 mt-6">
+                <button type="submit" class="submit-btn w-full">
+                    提交信息
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
