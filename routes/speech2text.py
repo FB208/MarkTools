@@ -1,24 +1,35 @@
 from flask import current_app as app
 from flask import render_template,request,jsonify
 from werkzeug.utils import secure_filename
+import uuid
+import base64
 import os
-from utils.coze_api_util import file_upload
+from services.speech2text_service import get_text
 from . import speech2text_bp
 
 @speech2text_bp.route('/speech2text')
 def speech2text():
     return render_template('speech2text.html')
 
-@speech2text_bp.route('/upload', methods=['GET', 'POST'])
+@speech2text_bp.route('/upload', methods=['POST'])
 def upload():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return jsonify({'error': 'No file part'}), 400
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'error': 'No selected file'}), 400
-        if file:
-            # 直接调用 Coze API 上传文件
-            result = file_upload(file)
-            return jsonify(result)
-    return render_template('upload.html')
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if file:
+        
+        try:
+            text = get_text(file)
+            
+            # 返回上传成功的信息和文件的公共URL
+            return jsonify({
+                'message': text
+            })
+        except Exception as e:
+            # 如果上传过程中出现错误,返回错误信息
+            return jsonify({'error': f'文件上传失败: {str(e)}'}), 500
+
+    return render_template('speech2text.html')

@@ -288,3 +288,4 @@ marktools.venv/
 .vscode/
 *.local
 test_config.py
+google_credentials/
