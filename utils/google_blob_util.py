@@ -18,5 +18,9 @@ def upload_blob(bucket_name, file_path, destination_blob_name):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
     generation_match_precondition = 0
+    
     blob.upload_from_filename(file_path, if_generation_match=generation_match_precondition)
-    return f"gs://{bucket_name}/{destination_blob_name}"
+    # 设置对象的公共访问权限
+    blob.make_public()
+    #f"gs://{bucket_name}/{destination_blob_name}"
+    return blob.public_url

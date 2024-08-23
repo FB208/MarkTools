@@ -14,7 +14,7 @@ def get_text(file):
     file_path = os.path.join('tempfiles', secure_filename(file.filename))
     file.save(file_path)
     # 上传文件到 Google Cloud Storage
-    gcs_uri = upload_blob(bucket_name, file_path, blob_name)
+    public_url = upload_blob(bucket_name, file_path, blob_name)
     os.remove(file_path)
-    text = run_quickstart(gcs_uri)
-    return text
+    #text = run_quickstart(gcs_uri)
+    return public_url
