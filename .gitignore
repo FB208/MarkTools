@@ -287,3 +287,4 @@ node_modules/
 marktools.venv/
 .vscode/
 *.local
+test_config.py
