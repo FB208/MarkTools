@@ -1,0 +1,95 @@
+{% extends "_base.html" %}
+
+{% block title %}语音转文字{% endblock %}
+
+{% block head %}
+<style>
+  .upload-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  }
+
+  .file-input {
+    border: 2px dashed #a5b4fc;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .file-input:hover {
+    border-color: #6366f1;
+  }
+
+  .upload-btn {
+    background: linear-gradient(45deg, #4f46e5, #7c3aed);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <div class="upload-container">
+    <h1 class="text-4xl font-bold mb-8 text-center text-indigo-200">语音转文字</h1>
+    <form id="uploadForm" enctype="multipart/form-data" class="space-y-6">
+      <div class="file-input">
+        <input type="file" id="fileInput" name="file" class="hidden" accept="audio/*">
+        <label for="fileInput" class="text-indigo-200 cursor-pointer">
+          点击或拖拽文件到这里上传
+        </label>
+      </div>
+      <div class="text-center">
+        <button type="submit" class="upload-btn">上传并转换</button>
+      </div>
+    </form>
+    <div id="result" class="mt-8 text-indigo-200"></div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('#uploadForm').on('submit', function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+
+    $.ajax({
+      url: '/upload',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(data) {
+        $('#result').html('转换结果: ' + data.text);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error('Error:', textStatus, errorThrown);
+        $('#result').text('上传失败');
+      }
+    });
+  });
+
+  $('#fileInput').on('change', function() {
+    var fileName = $(this).val().split('\\').pop();
+    $(this).next('label').text(fileName || '点击或拖拽文件到这里上传');
+  });
+});
+</script>
+{% endblock %}
