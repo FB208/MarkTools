@@ -30,6 +30,57 @@
   .slide-in {
     animation: slide-in 0.5s ease-out forwards, glow 1.5s alternate;
   }
+
+  .loader {
+    border-top-color: #6366F1; /* Indigo-500 */
+    border-right-color: #A78BFA; /* Purple-400 */
+    border-bottom-color: #C4B5FD; /* Purple-300 */
+    border-left-color: #E0E7FF; /* Indigo-100 */
+    animation: spin 1s linear infinite, pulse 1.5s infinite, color-rotate 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  @keyframes color-rotate {
+    0% {
+      border-top-color: #6366F1; /* Indigo-500 */
+      border-right-color: #A78BFA; /* Purple-400 */
+      border-bottom-color: #C4B5FD; /* Purple-300 */
+      border-left-color: #E0E7FF; /* Indigo-100 */
+    }
+    25% {
+      border-top-color: #A78BFA; /* Purple-400 */
+      border-right-color: #C4B5FD; /* Purple-300 */
+      border-bottom-color: #E0E7FF; /* Indigo-100 */
+      border-left-color: #6366F1; /* Indigo-500 */
+    }
+    50% {
+      border-top-color: #C4B5FD; /* Purple-300 */
+      border-right-color: #E0E7FF; /* Indigo-100 */
+      border-bottom-color: #6366F1; /* Indigo-500 */
+      border-left-color: #A78BFA; /* Purple-400 */
+    }
+    75% {
+      border-top-color: #E0E7FF; /* Indigo-100 */
+      border-right-color: #6366F1; /* Indigo-500 */
+      border-bottom-color: #A78BFA; /* Purple-400 */
+      border-left-color: #C4B5FD; /* Purple-300 */
+    }
+    100% {
+      border-top-color: #6366F1; /* Indigo-500 */
+      border-right-color: #A78BFA; /* Purple-400 */
+      border-bottom-color: #C4B5FD; /* Purple-300 */
+      border-left-color: #E0E7FF; /* Indigo-100 */
+    }
+  }
 </style>
 {% endblock %}
 
@@ -49,6 +100,9 @@
           <button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-none py-3 px-6 rounded-lg cursor-pointer transition-all duration-300 font-semibold tracking-wide uppercase hover:translate-y-[-2px] hover:shadow-lg">
             上传并转换
           </button>
+          <div id="loading" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+            <div class="loader ease-linear rounded-full border-8 border-t-8 border-indigo-500 h-16 w-16"></div>
+          </div>
         </div>
       </form>
     </div>
@@ -70,7 +124,8 @@
         return;
       }
       var formData = new FormData(this);
-  
+      $('#loading').removeClass('hidden');
+
       $.ajax({
         url: '/upload',
         type: 'POST',
@@ -78,10 +133,12 @@
         processData: false,
         contentType: false,
         success: function(data) {
+          $('#loading').addClass('hidden');
           $('#result-container').removeClass('hidden').addClass('flex slide-in');
           $('.result-text').html(data.message);
         },
         error: function(jqXHR, textStatus, errorThrown) {
+          $('#loading').addClass('hidden');
           console.error('Error:', textStatus, errorThrown);
           $('.result-text').text('上传失败');
         }
