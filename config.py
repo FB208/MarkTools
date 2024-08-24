@@ -4,6 +4,8 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_default_secret_key')
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'your_default_openai_api_key')
     OPENAI_BASE_URL = os.getenv('OPENAI_BASE_URL', 'https://api.deepseek.com/v1/')
+    DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', 'your_default_deepseek_api_key')
+    DEEPSEEK_BASE_URL = os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1/')
     GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'your_default_google_api_key')
     GOOGLE_CLOUD_PROJECT = os.getenv('GOOGLE_CLOUD_PROJECT', 'meta-buckeye-433400-c6')
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'google_credentials/meta-buckeye-433400-c6-109fbeae7021.json')

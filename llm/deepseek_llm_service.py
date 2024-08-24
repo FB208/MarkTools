@@ -4,8 +4,8 @@ from .llm_interface import LLMInterface
 
 class DeepSeekLLMService(LLMInterface):
     def get_client(self):
-        api_key = app.config['OPENAI_API_KEY']
-        base_url = app.config['OPENAI_BASE_URL']
+        api_key = app.config['DEEPSEEK_API_KEY']
+        base_url = app.config['DEEPSEEK_BASE_URL']
         client = OpenAI(
             base_url=base_url,
             api_key=api_key

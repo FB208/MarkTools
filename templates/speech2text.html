@@ -4,92 +4,113 @@
 
 {% block head %}
 <style>
-  .upload-container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
-  .file-input {
-    border: 2px dashed #a5b4fc;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 5px rgba(79, 70, 229, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(79, 70, 229, 0.8);
+    }
+    100% {
+      box-shadow: 0 0 5px rgba(79, 70, 229, 0.4);
+    }
   }
 
-  .file-input:hover {
-    border-color: #6366f1;
-  }
-
-  .upload-btn {
-    background: linear-gradient(45deg, #4f46e5, #7c3aed);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-
-  .upload-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+  .slide-in {
+    animation: slide-in 0.5s ease-out forwards, glow 1.5s alternate;
   }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="container mx-auto px-4 py-8">
-  <div class="upload-container">
-    <h1 class="text-4xl font-bold mb-8 text-center text-indigo-200">语音转文字</h1>
-    <form id="uploadForm" enctype="multipart/form-data" class="space-y-6">
-      <div class="file-input">
-        <input type="file" id="fileInput" name="file" class="hidden" accept="audio/*">
-        <label for="fileInput" class="text-indigo-200 cursor-pointer">
-          点击或拖拽文件到这里上传
-        </label>
-      </div>
-      <div class="text-center">
-        <button type="submit" class="upload-btn">上传并转换</button>
-      </div>
-    </form>
-    <div id="result" class="mt-8 text-indigo-200"></div>
+  <div class="flex flex-col items-center w-full max-w-4xl bg-white bg-opacity-5 backdrop-blur-md rounded-2xl p-8 shadow-lg">
+    <h1 class="text-4xl font-bold mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent shadow-lg">语音转文字</h1>
+    <div class="w-full bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-8 shadow-lg flex flex-col transition-all duration-500">
+      <form id="uploadForm" enctype="multipart/form-data" class="space-y-6">
+        <div class="border-2 border-dashed border-indigo-300 rounded-lg p-8 text-center cursor-pointer transition-all duration-300 hover:border-indigo-500">
+          <input type="file" id="fileInput" name="file" class="hidden" accept="audio/*">
+          <label for="fileInput" class="text-indigo-200 cursor-pointer">
+            点击或拖拽文件到这里上传
+          </label>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-none py-3 px-6 rounded-lg cursor-pointer transition-all duration-300 font-semibold tracking-wide uppercase hover:translate-y-[-2px] hover:shadow-lg">
+            上传并转换
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="w-full bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-8 shadow-lg flex flex-col mt-10 hidden" id="result-container">
+      <h2 class="text-2xl font-semibold mb-4 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">转换结果:</h2>
+      <div class="text-indigo-200 result-text"></div>
+    </div>
   </div>
+  <div id="toast-container" class="fixed top-4 right-4 space-y-4"></div>
 </div>
 
 <script>
-$(document).ready(function() {
-  $('#uploadForm').on('submit', function(e) {
-    e.preventDefault();
-    var formData = new FormData(this);
-
-    $.ajax({
-      url: '/upload',
-      type: 'POST',
-      data: formData,
-      processData: false,
-      contentType: false,
-      success: function(data) {
-        $('#result').html('转换结果: ' + data.text);
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.error('Error:', textStatus, errorThrown);
-        $('#result').text('上传失败');
+  $(document).ready(function() {
+    $('#uploadForm').on('submit', function(e) {
+      e.preventDefault();
+      if (!$('#fileInput').val()) {
+        showToast('bg-red-500','请选择文件');
+        return;
       }
+      var formData = new FormData(this);
+  
+      $.ajax({
+        url: '/upload',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+          $('#result-container').removeClass('hidden').addClass('flex slide-in');
+          $('.result-text').html(data.message);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.error('Error:', textStatus, errorThrown);
+          $('.result-text').text('上传失败');
+        }
+      });
     });
+  
+    $('#fileInput').on('change', function() {
+      var fileName = $(this).val().split('\\').pop();
+      $(this).next('label').text(fileName || '点击或拖拽文件到这里上传');
+    });
+  
+    $('#result-container').on('click', function() {
+      var resultText = $('.result-text').text();
+      navigator.clipboard.writeText(resultText).then(function() {
+        showToast('bg-green-500','已复制到剪切板');
+      }, function(err) {
+        console.error('复制失败', err);
+      });
+    });
+  
+    function showToast(bg_color,message) {
+      var toast = $('<div class="'+bg_color+' text-white p-4 rounded-lg shadow-lg">' + message + '</div>');
+      $('#toast-container').append(toast);
+      setTimeout(function() {
+        toast.fadeOut(400, function() {
+          $(this).remove();
+        });
+      }, 3000);
+    }
   });
-
-  $('#fileInput').on('change', function() {
-    var fileName = $(this).val().split('\\').pop();
-    $(this).next('label').text(fileName || '点击或拖拽文件到这里上传');
-  });
-});
 </script>
 {% endblock %}
