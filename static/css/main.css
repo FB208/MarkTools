@@ -77,3 +77,20 @@
     font-family: 'Inter', sans-serif;
   }
 
+  .home-icon {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #a5b4fc;
+    transition: all 0.3s ease;
+  }
+  
+  .home-icon:hover {
+    color: #4f46e5;
+    transform: scale(1.1);
+  }
+  
+  .home-icon svg {
+    width: 24px;
+    height: 24px;
+  }
