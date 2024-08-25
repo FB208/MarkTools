@@ -23,7 +23,7 @@ npx postcss static/css/main.css -o static/css/styles.css --watch
 # 普通启动
 flask --app app run
 # 调试模式
-flask --app run run --debug
+flask --app app run --debug
 
 # 单元测试
 ## 测试所有

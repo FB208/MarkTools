@@ -9,14 +9,19 @@ from utils.openai_whisper_util import transcribe_audio
 from llm.llm_factory import LLMFactory
 
 def get_text(file):
-    file_extension = os.path.splitext(secure_filename(file.filename))[1]
+    file_extension = os.path.splitext(file.filename)[1]
     temp_file_name = f"{uuid.uuid4()}{file_extension}"
     file_path = os.path.join('tempfiles', secure_filename(temp_file_name))
     file.save(file_path)
     # 确保文件句柄已关闭
     file.close()
-    text = transcribe_audio(file_path)
-    os.remove(file_path)
+    try:
+        text = transcribe_audio(file_path)
+    except Exception as e:
+        print(e)
+        text = ""
+    finally:
+        os.remove(file_path)
     
     # 优化识别结果
     system_prompt = """你是专业的音频转录专家，你的任务是检查收到的文本，修正其中的错误。

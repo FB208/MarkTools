@@ -6,7 +6,7 @@
   "scripts": {
     "install": "pip install -r requirements.txt",
     "watch:css": "npx postcss static/css/main.css -o static/css/styles.css --watch",
-    "dev": "flask --app run run --debug",
+    "dev": "flask --app app.py run --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "postcss static/css/main.css -o static/css/styles.css"
   },
