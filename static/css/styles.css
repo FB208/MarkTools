@@ -1118,7 +1118,6 @@ video {
     align-items: center;
     margin: 0 20px;
     width: 100%;
-    max-width: 600px;
   }
   
   .textarea {
