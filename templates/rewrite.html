@@ -7,8 +7,14 @@
     .content-wrapper {
         width: 100%;
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
         margin-left: -20px;
+    }
+
+    .left-panel, .right-panel {
+        width: 48%;
+        display: flex;
+        flex-direction: column;
     }
 
     .control-panel {
@@ -20,10 +26,10 @@
 
     .textarea-container {
         height: calc(100vh - 250px);
-        width: 98%;
+        width: 100%;
     }
 
-    #article-content {
+    #article-content, #rewrite-result {
         width: 100%;
         height: 100%;
         resize: none;
@@ -45,6 +51,13 @@
     #translate-checkbox {
         margin-right: 5px;
     }
+
+    .panel-title {
+        font-size: 1.2em;
+        color: #a5b4fc;
+        margin-bottom: 10px;
+        text-align: center;
+    }
 </style>
 {% endblock %}
 
@@ -57,44 +70,79 @@
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
         </svg>
     </a>
-    <div class="flex flex-col items-center w-full max-w-4xl bg-white bg-opacity-5 backdrop-blur-md rounded-2xl p-8 shadow-lg">
+    <div class="flex flex-col items-center w-full max-w-6xl bg-white bg-opacity-5 backdrop-blur-md rounded-2xl p-8 shadow-lg">
         <h1 class="text-4xl font-bold mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent shadow-lg">智能洗稿</h1>
         <div class="content-wrapper">
-            <div class="control-panel">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="translate-checkbox" class="form-checkbox h-5 w-5 text-indigo-600">
-                    <label for="translate-checkbox" class="ml-2 text-indigo-200">翻译</label>
+            <div class="left-panel">
+                <!-- <div class="panel-title">原文</div> -->
+                <div class="control-panel">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="translate-checkbox" class="form-checkbox h-5 w-5 text-indigo-600">
+                        <label for="translate-checkbox" class="ml-2 text-indigo-200">翻译</label>
+                    </div>
+                    <button id="rewrite-btn" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition duration-300">
+                        洗稿
+                    </button>
                 </div>
-                <button id="rewrite-btn" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition duration-300">
-                    洗稿
-                </button>
+                <div class="textarea-container">
+                    <textarea id="article-content" placeholder="请在此输入您的Markdown格式文章..."></textarea>
+                </div>
             </div>
-            <div class="textarea-container">
-                <textarea id="article-content" placeholder="请在此输入您的Markdown格式文章..."></textarea>
+            <div class="right-panel mt-4">
+                <div class="panel-title">洗稿结果</div>
+                <div class="textarea-container">
+                    <textarea id="rewrite-result" readonly></textarea>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // 保持原有的JavaScript代码不变
     $(document).ready(function () {
         $('#rewrite-btn').on('click', function () {
             var content = $('#article-content').val();
             var translate = $('#translate-checkbox').is(':checked');
+            var uuid = Utils.generateUUID();
 
             $.ajax({
-                url: '/rewrite',
+                url: '/do_rewrite',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({
-                    content: content,
-                    translate: translate
-                }),
-                success: function (response) {
-                    $('#article-content').val(response.rewritten_content);
+                data: JSON.stringify({ content: content, translate: translate, uuid: uuid }),
+                success: function(response) {
+                    if (response.success) {
+                        showToast('开始洗稿', 'success');
+                        const eventSource = new EventSource('/do_rewrite_stream?uuid=' + uuid);
+
+                        eventSource.onmessage = function(event) {
+                            const data = JSON.parse(event.data);
+                            console.log(data);
+                            switch (data.step) {
+                                case 'comment':
+                                    $('#rewrite-result').val(data.content + '\n' + $('#rewrite-result').val());
+                                    break;
+                                case 'factors':
+                                    $('#rewrite-result').val($('#rewrite-result').val() + '\n\n因子：\n' + data.content);
+                                    break;
+                                case 'summary':
+                                    $('#rewrite-result').val($('#rewrite-result').val() + '\n\n总结：\n' + data.content);
+                                    break;
+                            }
+                            if (data.step === 'complete') {
+                                eventSource.close();
+                            }
+                        };
+
+                        eventSource.onerror = function(error) {
+                            console.error('EventSource failed:', error);
+                            eventSource.close();
+                        };
+                    }
                 },
-                error: function (error) {
-                    console.error('Error:', error);
+                error: function(xhr, status, error) {
+                    console.error('AJAX request failed:', status, error);
                 }
             });
         });

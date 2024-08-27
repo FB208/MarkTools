@@ -116,11 +116,6 @@
   </div>
 </div>
 
-<!-- 提示组件 -->
-<div id="success-toast" class="fixed top-4 right-4 hidden bg-green-500 text-white px-4 py-2 rounded shadow-lg">
-  翻译成功！
-</div>
-
 <script>
   $(document).ready(function() {
     // 清空cookie
@@ -186,10 +181,11 @@
         }
         autoResize(document.getElementById('english'));
         autoResize(document.getElementById('chinese'));
-        showSuccessToast(); // 显示成功提示
+        showToast('翻译成功！', 'success'); // 使用新的showToast函数
       },
       error: function(error) {
         console.error('Error:', error);
+        showToast('翻译失败，请重试。', 'error'); // 添加错误提示
       }
     });
   }

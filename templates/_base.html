@@ -1,19 +1,59 @@
 <!DOCTYPE html>
 <html lang="zh-CN" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://qiniu.bigdudu.cn/icon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="https://qiniu.bigdudu.cn/icon.ico" type="image/x-icon">
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
     <title>MarkTools-{% block title %}MarkTools{% endblock %}</title>
     {% block head %}{% endblock %}
     <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-    <script>LA.init({id:"3JRmuSkfiYNbkd4t",ck:"3JRmuSkfiYNbkd4t"})</script>
+    <script>
+        LA.init({
+            id: "3JRmuSkfiYNbkd4t",
+            ck: "3JRmuSkfiYNbkd4t"
+        })
+    </script>
+    <script src="{{ url_for('static', filename='js/util.js') }}"></script>
 </head>
+
 <body class="bg-gray-100 flex justify-center items-center min-h-screen">
     {% block body %}{% endblock %}
+    <div id="toast" class="fixed top-4 right-4 hidden px-4 py-2 rounded shadow-lg"></div>
+    <script>
+        function showToast(text, type = 'none') {
+            const toast = document.getElementById('toast');
+            toast.textContent = text;
+            toast.classList.remove('hidden', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-blue-500');
+
+            switch (type) {
+                case 'success':
+                    toast.classList.add('bg-green-500', 'text-white');
+                    break;
+                case 'warning':
+                    toast.classList.add('bg-yellow-500', 'text-black');
+                    break;
+                case 'error':
+                    toast.classList.add('bg-red-500', 'text-white');
+                    break;
+                case 'info':
+                    toast.classList.add('bg-blue-500', 'text-white');
+                    break;
+                default:
+                    toast.classList.add('bg-gray-500', 'text-white');
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000); // 3秒后隐藏提示
+        }
+    </script>
 </body>
+
 </html>

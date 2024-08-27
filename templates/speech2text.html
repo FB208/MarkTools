@@ -118,7 +118,6 @@
       <div class="text-indigo-200 result-text"></div>
     </div>
   </div>
-  <div id="toast-container" class="fixed top-4 right-4 space-y-4"></div>
 </div>
 
 <script>
@@ -126,7 +125,7 @@
     $('#uploadForm').on('submit', function(e) {
       e.preventDefault();
       if (!$('#fileInput').val()) {
-        showToast('bg-red-500','请选择文件');
+        showToast('请选择文件', 'warning');
         return;
       }
       var formData = new FormData(this);
@@ -159,21 +158,12 @@
     $('#result-container').on('click', function() {
       var resultText = $('.result-text').text();
       navigator.clipboard.writeText(resultText).then(function() {
-        showToast('bg-green-500','已复制到剪切板');
+        showToast('已复制到剪切板', 'success');
       }, function(err) {
         console.error('复制失败', err);
       });
     });
-  
-    function showToast(bg_color,message) {
-      var toast = $('<div class="'+bg_color+' text-white p-4 rounded-lg shadow-lg">' + message + '</div>');
-      $('#toast-container').append(toast);
-      setTimeout(function() {
-        toast.fadeOut(400, function() {
-          $(this).remove();
-        });
-      }, 3000);
-    }
+
   });
 </script>
 {% endblock %}
