@@ -1,0 +1,90 @@
+{% extends "_base.html" %}
+
+{% block title %}智能洗稿{% endblock %}
+
+{% block head %}
+<style>
+    .textarea-container {
+        width: 100%;
+        height: calc(100vh - 200px);
+        margin-top: 20px;
+    }
+    #article-content {
+        width: 100%;
+        height: 100%;
+        resize: none;
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #e3e3e3;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    .control-panel {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 20px;
+    }
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+    }
+    #translate-checkbox {
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <a href="{{ url_for('main.home') }}" class="home-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+    </a>
+    <div class="flex flex-col items-center w-full max-w-4xl bg-white bg-opacity-5 backdrop-blur-md rounded-2xl p-8 shadow-lg">
+        <h1 class="text-4xl font-bold mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent shadow-lg">智能洗稿</h1>
+        <div class="control-panel">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="translate-checkbox" class="form-checkbox h-5 w-5 text-indigo-600">
+                <label for="translate-checkbox" class="ml-2 text-indigo-200">翻译</label>
+            </div>
+            <button id="rewrite-btn" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition duration-300">
+                洗稿
+            </button>
+        </div>
+        <div class="textarea-container">
+            <textarea id="article-content" placeholder="请在此输入您的Markdown格式文章..."></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#rewrite-btn').on('click', function() {
+            var content = $('#article-content').val();
+            var translate = $('#translate-checkbox').is(':checked');
+            
+            $.ajax({
+                url: '/rewrite',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    content: content,
+                    translate: translate
+                }),
+                success: function(response) {
+                    $('#article-content').val(response.rewritten_content);
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
