@@ -58,6 +58,14 @@
         margin-bottom: 10px;
         text-align: center;
     }
+    #rewrite-result-comment {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    #rewrite-result-hook {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
 </style>
 {% endblock %}
 
@@ -90,8 +98,17 @@
             </div>
             <div class="right-panel mt-4">
                 <div class="panel-title">洗稿结果</div>
-                <div class="textarea-container">
+                <!-- <div class="textarea-container">
                     <textarea id="rewrite-result" readonly></textarea>
+                </div> -->
+                <div class="textarea-container">
+                    <div id="rewrite-result">
+                        <div id="rewrite-result-title"></div>
+                        <div id="rewrite-result-hook"></div>
+                        <div id="rewrite-result-abstract"></div>
+                        <div id="rewrite-result-content"></div>
+                        <div id="rewrite-result-comment"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -99,6 +116,20 @@
 </div>
 
 <script>
+    function typewriterEffect($element, text, speed = 50) {
+        let i = 0;
+        $element.html('').css('white-space', 'pre-wrap');
+        
+        function typeWriter() {
+            if (i < text.length) {
+                $element.html($element.html() + text.charAt(i));
+                i++;
+                setTimeout(typeWriter, speed);
+            }
+        }
+        
+        typeWriter();
+    }
     // 保持原有的JavaScript代码不变
     $(document).ready(function () {
         $('#rewrite-btn').on('click', function () {
@@ -113,21 +144,27 @@
                 data: JSON.stringify({ content: content, translate: translate, uuid: uuid }),
                 success: function(response) {
                     if (response.success) {
-                        showToast('开始洗稿', 'success');
+                        //showToast('开始洗稿', 'success');
                         const eventSource = new EventSource('/do_rewrite_stream?uuid=' + uuid);
 
                         eventSource.onmessage = function(event) {
                             const data = JSON.parse(event.data);
                             console.log(data);
                             switch (data.step) {
+                                case 'hook':
+                                    typewriterEffect($('#rewrite-result-hook'), data.content);
+                                    break;
                                 case 'comment':
-                                    $('#rewrite-result').val(data.content + '\n' + $('#rewrite-result').val());
+                                    data.content = "# Mark说：\n" + data.content;
+                                    typewriterEffect($('#rewrite-result-comment'), data.content);
                                     break;
                                 case 'factors':
                                     $('#rewrite-result').val($('#rewrite-result').val() + '\n\n因子：\n' + data.content);
                                     break;
                                 case 'summary':
                                     $('#rewrite-result').val($('#rewrite-result').val() + '\n\n总结：\n' + data.content);
+                                case 'show_toast':
+                                    showToast(data.content, 'success');
                                     break;
                             }
                             if (data.step === 'complete') {

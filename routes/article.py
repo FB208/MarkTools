@@ -3,7 +3,7 @@ from flask import render_template, request, jsonify, Response, session
 import json
 import time
 from . import article_bp
-from services.article_service import comment
+from services.article_service import comment, hook,simulate_human
 
 @article_bp.route('/rewrite', methods=['GET'])
 def rewrite():
@@ -34,12 +34,18 @@ def do_rewrite_stream():
     ctx = app.app_context()
     @copy_current_request_context
     def generate():
+        yield "data: " + json.dumps({"step": "show_toast", "content": "正在生成锐评"}) + "\n\n"
         with ctx:
             # 步骤1：点评
             comment_content = comment(content)
-            yield "data: " + json.dumps({"step": "comment", "content": comment_content}) + "\n\n"
+            # comment_content = simulate_human(comment_content)
+        yield "data: " + json.dumps({"step": "comment", "content": comment_content}) + "\n\n"
+        yield "data: " + json.dumps({"step": "show_toast", "content": "正在生成钩子"}) + "\n\n"
         time.sleep(1)  # 模拟处理时间
-
+        with ctx:
+            # 步骤2：钩子
+            hook_content = "" #hook(content)
+            yield "data: " + json.dumps({"step": "hook", "content": hook_content}) + "\n\n"
         # 步骤2：写文章因子
         yield "data: " + json.dumps({"step": "factors", "content": "文章因子..."}) + "\n\n"
         time.sleep(1)  # 模拟处理时间
