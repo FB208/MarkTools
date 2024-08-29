@@ -28,8 +28,14 @@
         height: calc(100vh - 250px);
         width: 100%;
     }
+    .result-container {
+        height: calc(100vh - 250px);
+        width: 100%;
+
+    }
 
     #article-content, #rewrite-result {
+        overflow-y: auto; /* 添加垂直滚动条 */
         width: 100%;
         height: 100%;
         resize: none;
@@ -40,6 +46,7 @@
         padding: 15px;
         font-size: 16px;
         line-height: 1.6;
+        
     }
 
     .checkbox-wrapper {
@@ -86,7 +93,7 @@
                 <div class="control-panel">
                     <div class="checkbox-wrapper">
                         <input type="checkbox" id="translate-checkbox" class="form-checkbox h-5 w-5 text-indigo-600">
-                        <label for="translate-checkbox" class="ml-2 text-indigo-200">翻译</label>
+                        <label for="translate-checkbox" class="text-indigo-200 mb-0">专家翻译</label>
                     </div>
                     <button id="rewrite-btn" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition duration-300">
                         洗稿
@@ -96,17 +103,18 @@
                     <textarea id="article-content" placeholder="请在此输入您的Markdown格式文章..."></textarea>
                 </div>
             </div>
-            <div class="right-panel mt-4">
-                <div class="panel-title">洗稿结果</div>
-                <!-- <div class="textarea-container">
-                    <textarea id="rewrite-result" readonly></textarea>
-                </div> -->
-                <div class="textarea-container">
+            <div class="right-panel">
+                <div class="control-panel">
+                    <button id="copy-btn" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition duration-300">
+                        复制
+                    </button>
+                </div>
+                <div class="result-container">
                     <div id="rewrite-result">
                         <div id="rewrite-result-title"></div>
                         <div id="rewrite-result-hook"></div>
-                        <div id="rewrite-result-abstract"></div>
-                        <div id="rewrite-result-content"></div>
+                        <div id="rewrite-result-translate"></div>
+                        <div id="rewrite-result-body"></div>
                         <div id="rewrite-result-comment"></div>
                     </div>
                 </div>
@@ -116,7 +124,7 @@
 </div>
 
 <script>
-    function typewriterEffect($element, text, speed = 50) {
+    function typewriterEffect($element, text, speed = 10) {
         let i = 0;
         $element.html('').css('white-space', 'pre-wrap');
         
@@ -133,6 +141,10 @@
     // 保持原有的JavaScript代码不变
     $(document).ready(function () {
         $('#rewrite-btn').on('click', function () {
+            // 清空所有结果区域
+            $('#rewrite-result-hook, #rewrite-result-comment, #rewrite-result-body, #rewrite-result-title').html('');
+            $('#rewrite-result-translate').removeClass('hidden');
+
             var content = $('#article-content').val();
             var translate = $('#translate-checkbox').is(':checked');
             var uuid = Utils.generateUUID();
@@ -152,18 +164,28 @@
                             console.log(data);
                             switch (data.step) {
                                 case 'hook':
+                                    data.content = "# 要点速览：  \n" + data.content;
                                     typewriterEffect($('#rewrite-result-hook'), data.content);
                                     break;
                                 case 'comment':
-                                    data.content = "# Mark说：\n" + data.content;
+                                    data.content = "# Mark说：  \n" + data.content;
                                     typewriterEffect($('#rewrite-result-comment'), data.content);
                                     break;
-                                case 'factors':
-                                    $('#rewrite-result').val($('#rewrite-result').val() + '\n\n因子：\n' + data.content);
+                                case 'translate':
+                                    data.content = "# 翻译：  \n" + data.content;
+                                    typewriterEffect($('#rewrite-result-translate'), data.content);
                                     break;
-                                case 'summary':
-                                    $('#rewrite-result').val($('#rewrite-result').val() + '\n\n总结：\n' + data.content);
+                                case 'body':
+                                    data.content = "# 正文：  \n" + data.content;
+                                    $('#rewrite-result-translate').addClass('hidden');
+                                    typewriterEffect($('#rewrite-result-body'), data.content);
+                                    break;
+                                case 'title':
+                                    data.content = "# 建议标题：  \n" + data.content;
+                                    typewriterEffect($('#rewrite-result-title'), data.content);
+                                    break;
                                 case 'show_toast':
+                                case 'complete':
                                     showToast(data.content, 'success');
                                     break;
                             }
@@ -182,6 +204,28 @@
                     console.error('AJAX request failed:', status, error);
                 }
             });
+        });
+        // 添加复制按钮的点击事件处理
+        $('#copy-btn').on('click', function () {
+            // 获取rewrite-result元素中所有子div的文本,排除rewrite-result-translate,并去除前后空格
+            var resultText = $('#rewrite-result').children('div').not('#rewrite-result-translate').map(function() {
+                return $(this).text().trim();
+            }).get().join('\n\n');  // 使用两个换行符分隔每个div的内容
+            
+            // 创建一个临时的textarea元素
+            var tempTextArea = $('<textarea>');
+            tempTextArea.val(resultText);
+            $('body').append(tempTextArea);
+            
+            // 选中并复制文本
+            tempTextArea.select();
+            document.execCommand('copy');
+            
+            // 移除临时的textarea元素
+            tempTextArea.remove();
+            
+            // 显示复制成功的提示
+            showToast('复制成功', 'success');
         });
     });
 </script>

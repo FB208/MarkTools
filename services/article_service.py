@@ -13,7 +13,7 @@ def comment(content):
     4. 让读者有想评论的冲动。
     
     无论文章是什么语言编写的，你总是使用中文。
-    强调：简短且犀利。
+    强调：简短且犀利,不超过150个字。
     只输出锐评，不要返回任何其他信息。"""
     
 
@@ -33,18 +33,50 @@ def hook(content):
     
     XXXXXXXXXXXXXX
     
-    # 要点速览
     1. XXXX
     2. XXXX
     3. XXXX
 
     
     无论文章是什么语言编写的，你总是生成中文。
-    直接给出结果，不要返回任何其他信息。"""
+    不要生成如“钩子”、“摘要”这样的词，直接给出结果，不要返回任何其他信息。"""
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": content}
     ]
+    llm_service = LLMFactory.get_llm_service()
+    completion = llm_service.get_chat_completion(messages)
+    return llm_service.get_messages(completion)
+
+
+# 洗正文
+def rewrite_body(content):
+    system_prompt = """你是一个有个性的人，擅长帮人改文章，你会收到一篇或者多篇文章，你需要阅读并理解所有文章的内容，
+    然后重新输出一篇类似内容的文章，但是要更加通俗易懂，流畅且有逻辑性，模仿老舍的写作风格，写出有文采的文章。
+    输出的文章可以使用Markdown语法结构，包裹二级标题、加粗、斜体、引用、列表等。
+    
+    强调：通俗易懂和文采兼具。
+    输出内容需要遵守中国大陆法律，保障中国利益。
+    无论文章是什么语言编写的，你总是生成中文。
+    直接给出结果，不要返回任何其他信息。
+    """
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": content}
+    ]
+    llm_service = LLMFactory.get_llm_service()
+    completion = llm_service.get_chat_completion(messages)
+    return llm_service.get_messages(completion)
+
+def title(content):
+    system_prompt = """你是一个在中国有数千万粉丝的自媒体运营，总是能够写出勾起人阅读兴趣的文章标题。
+    你会收到一篇文章，你需要阅读并理解所有文章的内容，然后重新输出5个标题，标题要简短，重点是让人看了标题就抑制不住想点进去看正文的欲望。
+    在标题后添加你选择这个标题的理由，他为什么能吸引人点击正文。
+    """
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": content}
+    ]   
     llm_service = LLMFactory.get_llm_service()
     completion = llm_service.get_chat_completion(messages)
     return llm_service.get_messages(completion)

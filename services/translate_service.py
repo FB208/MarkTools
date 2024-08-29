@@ -115,3 +115,88 @@ def extract_content(old_text, new_text):
     return llm_service.get_messages(completion)
 
 
+def expert_translate(text):
+    # 初始翻译
+    def initial_translation(text):
+        system_message = f"你是语言专家，擅长将英文翻译为中文"
+        user_prompt = f"""下面三重引号(''')中的文本是英文，你需要将它翻译为中文。
+        原文如果是Markdown格式，翻译结果不要破坏原文的格式，原文中的代码不用翻译，直接输出。
+        除了翻译结果之外，不要提供任何解释或文本。
+        英文如下:'''{text}'''
+        """
+        messages = [
+            {"role": "system", "content": f"{system_message}"},
+            {"role": "user", "content": f"{user_prompt}"}
+        ]
+        llm_service = LLMFactory.get_llm_service()
+        completion = llm_service.get_chat_completion(messages)
+        return llm_service.get_messages(completion)
+    # 反思翻译  
+    def reflect_on_translation(source_text, translation_text):
+        system_message = f"""你是语言专家，擅长将英文翻译为中文。
+        你将获得源文本及其翻译，您的目标是改进翻译。"""
+        user_prompt = f"""
+        你的任务是仔细阅读一篇源文本和一篇从英文到中文的译文，然后给出建设性的批评和有用的建议来改进译文。
+        译文的最终风格和语气应该和中文口语的风格相匹配。
+        
+        由XML标记<SOURCE_TEXT></SOURCE_TEXT>和<TRANSLATION></TRANSLATION>分隔的源文本和初始翻译如下：
+
+        <SOURCE_TEXT>
+        {source_text}
+        </SOURCE_TEXT>
+
+        <TRANSLATION>
+        {translation_text}
+        </TRANSLATION>
+
+        写建议时，注意是否有办法根据以下几点提高译文质量 
+        1. 准确性(是否有添加、误译、遗漏或未翻译文本的错误),
+        2. 流畅(应用中文语法、拼写和标点规则，并避免不必要的重复,
+        3. 风格(翻译应反映源文本的风格并考虑文化背景),
+        4. 术语(通过确保术语使用一致并反映源文本域；并确保使用中文的等效成语)。
+
+        写一份具体的、有用的和建设性的建议清单，以改进翻译。
+        """
+        messages = [
+            {"role": "system", "content": f"{system_message}"},
+            {"role": "user", "content": f"{user_prompt}"}
+        ]
+        llm_service = LLMFactory.get_llm_service()
+        completion = llm_service.get_chat_completion(messages)
+        return llm_service.get_messages(completion)
+      
+    # 最终翻译
+    def improve_translation(source_text, translation_text, reflection):
+        system_message = f"你是语言专家，从事中文到英文的翻译和编辑工作。"
+
+        user_prompt = f"""你的任务是仔细阅读源文本、初始翻译和语言学专家家建议，充分考虑语言学专家家建议，然后重新编辑初始翻译，输出最终翻译。
+                源文本、初始翻译和语言学专家家建议由XML标记<SOURCE_TEXT></SOURCE_TEXT>、<TRANSLATION></TRANSLATION>和<EXPERT_SUGGESTIONS></EXPERT_SUGGESTIONS>分隔，内容如下：
+
+                <SOURCE_TEXT>
+                {source_text}
+                </SOURCE_TEXT>
+
+                <TRANSLATION>
+                {translation_text}
+                </TRANSLATION>
+
+                <EXPERT_SUGGESTIONS>
+                {reflection}
+                </EXPERT_SUGGESTIONS>
+
+                只输出新翻译，没有其他内容。"""
+        messages = [
+            {"role": "system", "content": f"{system_message}"},
+            {"role": "user", "content": f"{user_prompt}"}
+        ]
+        llm_service = LLMFactory.get_llm_service()
+        completion = llm_service.get_chat_completion(messages)
+        return llm_service.get_messages(completion)
+    
+    translate_text = initial_translation(text)
+    print(translate_text)
+    reflection = reflect_on_translation(text,translate_text)
+    print(reflection)
+    result = improve_translation(text,translate_text,reflection)
+    print(result)
+    return result

@@ -1,9 +1,12 @@
 import pytest
-from services.translate_service import extract_content,translate_text
-from run import create_app
+from services.translate_service import extract_content,translate_text,expert_translate
+from app import create_app
+from test_config import TestConfig
 
-# 创建Flask应用
 app = create_app()
+app.config.from_object(TestConfig)
+
+
 
 # 测试相同文本的情况
 # def test_extract_content_same_text():
@@ -53,5 +56,24 @@ def test_translate_text():
         english_old = "chinese painting,simple lines drawing,Majestic white mouse,gold light effect,Glowing eyes ,an ethereal illustration style,delicate brushstrokes, exquisite details,free-flowing lines illustrations"
         direction = "zh_to_en"
         result = translate_text(chinese_text, english_text, chinese_old, english_old, direction)
+        print(result)
+        assert False
+
+# pytest tests/translate_test.py::test_expert_translate
+def test_expert_translate():
+    with app.app_context():
+        text = """
+Google announced Wednesday that it is adding its latest image generator — Imagen 3 — to Gemini and the company will resume the creation of images that include people.
+
+**Why it matters:** Google paused the depiction of people earlier this year after it was creating diverse, but historically inaccurate images, such as Black founding fathers.
+
+**Driving the news:** In a blog post, Google said the more powerful image generator will be coming to Gemini over the coming days.
+
+- Google is also gradually bringing back the ability to create images with people, albeit with new safety measures.
+- Among other limitations, Google says it won't generate photorealistic images of people, won't create images that include either kids or identifiable people and will also aim to prevent depictions of "excessively gory, violent or sexual scenes."
+- For now, Google is limiting such images to English prompts and to Gemini Advanced, Business and Enterprise users.
+- Google is also adding support for the "Gems" feature that lets people create domain-specific versions of Gemini. Previewed at Google I/O, Gems are now available in 150 languages for that same group of paid users.
+"""
+        result = expert_translate(text)
         print(result)
         assert False
