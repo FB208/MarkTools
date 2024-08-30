@@ -78,6 +78,12 @@
         height: 20px;
         margin-left: 10px;
     }
+
+    .word-count {
+        text-align: right;
+        font-size: 14px;
+        color: #a5b4fc;
+      
 </style>
 {% endblock %}
 
@@ -120,6 +126,7 @@
                 <div class="textarea-container">
                     <textarea id="article-content" placeholder="请在此输入您的Markdown格式文章..."></textarea>
                 </div>
+                <div id="left-word-count" class="word-count">0 字</div>
             </div>
             <div class="right-panel">
                 <div class="control-panel">
@@ -136,6 +143,7 @@
                         <div id="rewrite-result-comment"></div>
                     </div>
                 </div>
+                <div id="right-word-count" class="word-count">0 字</div>
             </div>
         </div>
     </div>
@@ -156,9 +164,23 @@
         }
         
         typeWriter();
+        wordCount = getResultText().length;
+        $('#right-word-count').text(wordCount+' 字');
+    }
+    function getResultText(){
+        // 获取rewrite-result元素中所有子div的文本,排除rewrite-result-translate,并去除前后空格
+        var resultText = $('#rewrite-result').children('div').not('#rewrite-result-translate').map(function() {
+            return $(this).text().trim();
+        }).get().join('\n\n');  // 使用两个换行符分隔每个div的内容
+        return resultText;
     }
     // 保持原有的JavaScript代码不变
     $(document).ready(function () {
+        // 添加左侧字数统计功能
+        $('#article-content').on('input', function() {
+            var wordCount = $(this).val().length;
+            $('#left-word-count').text(wordCount+' 字');
+        });
         $('#rewrite-btn').on('click', function () {
             // 清空所有结果区域
             $('#rewrite-result-hook, #rewrite-result-comment, #rewrite-result-body, #rewrite-result-title').html('');
@@ -227,10 +249,7 @@
         });
         // 添加复制按钮的点击事件处理
         $('#copy-btn').on('click', function () {
-            // 获取rewrite-result元素中所有子div的文本,排除rewrite-result-translate,并去除前后空格
-            var resultText = $('#rewrite-result').children('div').not('#rewrite-result-translate').map(function() {
-                return $(this).text().trim();
-            }).get().join('\n\n');  // 使用两个换行符分隔每个div的内容
+            resultText=getResultText();
             
             // 创建一个临时的textarea元素
             var tempTextArea = $('<textarea>');
