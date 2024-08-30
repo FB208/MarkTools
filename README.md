@@ -54,7 +54,7 @@ docker run -p 5000:5000 \
     my_flask_app
 
 # docker-compose启动
-
+见docker-compose-template.yml
 ```
 
 # 关于google cloud

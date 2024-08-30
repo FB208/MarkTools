@@ -3,6 +3,7 @@
 {% block title %}智能洗稿{% endblock %}
 
 {% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
 <style>
     .content-wrapper {
         width: 100%;
@@ -49,16 +50,6 @@
         
     }
 
-    .checkbox-wrapper {
-        display: flex;
-        align-items: center;
-        margin-right: 20px;
-    }
-
-    #translate-checkbox {
-        margin-right: 5px;
-    }
-
     .panel-title {
         font-size: 1.2em;
         color: #a5b4fc;
@@ -73,6 +64,20 @@
         white-space: pre-wrap;
         word-wrap: break-word;
     }
+
+
+    .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    #lottie-container {
+        width: 20px;
+        height: 20px;
+        margin-left: 10px;
+    }
 </style>
 {% endblock %}
 
@@ -86,14 +91,27 @@
         </svg>
     </a>
     <div class="flex flex-col items-center w-full max-w-6xl bg-white bg-opacity-5 backdrop-blur-md rounded-2xl p-8 shadow-lg">
-        <h1 class="text-4xl font-bold mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent shadow-lg">智能洗稿</h1>
+        <div class="title-container">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent shadow-lg">智能洗稿</h1>
+            <div id="lottie-container"></div>
+        </div>
         <div class="content-wrapper">
             <div class="left-panel">
                 <!-- <div class="panel-title">原文</div> -->
                 <div class="control-panel">
                     <div class="checkbox-wrapper">
-                        <input type="checkbox" id="translate-checkbox" class="form-checkbox h-5 w-5 text-indigo-600">
-                        <label for="translate-checkbox" class="text-indigo-200 mb-0">专家翻译</label>
+                        <label class="custom-checkbox">
+                            专家翻译
+                            <input type="checkbox" id="translate-checkbox">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="checkbox-wrapper">
+                        <label class="custom-checkbox">
+                            文案大师
+                            <input type="checkbox" id="master-checkbox">
+                            <span class="checkmark"></span>
+                        </label>
                     </div>
                     <button id="rewrite-btn" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition duration-300">
                         洗稿
@@ -123,6 +141,7 @@
     </div>
 </div>
 
+
 <script>
     function typewriterEffect($element, text, speed = 10) {
         let i = 0;
@@ -147,13 +166,14 @@
 
             var content = $('#article-content').val();
             var translate = $('#translate-checkbox').is(':checked');
+            var master = $('#master-checkbox').is(':checked');
             var uuid = Utils.generateUUID();
 
             $.ajax({
                 url: '/do_rewrite',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ content: content, translate: translate, uuid: uuid }),
+                data: JSON.stringify({ content: content, translate: translate, uuid: uuid, master: master }),
                 success: function(response) {
                     if (response.success) {
                         //showToast('开始洗稿', 'success');
@@ -227,6 +247,18 @@
             // 显示复制成功的提示
             showToast('复制成功', 'success');
         });
+        // 添加Lottie动画
+        var animation = lottie.loadAnimation({
+            container: document.getElementById('lottie-container'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://123.markup.com.cn/ibed/202408301635416.json'
+        });
+        $('#lottie-container').on('click', function() {
+            showModal('智能洗稿说明', '【推荐用法】扒国外的新闻，或者从国内找2-3篇同主题不同内容的文章，直接点击“洗稿” <br/> 【专家翻译】会先将原文翻译成中文，然后再洗 <br/>【文案大师】原文只有一篇中文文章，推荐使用文案大师');
+        });
     });
+
 </script>
 {% endblock %}

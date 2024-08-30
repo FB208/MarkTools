@@ -3,7 +3,7 @@ from flask import render_template, request, jsonify, Response, session
 import json
 import time
 from . import article_bp
-from services.article_service import comment, hook,simulate_human,rewrite_body,title
+from services.article_service import comment, hook,simulate_human,rewrite_body,title,rewrite_body_master
 from services.translate_service import expert_translate
 from utils.md_util import remove_markdown_links
 @article_bp.route('/rewrite', methods=['GET'])
@@ -31,7 +31,7 @@ def do_rewrite_stream():
     data = session.get(uuid)
     content = data.get('content', '')
     translate = data.get('translate', False)
-    
+    master = data.get('master', False)
     
     # 处理markdown链接
     content = remove_markdown_links(content)
@@ -68,7 +68,10 @@ def do_rewrite_stream():
         rewrite_content = ""
         yield "data: " + json.dumps({"step": "show_toast", "content": "正在优化文案"}) + "\n\n"
         with ctx:
-            rewrite_content = rewrite_body(translate_content)
+            if master:
+                rewrite_content = rewrite_body_master(translate_content)
+            else:
+                rewrite_content = rewrite_body(translate_content)
         yield "data: " + json.dumps({"step": "body", "content": rewrite_content}) + "\n\n"
 
 
