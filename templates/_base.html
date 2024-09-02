@@ -24,7 +24,18 @@
 
 <body class="bg-gray-100 flex justify-center items-center min-h-screen">
     {% block body %}{% endblock %}
+
+    <!-- 右上角提示 -->
     <div id="toast" class="fixed top-4 right-4 hidden px-4 py-2 rounded shadow-lg"></div>
+
+    <!-- 中间说明框 -->
+    <div id="customModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p id="modalContent"></p>
+        </div>
+    </div>
     <script>
         function showToast(text, type = 'none') {
             const toast = document.getElementById('toast');
@@ -51,9 +62,28 @@
             toast.classList.remove('hidden');
             setTimeout(() => {
                 toast.classList.add('hidden');
-            }, 3000); // 3秒后隐藏提示
+            }, 5000); // 3秒后隐藏提示
         }
+
+        function showModal(title, content) {
+            $('#modalTitle').text(title);
+            $('#modalContent').html(content);
+            $('#customModal').css('display', 'block');
+        }
+
+        $(document).ready(function () {
+            $('.close').on('click', function () {
+                $('#customModal').css('display', 'none');
+            });
+
+            $(window).on('click', function (event) {
+                if (event.target == $('#customModal')[0]) {
+                    $('#customModal').css('display', 'none');
+                }
+            });
+        });
     </script>
+    {% block extra_scripts %}{% endblock %}
 </body>
 
 </html>

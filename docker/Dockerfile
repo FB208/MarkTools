@@ -21,4 +21,5 @@ ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5000
 
 # 启动Flask应用
-CMD ["flask", "run"]
+# CMD ["flask", "run"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "3000", "--workers", "3", "--threads", "3", "app:app"]

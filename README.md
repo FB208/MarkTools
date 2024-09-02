@@ -41,10 +41,10 @@ pytest tests/translate_test.py::test_translate_text
 docker login
 
 # 打包镜像
-docker build -f docker/Dockerfile -t fb208/marktools:0.2.1 .
+docker build -f docker/Dockerfile -t fb208/marktools:0.3.4 .
 
 # 推送镜像到Docker Hub
-docker push fb208/marktools:0.2.1
+docker push fb208/marktools:0.3.4
 
 # 运行docker镜像
 docker run -p 5000:5000 \
@@ -54,7 +54,7 @@ docker run -p 5000:5000 \
     my_flask_app
 
 # docker-compose启动
-
+见docker-compose-template.yml
 ```
 
 # 关于google cloud

@@ -3,8 +3,9 @@ from flask import render_template, request, jsonify, Response, session
 import json
 import time
 from . import article_bp
-from services.article_service import comment, hook,simulate_human
-
+from services.article_service import comment, hook,simulate_human,rewrite_body,title,rewrite_body_master
+from services.translate_service import expert_translate
+from utils.md_util import remove_markdown_links
 @article_bp.route('/rewrite', methods=['GET'])
 def rewrite():
     return render_template('rewrite.html')
@@ -30,32 +31,60 @@ def do_rewrite_stream():
     data = session.get(uuid)
     content = data.get('content', '')
     translate = data.get('translate', False)
+    master = data.get('master', False)
+    
+    # 处理markdown链接
+    content = remove_markdown_links(content)
     
     ctx = app.app_context()
     @copy_current_request_context
     def generate():
+        # 步骤1：点评
         yield "data: " + json.dumps({"step": "show_toast", "content": "正在生成锐评"}) + "\n\n"
         with ctx:
-            # 步骤1：点评
             comment_content = comment(content)
             # comment_content = simulate_human(comment_content)
         yield "data: " + json.dumps({"step": "comment", "content": comment_content}) + "\n\n"
+        
+        
+        # 步骤2：钩子
+        hook_content=""
         yield "data: " + json.dumps({"step": "show_toast", "content": "正在生成钩子"}) + "\n\n"
-        time.sleep(1)  # 模拟处理时间
         with ctx:
-            # 步骤2：钩子
-            hook_content = "" #hook(content)
+            hook_content = hook(content)
             yield "data: " + json.dumps({"step": "hook", "content": hook_content}) + "\n\n"
-        # 步骤2：写文章因子
-        yield "data: " + json.dumps({"step": "factors", "content": "文章因子..."}) + "\n\n"
-        time.sleep(1)  # 模拟处理时间
+        
+        
+        # 步骤3：翻译
+        translate_content = content
+        if translate:
+            yield "data: " + json.dumps({"step": "show_toast", "content": "正在翻译，专家翻译超慢哦~"}) + "\n\n"
+            with ctx:
+                translate_content = expert_translate(content)
+                yield "data: " + json.dumps({"step": "translate", "content": translate_content}) + "\n\n"
 
-        # 步骤3：总结点评
-        yield "data: " + json.dumps({"step": "summary", "content": "总结点评..."}) + "\n\n"
-        time.sleep(1)  # 模拟处理时间
 
+        # 步骤4：洗稿
+        rewrite_content = ""
+        yield "data: " + json.dumps({"step": "show_toast", "content": "正在优化文案"}) + "\n\n"
+        with ctx:
+            if master:
+                rewrite_content = rewrite_body_master(translate_content)
+            else:
+                rewrite_content = rewrite_body(translate_content)
+        yield "data: " + json.dumps({"step": "body", "content": rewrite_content}) + "\n\n"
+
+
+        # 步骤5：优选标题
+        title_temp_content = rewrite_content+"\\n"+hook_content
+        title_content=""
+        yield "data: " + json.dumps({"step": "show_toast", "content": "正在优选标题"}) + "\n\n"
+        with ctx:
+            title_content = title(title_temp_content)
+        yield "data: " + json.dumps({"step": "title", "content": title_content}) + "\n\n"
+        
         # 结束
-        yield "data: " + json.dumps({"step": "complete", "content": "洗稿完成"}) + "\n\n"
+        yield "data: " + json.dumps({"step": "complete", "content": "洗完洗完"}) + "\n\n"
 
     # 删除这个uuid的session
     del session[uuid]
