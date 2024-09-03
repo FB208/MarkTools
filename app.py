@@ -3,9 +3,13 @@ import sys
 from flask import Flask
 from flask_cors import CORS
 from flask_session import Session
+from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+
+# 强制重新加载 .env 文件
+load_dotenv(override=True)
 
 def create_app():
     app = Flask(__name__)

@@ -214,24 +214,24 @@
                             console.log(data);
                             switch (data.step) {
                                 case 'hook':
-                                    data.content = "# 要点速览：  \n" + data.content;
+                                    data.content = "# 要点速览  \n" + data.content;
                                     typewriterEffect($('#rewrite-result-hook'), data.content);
                                     break;
                                 case 'comment':
-                                    data.content = "# Mark说：  \n" + data.content;
+                                    data.content = "# Mark说  \n" + data.content;
                                     typewriterEffect($('#rewrite-result-comment'), data.content);
                                     break;
                                 case 'translate':
-                                    data.content = "# 翻译：  \n" + data.content;
+                                    data.content = "# 翻译  \n" + data.content;
                                     typewriterEffect($('#rewrite-result-translate'), data.content);
                                     break;
                                 case 'body':
-                                    data.content = "# 正文：  \n" + data.content;
+                                    data.content = "# 正文  \n" + data.content;
                                     $('#rewrite-result-translate').addClass('hidden');
                                     typewriterEffect($('#rewrite-result-body'), data.content);
                                     break;
                                 case 'title':
-                                    data.content = "# 建议标题：  \n" + data.content;
+                                    data.content = "# 建议标题  \n" + data.content;
                                     typewriterEffect($('#rewrite-result-title'), data.content);
                                     break;
                                 case 'show_toast':
