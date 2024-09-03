@@ -83,7 +83,7 @@
         text-align: right;
         font-size: 14px;
         color: #a5b4fc;
-      
+    }
 </style>
 {% endblock %}
 
@@ -107,7 +107,14 @@
                 <div class="control-panel">
                     <div class="checkbox-wrapper">
                         <label class="custom-checkbox">
-                            专家翻译
+                            简译轻洗
+                            <input type="checkbox" id="simple-translate-checkbox">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="checkbox-wrapper">
+                        <label class="custom-checkbox">
+                            先译后洗
                             <input type="checkbox" id="translate-checkbox">
                             <span class="checkmark"></span>
                         </label>
@@ -187,6 +194,7 @@
             $('#rewrite-result-translate').removeClass('hidden');
 
             var content = $('#article-content').val();
+            var simple_translate = $('#simple-translate-checkbox').is(':checked');
             var translate = $('#translate-checkbox').is(':checked');
             var master = $('#master-checkbox').is(':checked');
             var uuid = Utils.generateUUID();
@@ -195,7 +203,7 @@
                 url: '/do_rewrite',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ content: content, translate: translate, uuid: uuid, master: master }),
+                data: JSON.stringify({ content: content, translate: translate, uuid: uuid, master: master, simple_translate: simple_translate }),
                 success: function(response) {
                     if (response.success) {
                         //showToast('开始洗稿', 'success');
@@ -275,7 +283,7 @@
             path: 'https://123.markup.com.cn/ibed/202408301635416.json'
         });
         $('#lottie-container').on('click', function() {
-            showModal('智能洗稿说明', '【推荐用法】扒国外的新闻，或者从国内找2-3篇同主题不同内容的文章，直接点击“洗稿” <br/> 【专家翻译】会先将原文翻译成中文，然后再洗 <br/>【文案大师】原文只有一篇中文文章，推荐使用文案大师');
+            showModal('智能洗稿说明', '【推荐用法】扒国外的新闻，或者从国内找2-3篇同主题不同内容的文章，直接点击“洗稿” <br/>【简译轻洗】针对英文技术类文章，不会破坏原文结构，翻译得更像人话 <br/> 【专家翻译】会先将原文翻译成中文，然后再洗 <br/>【文案大师】原文只有一篇中文文章，推荐使用文案大师');
         });
     });
 
