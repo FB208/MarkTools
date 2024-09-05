@@ -1,4 +1,4 @@
-python-dotenv
+python-dotenv==1.0.1
 Flask==3.0.2
 Jinja2==3.1.2
 openai==1.40.6
@@ -6,8 +6,21 @@ pytest==7.4.3
 flask-cors==4.0.1
 flask-session==0.8.0
 gunicorn==23.0.0
+python-docx
+tiktoken==0.6.0
+langchain-text-splitters
 
 
 google-generativeai==0.7.2
 google-cloud-speech==2.27.0
 google-cloud-storage==2.18.2
+
+
+torch==2.2.1+cpu
+torchvision==0.17.1+cpu
+torchaudio==2.2.1+cpu
+--find-links https://download.pytorch.org/whl/cpu/torch_stable.html
+
+sentence-transformers==3.0.1
+faiss-cpu==1.8.0.post1
+numpy==1.26.4

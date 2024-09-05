@@ -5,6 +5,11 @@
 python -m venv marktools.venv
 
 marktools.venv\Scripts\activate
+
+# 通过conda创建虚拟环境
+conda create --name marktools
+conda init
+conda activate marktools
 ```
 
 ## 安装依赖
@@ -15,6 +20,10 @@ pip install -r requirements.txt
 npm run build:css
 ## 实时编译（在开发时候开启这个命令，会根据项目中的样式文件变化，实时编译styles.css文件）
 npx postcss static/css/main.css -o static/css/styles.css --watch
+
+## 清空依赖
+开发时测试了一堆没用的包，可以全部清空
+python uninstall_all.py
 ```
 
 ## 启动项目

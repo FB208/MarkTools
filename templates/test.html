@@ -1,156 +1,36 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智慧消防管理系统 - 树形目录</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a0b2e 0%, #0f0518 100%);
-            color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            text-align: center;
-            font-size: 3em;
-            margin-bottom: 30px;
-            background: linear-gradient(90deg, #ff6b6b, #8a2be2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
-        }
-        .tree {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        .tree ul {
-            list-style-type: none;
-            padding-left: 20px;
-        }
-        .tree li {
-            margin: 10px 0;
-            position: relative;
-        }
-        .tree li::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -20px;
-            border-left: 2px solid #8a2be2;
-            border-bottom: 2px solid #8a2be2;
-            width: 20px;
-            height: 15px;
-        }
-        .tree li:last-child::before {
-            border-left: none;
-        }
-        .tree li::after {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: -20px;
-            border-left: 2px solid #8a2be2;
-            height: 100%;
-        }
-        .tree li:last-child::after {
-            display: none;
-        }
-        .tree span {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
-            background: linear-gradient(to left, #8a2be2, #2c3e50);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .tree span:hover {
-            background: linear-gradient(to left, #9932cc, #2c3e50);
-            box-shadow: 0 0 15px #8a2be2;
-        }
-        .glow {
-            position: absolute;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 100px;
-            background: radial-gradient(ellipse at center, rgba(138, 43, 226, 0.3) 0%, rgba(138, 43, 226, 0) 70%);
-            filter: blur(20px);
-            z-index: -1;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="glow"></div>
-        <h1>智慧消防管理系统</h1>
-        <div class="tree">
-            <ul>
-                <li><span>智慧消防管理系统</span>
-                    <ul>
-                        <li><span>联网单位: 科技园区</span>
-                            <ul>
-                                <li><span>建筑: A栋研发大楼</span>
-                                    <ul>
-                                        <li><span>楼层: 1层</span>
-                                            <ul>
-                                                <li><span>监控设备: 烟感器-A101</span></li>
-                                                <li><span>监控设备: 温感器-A102</span></li>
-                                                <li><span>监控设备: 摄像头-A103</span></li>
-                                            </ul>
-                                        </li>
-                                        <li><span>楼层: 2层</span>
-                                            <ul>
-                                                <li><span>监控设备: 烟感器-A201</span></li>
-                                                <li><span>监控设备: 温感器-A202</span></li>
-                                                <li><span>监控设备: 摄像头-A203</span></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li><span>建筑: B栋办公大楼</span>
-                                    <ul>
-                                        <li><span>楼层: 1层</span>
-                                            <ul>
-                                                <li><span>监控设备: 烟感器-B101</span></li>
-                                                <li><span>监控设备: 温感器-B102</span></li>
-                                                <li><span>监控设备: 摄像头-B103</span></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li><span>联网单位: 智慧社区</span>
-                            <ul>
-                                <li><span>建筑: 1号居民楼</span>
-                                    <ul>
-                                        <li><span>楼层: 1层</span>
-                                            <ul>
-                                                <li><span>监控设备: 烟感器-101</span></li>
-                                                <li><span>监控设备: 温感器-102</span></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
-</body>
-</html>
+{% extends "_base.html" %}
+
+{% block title %}提示词翻译{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-4">测试页面</h1>
+  <button id="testButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    测试POST请求
+  </button>
+  <div id="result" class="mt-4 text-gray-700"></div>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('#testButton').on('click', function() {
+    $.ajax({
+      url: '{{ url_for("test.test_post") }}',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ test: 'data' }),
+      success: function(response) {
+        $('#result').text('请求成功: ' + JSON.stringify(response));
+      },
+      error: function(xhr, status, error) {
+        $('#result').text('请求失败: ' + error);
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
