@@ -49,3 +49,16 @@ def test_search_existing_index():
     # 验证搜索结果的相关性
     for _, document in results:
         assert "人工智能" in document or "AI" in document, "搜索结果应该包含'人工智能'或'AI'"
+        
+# pytest tests/utils/embedding_utils_test.py::test_display_all_documents
+def test_display_all_documents():
+    # 初始化 EmbeddingSearch
+    es = EmbeddingSearch()
+    
+    # 加载现有索引
+    es.load()
+    
+    # 显示所有文档
+    documents = es.display_all_documents()
+    for i, doc in enumerate(documents):
+        print(f"文档 {i+1}: {doc}")

@@ -22,9 +22,10 @@ def test_post():
     # 调用 add_long_document 方法
     es.add_long_document(full_text)
     '''
-    es.load()
     print(f"索引维度: {es.index.d}")
     print(f"索引中的向量数量: {es.index.ntotal}")
     print(f"文档数量: {len(es.documents)}")
-   
+    documents = es.display_all_documents()
+    for i, doc in enumerate(documents):
+        print(f"文档 {i+1}: {doc}")
     return data

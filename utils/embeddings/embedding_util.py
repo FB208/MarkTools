@@ -76,6 +76,14 @@ class EmbeddingSearch:
         results = [(distances[0][i], self.documents[indices[0][i]]) for i in range(len(indices[0]))]
         return results
 
+    def display_all_documents(self):
+        if not self.documents:
+            # print("没有文档可显示。")
+            return
+        
+        return self.documents
+        for i, doc in enumerate(self.documents):
+            print(f"文档 {i+1}: {doc}")
     def calculate_chunk_size(self,token_count: int, token_limit: int) -> int:
         """
         根据令牌计数和令牌限制计算块大小。
