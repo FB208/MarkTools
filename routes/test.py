@@ -14,18 +14,21 @@ def test_post():
     # 初始化 EmbeddingSearch
     es = EmbeddingSearch()
     
-    '''
+    
     # 读取 docx 文件
-    doc = docx.Document('tempfiles/1.docx')
-    full_text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
+    for i in range(1, 4):
+        doc = docx.Document(f'tempfiles/{i}.docx')
+        full_text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
 
-    # 调用 add_long_document 方法
-    es.add_long_document(full_text)
-    '''
+        # 调用 add_long_document 方法
+        es.add_long_document(full_text)
+    
     print(f"索引维度: {es.index.d}")
     print(f"索引中的向量数量: {es.index.ntotal}")
     print(f"文档数量: {len(es.documents)}")
+    
     documents = es.display_all_documents()
-    for i, doc in enumerate(documents):
-        print(f"文档 {i+1}: {doc}")
+
+    
+    data['documents'] = documents
     return data

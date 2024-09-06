@@ -4,7 +4,7 @@ import pickle
 import os
 import tiktoken
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
+import numpy as np
 
 
 
@@ -28,17 +28,29 @@ class EmbeddingSearch:
             
     def add_documents(self, documents):
         print(f"添加文档数量: {len(documents)}")
-        self.documents.extend(documents)
         embeddings = self.model.encode(documents)
         
         if self.index is None:
             dimension = embeddings.shape[1]
             self.index = faiss.IndexFlatL2(dimension)
         
-        self.index.add(embeddings.astype('float32'))
-        self.save()  # 每次添加文档后自动保存
-        print(f"当前文档总数: {len(self.documents)}")
-        print(f"当前索引大小: {self.index.ntotal}")
+        new_documents = []
+        new_embeddings = []
+
+        for doc, emb in zip(documents, embeddings):
+            D, I = self.index.search(np.array([emb]).astype('float32'), 1)
+            if D[0][0] > 1e-6:  # 如果距离大于一个非常小的阈值，表示没有找到相同的嵌入向量
+                new_documents.append(doc)
+                new_embeddings.append(emb)
+
+        if new_documents:
+            self.documents.extend(new_documents)
+            self.index.add(np.array(new_embeddings).astype('float32'))
+            self.save()  # 每次添加文档后自动保存
+            print(f"当前文档总数: {len(self.documents)}")
+            print(f"当前索引大小: {self.index.ntotal}")
+        else:
+            print("没有新文档添加。")
     def add_long_document(self, document, max_tokens=1024):
         num_tokens_in_text = self.num_tokens_in_string(document)
         token_size = self.calculate_chunk_size(
