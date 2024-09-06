@@ -1,6 +1,7 @@
 from flask import current_app as app
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from . import test_bp
+import os
 import docx
 from utils.embeddings.embedding_util import EmbeddingSearch
 
@@ -32,3 +33,12 @@ def test_post():
     
     data['documents'] = documents
     return data
+
+@test_bp.route('/test/env', methods=['GET'])
+def get_env():
+    keys = ['LLM_SERVICE']
+    env_vars = {key: os.environ.get(key) for key in keys if key in os.environ}
+    
+    # 以 JSON 格式返回环境变量
+    return jsonify(env_vars)
+
