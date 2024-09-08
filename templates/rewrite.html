@@ -84,6 +84,92 @@
         font-size: 14px;
         color: #a5b4fc;
     }
+    /* 在现有的样式中添加以下内容 */
+  .options-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .options-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+    transform: scale(0);
+    transition: transform 0.6s ease-out;
+  }
+
+  .options-btn:hover::before {
+    transform: scale(1);
+  }
+
+  .options-btn svg {
+    transition: transform 0.3s ease;
+  }
+
+  .options-btn:hover svg {
+    transform: rotate(180deg);
+  }
+
+  #options-dropdown {
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+  }
+
+  .option-item {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .option-item:hover::after {
+    transform: translateX(100%);
+  }
+
+  .tech-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tech-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    transform: scale(0);
+    transition: transform 0.6s ease-out;
+  }
+
+  .tech-btn:hover::before {
+    transform: scale(1);
+  }
+
+  .form-checkbox:checked {
+    animation: pulse 0.5s ease-out;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
 </style>
 {% endblock %}
 
@@ -105,29 +191,34 @@
             <div class="left-panel">
                 <!-- <div class="panel-title">原文</div> -->
                 <div class="control-panel">
-                    <div class="checkbox-wrapper">
-                        <label class="custom-checkbox">
-                            简译轻洗
-                            <input type="checkbox" id="simple-translate-checkbox">
-                            <span class="checkmark"></span>
-                        </label>
+                    <div class="relative inline-block text-left mr-4">
+                      <div>
+                        <button type="button" class="options-btn inline-flex justify-center items-center w-full rounded-md border border-indigo-400 shadow-sm px-4 py-2 bg-indigo-900 bg-opacity-40 text-sm font-medium text-indigo-300 hover:bg-opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-all duration-300" id="options-menu" aria-haspopup="true" aria-expanded="true">
+                          <span class="mr-2">选项设置</span>
+                          <svg class="w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div class="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 divide-y divide-gray-700 focus:outline-none hidden transform transition-all duration-300 scale-95 opacity-0" role="menu" aria-orientation="vertical" aria-labelledby="options-menu" id="options-dropdown">
+                        <div class="py-1" role="none">
+                          <label class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200" role="menuitem">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300" id="simple-translate-checkbox">
+                            <span class="ml-2">简译轻洗</span>
+                          </label>
+                          <label class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200" role="menuitem">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300" id="translate-checkbox">
+                            <span class="ml-2">先译后洗</span>
+                          </label>
+                          <label class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200" role="menuitem">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300" id="master-checkbox">
+                            <span class="ml-2">文案大师</span>
+                          </label>
+                        </div>
+                      </div>
                     </div>
-                    <div class="checkbox-wrapper">
-                        <label class="custom-checkbox">
-                            先译后洗
-                            <input type="checkbox" id="translate-checkbox">
-                            <span class="checkmark"></span>
-                        </label>
-                    </div>
-                    <div class="checkbox-wrapper">
-                        <label class="custom-checkbox">
-                            文案大师
-                            <input type="checkbox" id="master-checkbox">
-                            <span class="checkmark"></span>
-                        </label>
-                    </div>
-                    <button id="rewrite-btn" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition duration-300">
-                        洗稿
+                    <button id="rewrite-btn" class="tech-btn bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition-all duration-300">
+                      洗稿
                     </button>
                 </div>
                 <div class="textarea-container">
@@ -181,6 +272,24 @@
         }).get().join('\n\n');  // 使用两个换行符分隔每个div的内容
         return resultText;
     }
+    // 选项设置
+    $(document).ready(function() {
+        $('#options-menu').on('click', function() {
+          $('#options-dropdown').toggleClass('hidden scale-95 opacity-0');
+          setTimeout(() => {
+            $('#options-dropdown').toggleClass('scale-100 opacity-100');
+          }, 10);
+        });
+      
+        $(document).on('click', function(event) {
+          if (!$(event.target).closest('.relative').length) {
+            $('#options-dropdown').addClass('scale-95 opacity-0');
+            setTimeout(() => {
+              $('#options-dropdown').addClass('hidden');
+            }, 300);
+          }
+        });
+      });
     // 保持原有的JavaScript代码不变
     $(document).ready(function () {
         // 添加左侧字数统计功能
