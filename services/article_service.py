@@ -21,7 +21,7 @@ def comment(content):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": content}
     ]
-    llm_service = OpenAILLMService()
+    llm_service = LLMFactory.get_llm_service()
     completion = llm_service.get_chat_completion(messages)
     return llm_service.get_messages(completion)
 
