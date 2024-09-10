@@ -4,7 +4,7 @@ from . import test_bp
 import os
 import docx
 from utils.embeddings.embedding_util import EmbeddingSearch
-
+from services.test_service import history_chat
 @test_bp.route('/test')
 def test():
     return render_template('test.html')
@@ -42,3 +42,6 @@ def get_env():
     # 以 JSON 格式返回环境变量
     return jsonify(env_vars)
 
+@test_bp.route('/test/history', methods=['GET'])
+def test_history():
+    return history_chat()

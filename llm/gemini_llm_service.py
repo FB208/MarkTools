@@ -10,6 +10,7 @@ class GeminiLLMService(LLMInterface):
         genai.configure(api_key=api_key)
     
     def get_messages(self, response):
+        print(response)
         return response.text
 
     def get_chat_completion(self, messages):
