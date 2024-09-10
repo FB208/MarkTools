@@ -5,100 +5,109 @@
 {% block head %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
 <style>
-    .content-wrapper {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        margin-left: -20px;
-    }
-
-    .left-panel, .right-panel {
-        width: 50%;
-        display: flex;
-        flex-direction: column;
-        padding-left: 20px;
-    }
-
-    .control-panel {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .textarea-container {
-        height: calc(100vh - 250px);
-        width: 100%;
-        margin-left:0px;
-    }
-    .result-container {
-        height: calc(100vh - 250px);
-        width: 100%;
-
-    }
-
-    #article-content, #rewrite-result {
-        overflow-y: auto; /* 添加垂直滚动条 */
-        width: 100%;
-        height: 100%;
-        resize: none;
-        background-color: rgba(255, 255, 255, 0.05);
-        color: #e3e3e3;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        padding: 15px;
-        font-size: 16px;
-        line-height: 1.6;
-        
-    }
-    #comment-bias {
-      background-color: rgba(255, 255, 255, 0.05);
-      color: #e3e3e3;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      font-size: 16px;
-      line-height: 1.6;
+  .content-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-left: -20px;
   }
-  
+
+  .left-panel,
+  .right-panel {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+  }
+
+  .control-panel {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .textarea-container {
+    height: calc(100vh - 250px);
+    width: 100%;
+    margin-left: 0px;
+  }
+
+  .result-container {
+    height: calc(100vh - 250px);
+    width: 100%;
+
+  }
+
+  #article-content,
+  #rewrite-result {
+    overflow-y: auto;
+    /* 添加垂直滚动条 */
+    width: 100%;
+    height: 100%;
+    resize: none;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #e3e3e3;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 16px;
+    line-height: 1.6;
+
+  }
+
+  #comment-bias {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #e3e3e3;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
   #comment-bias:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
   }
-    .panel-title {
-        font-size: 1.2em;
-        color: #a5b4fc;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-    #rewrite-result-comment {
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    }
-    #rewrite-result-hook {
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    }
+
+  .panel-title {
+    font-size: 1.2em;
+    color: #a5b4fc;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  #rewrite-result-comment {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  #rewrite-result-hook {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
 
 
-    .title-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
-    }
+  .title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
 
-    #lottie-container {
-        width: 20px;
-        height: 20px;
-        margin-left: 10px;
-    }
+  #lottie-container {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+  }
 
-    .word-count {
-        text-align: right;
-        font-size: 14px;
-        color: #a5b4fc;
-    }
-    /* 在现有的样式中添加以下内容 */
+  .word-count {
+    text-align: right;
+    font-size: 14px;
+    color: #a5b4fc;
+  }
+
+  /* 在现有的样式中添加以下内容 */
   .options-btn {
     position: relative;
     overflow: hidden;
@@ -180,266 +189,328 @@
   }
 
   @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-  }
+    0% {
+      transform: scale(1);
+    }
 
+    50% {
+      transform: scale(1.2);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="container mx-auto px-4 py-8">
-    <a href="{{ url_for('main.home') }}" class="home-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-    </a>
-    <div class="flex flex-col items-center w-full max-w-6xl bg-white bg-opacity-5 backdrop-blur-md rounded-2xl p-8 shadow-lg">
-        <div class="title-container">
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent shadow-lg">智能洗稿</h1>
-            <div id="lottie-container"></div>
-        </div>
-        <div class="content-wrapper">
-            <div class="left-panel">
-                <!-- <div class="panel-title">原文</div> -->
-                <div class="control-panel">
-                    <div class="relative inline-block text-left mr-4">
-                      <div>
-                        <button type="button" class="options-btn inline-flex justify-center items-center w-full rounded-md border border-indigo-400 shadow-sm px-4 py-2 bg-indigo-900 bg-opacity-40 text-sm font-medium text-indigo-300 hover:bg-opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-all duration-300" id="options-menu" aria-haspopup="true" aria-expanded="true">
-                          <span class="mr-2">洗稿模式</span>
-                          <svg class="w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div class="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 divide-y divide-gray-700 focus:outline-none hidden transform transition-all duration-300 scale-95 opacity-0" role="menu" aria-orientation="vertical" aria-labelledby="options-menu" id="options-dropdown">
-                        <div class="py-1" role="none">
-                          <label class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200" role="menuitem">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300" id="simple-translate-checkbox">
-                            <span class="ml-2">简译轻洗</span>
-                          </label>
-                          <label class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200" role="menuitem">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300" id="translate-checkbox">
-                            <span class="ml-2">先译后洗</span>
-                          </label>
-                          <label class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200" role="menuitem">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300" id="master-checkbox">
-                            <span class="ml-2">文案大师</span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                    <button id="advanced-settings-btn" class="mr-4 bg-gray-700 text-indigo-300 font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition-all duration-300 flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                      </svg>
-                      高级设置
-                  </button>
-                  <button id="rewrite-btn" class="tech-btn bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition-all duration-300">
-                      洗稿
-                  </button>
-                </div>
-                <div class="textarea-container">
-                    <textarea id="article-content" placeholder="请在此输入您的Markdown格式文章..."></textarea>
-                </div>
-                <div id="left-word-count" class="word-count">0 字</div>
-            </div>
-            <div class="right-panel">
-                <div class="control-panel">
-                    <button id="copy-btn" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition duration-300">
-                        复制
-                    </button>
-                </div>
-                <div class="result-container">
-                    <div id="rewrite-result">
-                        <div id="rewrite-result-title"></div>
-                        <div id="rewrite-result-hook"></div>
-                        <div id="rewrite-result-translate"></div>
-                        <div id="rewrite-result-body"></div>
-                        <div id="rewrite-result-comment"></div>
-                    </div>
-                </div>
-                <div id="right-word-count" class="word-count">0 字</div>
-            </div>
-        </div>
+  <a href="{{ url_for('main.home') }}" class="home-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+  </a>
+  <div
+    class="flex flex-col items-center w-full max-w-6xl bg-white bg-opacity-5 backdrop-blur-md rounded-2xl p-8 shadow-lg">
+    <div class="title-container">
+      <h1
+        class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent shadow-lg">
+        智能洗稿</h1>
+      <div id="lottie-container"></div>
     </div>
+    <div class="content-wrapper">
+      <div class="left-panel">
+        <!-- <div class="panel-title">原文</div> -->
+        <div class="control-panel">
+          <div class="relative inline-block text-left mr-4">
+            <div>
+              <button type="button"
+                class="options-btn inline-flex justify-center items-center w-full rounded-md border border-indigo-400 shadow-sm px-4 py-2 bg-indigo-900 bg-opacity-40 text-sm font-medium text-indigo-300 hover:bg-opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-all duration-300"
+                id="options-menu" aria-haspopup="true" aria-expanded="true">
+                <span class="mr-2">洗稿模式</span>
+                <svg class="w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 divide-y divide-gray-700 focus:outline-none hidden transform transition-all duration-300 scale-95 opacity-0"
+              role="menu" aria-orientation="vertical" aria-labelledby="options-menu" id="options-dropdown">
+              <div class="py-1" role="none">
+                <label
+                  class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200"
+                  role="menuitem">
+                  <input type="checkbox"
+                    class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300"
+                    id="simple-translate-checkbox">
+                  <span class="ml-2">简译轻洗</span>
+                </label>
+                <label
+                  class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200"
+                  role="menuitem">
+                  <input type="checkbox"
+                    class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300"
+                    id="translate-checkbox">
+                  <span class="ml-2">先译后洗</span>
+                </label>
+                <label
+                  class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200"
+                  role="menuitem">
+                  <input type="checkbox"
+                    class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300"
+                    id="master-checkbox">
+                  <span class="ml-2">文案大师</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <button id="advanced-settings-btn"
+            class="mr-4 bg-gray-700 text-indigo-300 font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition-all duration-300 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                clip-rule="evenodd" />
+            </svg>
+            高级设置
+          </button>
+          <button id="rewrite-btn"
+            class="tech-btn bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition-all duration-300">
+            洗稿
+          </button>
+        </div>
+        <div class="textarea-container">
+          <textarea id="article-content" placeholder="请在此输入您的Markdown格式文章..."></textarea>
+        </div>
+        <div id="left-word-count" class="word-count">0 字</div>
+      </div>
+      <div class="right-panel">
+        <div class="control-panel">
+          <button id="copy-btn"
+            class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition duration-300">
+            复制
+          </button>
+        </div>
+        <div class="result-container">
+          <div id="rewrite-result">
+            <div id="rewrite-result-title"></div>
+            <div id="rewrite-result-hook"></div>
+            <div id="rewrite-result-translate"></div>
+            <div id="rewrite-result-body"></div>
+            <div id="rewrite-result-comment"></div>
+          </div>
+        </div>
+        <div id="right-word-count" class="word-count">0 字</div>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- 高级设置弹出层 -->
 <div id="advanced-settings-modal" class="modal">
   <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2 class="modal-title">高级设置</h2>
-      <div class="mt-2">
-          <label for="comment-bias" class="block text-sm font-medium text-indigo-300 text-left mb-2">锐评偏向性</label>
-          <textarea id="comment-bias" rows="3" class="w-full resize-none bg-opacity-5 bg-white text-gray-300 border border-opacity-10 border-white rounded-lg p-4 focus:outline-none focus:border-indigo-500 transition duration-300"></textarea>
-      </div>
+    <span class="close">&times;</span>
+    <h2 class="modal-title">高级设置</h2>
+    <div class="mt-2">
+      <label for="comment-bias" class="block text-sm font-medium text-indigo-300 text-left mb-2">锐评偏向性</label>
+      <textarea id="comment-bias" rows="3"
+        class="w-full resize-none bg-opacity-5 bg-white text-gray-300 border border-opacity-10 border-white rounded-lg p-4 focus:outline-none focus:border-indigo-500 transition duration-300"></textarea>
+    </div>
   </div>
 </div>
 
 
 <script>
-    function typewriterEffect($element, text, speed = 10) {
-        let i = 0;
-        $element.html('').css('white-space', 'pre-wrap');
-        
-        function typeWriter() {
-            if (i < text.length) {
-                $element.html($element.html() + text.charAt(i));
-                i++;
-                setTimeout(typeWriter, speed);
-            }
-        }
-        
-        typeWriter();
-        wordCount = getResultText().length;
-        $('#right-word-count').text(wordCount+' 字');
+  // 打字机效果
+  function typewriterEffect($element, text, speed = 10) {
+    let i = 0;
+    $element.html('').css('white-space', 'pre-wrap');
+
+    function typeWriter() {
+      if (i < text.length) {
+        $element.html($element.html() + text.charAt(i));
+        i++;
+        setTimeout(typeWriter, speed);
+      }
     }
-    function getResultText(){
-        // 获取rewrite-result元素中所有子div的文本,排除rewrite-result-translate,并去除前后空格
-        var resultText = $('#rewrite-result').children('div').not('#rewrite-result-translate').map(function() {
-            return $(this).text().trim();
-        }).get().join('\n\n');  // 使用两个换行符分隔每个div的内容
-        return resultText;
-    }
-    // 洗稿模式
-    $(document).ready(function() {
-        $('#options-menu').on('click', function() {
-          $('#options-dropdown').toggleClass('hidden scale-95 opacity-0');
-          setTimeout(() => {
-            $('#options-dropdown').toggleClass('scale-100 opacity-100');
-          }, 10);
-        });
-      
-        $(document).on('click', function(event) {
-          if (!$(event.target).closest('.relative').length) {
-            $('#options-dropdown').addClass('scale-95 opacity-0');
-            setTimeout(() => {
-              $('#options-dropdown').addClass('hidden');
-            }, 300);
-          }
-        });
-      });
-    // 保持原有的JavaScript代码不变
-    $(document).ready(function () {
-        // 添加左侧字数统计功能
-        $('#article-content').on('input', function() {
-            var wordCount = $(this).val().length;
-            $('#left-word-count').text(wordCount+' 字');
-        });
-        $('#rewrite-btn').on('click', function () {
-            // 清空所有结果区域
-            $('#rewrite-result-hook, #rewrite-result-comment, #rewrite-result-body, #rewrite-result-title').html('');
-            $('#rewrite-result-translate').removeClass('hidden');
 
-            var content = $('#article-content').val();
-            var simple_translate = $('#simple-translate-checkbox').is(':checked');
-            var translate = $('#translate-checkbox').is(':checked');
-            var master = $('#master-checkbox').is(':checked');
-            var uuid = Utils.generateUUID();
-
-            $.ajax({
-                url: '/do_rewrite',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ content: content, translate: translate, uuid: uuid, master: master, simple_translate: simple_translate }),
-                success: function(response) {
-                    if (response.success) {
-                        //showToast('开始洗稿', 'success');
-                        const eventSource = new EventSource('/do_rewrite_stream?uuid=' + uuid);
-
-                        eventSource.onmessage = function(event) {
-                            const data = JSON.parse(event.data);
-                            console.log(data);
-                            switch (data.step) {
-                                case 'hook':
-                                    data.content = "# 要点速览  \n" + data.content;
-                                    typewriterEffect($('#rewrite-result-hook'), data.content);
-                                    break;
-                                case 'comment':
-                                    data.content = "# Mark说  \n" + data.content;
-                                    typewriterEffect($('#rewrite-result-comment'), data.content);
-                                    break;
-                                case 'translate':
-                                    data.content = "# 翻译  \n" + data.content;
-                                    typewriterEffect($('#rewrite-result-translate'), data.content);
-                                    break;
-                                case 'body':
-                                    data.content = "# 正文  \n" + data.content;
-                                    $('#rewrite-result-translate').addClass('hidden');
-                                    typewriterEffect($('#rewrite-result-body'), data.content);
-                                    break;
-                                case 'title':
-                                    data.content = "# 建议标题  \n" + data.content;
-                                    typewriterEffect($('#rewrite-result-title'), data.content);
-                                    break;
-                                case 'show_toast':
-                                case 'complete':
-                                    showToast(data.content, 'success');
-                                    break;
-                            }
-                            if (data.step === 'complete') {
-                                eventSource.close();
-                            }
-                        };
-
-                        eventSource.onerror = function(error) {
-                            console.error('EventSource failed:', error);
-                            eventSource.close();
-                        };
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX request failed:', status, error);
-                }
-            });
-        });
-        // 添加复制按钮的点击事件处理
-        $('#copy-btn').on('click', function () {
-            resultText=getResultText();
-            
-            // 创建一个临时的textarea元素
-            var tempTextArea = $('<textarea>');
-            tempTextArea.val(resultText);
-            $('body').append(tempTextArea);
-            
-            // 选中并复制文本
-            tempTextArea.select();
-            document.execCommand('copy');
-            
-            // 移除临时的textarea元素
-            tempTextArea.remove();
-            
-            // 显示复制成功的提示
-            showToast('复制成功', 'success');
-        });
-        // 添加Lottie动画
-        var animation = lottie.loadAnimation({
-            container: document.getElementById('lottie-container'),
-            renderer: 'svg',
-            loop: true,
-            autoplay: true,
-            path: 'https://123.markup.com.cn/ibed/202408301635416.json'
-        });
-        $('#lottie-container').on('click', function() {
-            showModal('智能洗稿说明', '【推荐用法】扒国外的新闻，或者从国内找2-3篇同主题不同内容的文章，直接点击“洗稿” <br/>【简译轻洗】针对英文技术类文章，不会破坏原文结构，翻译得更像人话 <br/> 【专家翻译】会先将原文翻译成中文，然后再洗 <br/>【文案大师】原文只有一篇中文文章，推荐使用文案大师');
-        });
-    });
-// 高级设置弹出层控制
-$('#advanced-settings-btn').on('click', function() {
-  $('#advanced-settings-modal').css('display', 'block');
-});
-
-$('.close').on('click', function() {
-  $('#advanced-settings-modal').css('display', 'none');
-});
-
-$(window).on('click', function(event) {
-  if (event.target == $('#advanced-settings-modal')[0]) {
-      $('#advanced-settings-modal').css('display', 'none');
+    typeWriter();
+    wordCount = getResultText().length;
+    $('#right-word-count').text(wordCount + ' 字');
   }
-});
+  // 获取结果文本(要显示的)
+  function getResultText() {
+    // 获取rewrite-result元素中所有子div的文本,排除rewrite-result-translate,并去除前后空格
+    var resultText = $('#rewrite-result').children('div').not('#rewrite-result-translate').map(function () {
+      return $(this).text().trim();
+    }).get().join('\n\n'); // 使用两个换行符分隔每个div的内容
+    return resultText;
+  }
+  // 高级设置相关
+  function loadAdvSettings() {
+    // 从localStorage加载保存的高级设置
+    var savedSettings = JSON.parse(localStorage.getItem('advancedSettings')) || {};
+    var savedCommentBias = savedSettings.commentBias || '';
+    $('#comment-bias').val(savedCommentBias);
+  }
+  function saveAdvSettings() {
+    var commentBias = $('#comment-bias').val();
+    var advancedSettings = {
+      commentBias: commentBias
+    };
+    localStorage.setItem('advancedSettings', JSON.stringify(advancedSettings));
+  } 
+  // 洗稿模式下拉框效果
+  $(document).ready(function () {
+    $('#options-menu').on('click', function () {
+      $('#options-dropdown').toggleClass('hidden scale-95 opacity-0');
+      setTimeout(() => {
+        $('#options-dropdown').toggleClass('scale-100 opacity-100');
+      }, 10);
+    });
+
+    $(document).on('click', function (event) {
+      if (!$(event.target).closest('.relative').length) {
+        $('#options-dropdown').addClass('scale-95 opacity-0');
+        setTimeout(() => {
+          $('#options-dropdown').addClass('hidden');
+        }, 300);
+      }
+    });
+  });
+  // 保持原有的JavaScript代码不变
+  $(document).ready(function () {
+    // 添加左侧字数统计功能
+    $('#article-content').on('input', function () {
+      var wordCount = $(this).val().length;
+      $('#left-word-count').text(wordCount + ' 字');
+    });
+    $('#rewrite-btn').on('click', function () {
+      // 清空所有结果区域
+      $('#rewrite-result-hook, #rewrite-result-comment, #rewrite-result-body, #rewrite-result-title').html('');
+      $('#rewrite-result-translate').removeClass('hidden');
+
+      var content = $('#article-content').val();
+      var simple_translate = $('#simple-translate-checkbox').is(':checked');
+      var translate = $('#translate-checkbox').is(':checked');
+      var master = $('#master-checkbox').is(':checked');
+      var uuid = Utils.generateUUID();
+      var advancedSettings = JSON.parse(localStorage.getItem('advancedSettings')) || {};
+
+      $.ajax({
+        url: '/do_rewrite',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          content: content,
+          translate: translate,
+          uuid: uuid,
+          master: master,
+          simple_translate: simple_translate,
+          advanced_settings: advancedSettings
+        }),
+        success: function (response) {
+          if (response.success) {
+            //showToast('开始洗稿', 'success');
+            const eventSource = new EventSource('/do_rewrite_stream?uuid=' + uuid);
+
+            eventSource.onmessage = function (event) {
+              const data = JSON.parse(event.data);
+              console.log(data);
+              switch (data.step) {
+                case 'hook':
+                  data.content = "# 要点速览  \n" + data.content;
+                  typewriterEffect($('#rewrite-result-hook'), data.content);
+                  break;
+                case 'comment':
+                  data.content = "# Mark说  \n" + data.content;
+                  typewriterEffect($('#rewrite-result-comment'), data.content);
+                  break;
+                case 'translate':
+                  data.content = "# 翻译  \n" + data.content;
+                  typewriterEffect($('#rewrite-result-translate'), data.content);
+                  break;
+                case 'body':
+                  data.content = "# 正文  \n" + data.content;
+                  $('#rewrite-result-translate').addClass('hidden');
+                  typewriterEffect($('#rewrite-result-body'), data.content);
+                  break;
+                case 'title':
+                  data.content = "# 建议标题  \n" + data.content;
+                  typewriterEffect($('#rewrite-result-title'), data.content);
+                  break;
+                case 'show_toast':
+                case 'complete':
+                  showToast(data.content, 'success');
+                  break;
+              }
+              if (data.step === 'complete') {
+                eventSource.close();
+              }
+            };
+
+            eventSource.onerror = function (error) {
+              console.error('EventSource failed:', error);
+              eventSource.close();
+            };
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error('AJAX request failed:', status, error);
+        }
+      });
+    });
+    // 添加复制按钮的点击事件处理
+    $('#copy-btn').on('click', function () {
+      resultText = getResultText();
+
+      // 创建一个临时的textarea元素
+      var tempTextArea = $('<textarea>');
+      tempTextArea.val(resultText);
+      $('body').append(tempTextArea);
+
+      // 选中并复制文本
+      tempTextArea.select();
+      document.execCommand('copy');
+
+      // 移除临时的textarea元素
+      tempTextArea.remove();
+
+      // 显示复制成功的提示
+      showToast('复制成功', 'success');
+    });
+    // 添加Lottie动画
+    var animation = lottie.loadAnimation({
+      container: document.getElementById('lottie-container'),
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'https://123.markup.com.cn/ibed/202408301635416.json'
+    });
+    $('#lottie-container').on('click', function () {
+      showModal('智能洗稿说明',
+        '【推荐用法】扒国外的新闻，或者从国内找2-3篇同主题不同内容的文章，直接点击“洗稿” <br/>【简译轻洗】针对英文技术类文章，不会破坏原文结构，翻译得更像人话 <br/> 【专家翻译】会先将原文翻译成中文，然后再洗 <br/>【文案大师】原文只有一篇中文文章，推荐使用文案大师'
+        );
+    });
+  });
+  // 高级设置弹出层控制
+  $('#advanced-settings-btn').on('click', function () {
+    $('#advanced-settings-modal').css('display', 'block');
+  });
+
+  $('.close').on('click', function () {
+    $('#advanced-settings-modal').css('display', 'none');
+    saveAdvSettings();
+  });
+
+  $(window).on('click', function (event) {
+    if (event.target == $('#advanced-settings-modal')[0]) {
+      $('#advanced-settings-modal').css('display', 'none');
+    }
+  });
 </script>
 {% endblock %}

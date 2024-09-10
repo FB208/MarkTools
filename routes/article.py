@@ -33,7 +33,14 @@ def do_rewrite_stream():
     simple_translate = data.get('simple_translate', False)
     translate = data.get('translate', False)
     master = data.get('master', False)
-    
+    '''
+    {
+        "advanced setting": {
+            "commentBias": "锐评偏向性"
+        }
+    }
+    '''
+    advanced_settings = data.get('advanced_settings', {})
 
     
     ctx = app.app_context()
@@ -49,10 +56,10 @@ def do_rewrite_stream():
         else:
             # 处理markdown链接
             clear_content = remove_markdown_links(content)
-            # 步骤1：点评
+            # 步骤1：锐评
             yield "data: " + json.dumps({"step": "show_toast", "content": "正在生成锐评"}) + "\n\n"
             with ctx:
-                comment_content = comment(clear_content)
+                comment_content = comment(clear_content,advanced_settings.get('commentBias',''))
                 # comment_content = simulate_human(comment_content)
             yield "data: " + json.dumps({"step": "comment", "content": comment_content}) + "\n\n"
             
