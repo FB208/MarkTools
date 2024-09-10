@@ -214,9 +214,17 @@
   max-width: 600px;
   color: #e3e3e3;
   position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: glow 2s infinite alternate;
 }
-
+@keyframes glow {
+  from {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  to {
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.5), 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
 .modal-title {
   font-size: 24px;
   font-weight: bold;
@@ -243,3 +251,4 @@
   color: #fff;
   text-decoration: none;
 }
+
