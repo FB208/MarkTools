@@ -7,7 +7,6 @@ from flask import current_app as app
 class LLMFactory:
     @staticmethod
     def get_llm_service(service_type=None):
-        service_type = app.config['LLM_SERVICE']
         if service_type is None:
             service_type = app.config['LLM_SERVICE']
         return {
