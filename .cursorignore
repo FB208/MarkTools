@@ -3,3 +3,4 @@ templates/md2all.html
 templates/saved_resource.html
 static/js/hm.js
 static/js/index.js
+static/json/

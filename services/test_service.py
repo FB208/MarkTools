@@ -5,7 +5,7 @@ from llm.llm_factory import LLMFactory
 def history_chat():
     
     messages = return_history()
-    llm_service = LLMFactory.get_llm_service("gemini")
+    llm_service = LLMFactory.get_llm_service("openai")
     completion = llm_service.get_chat_completion(messages)
     new_message = llm_service.get_messages(completion)
     # 将新消息追加到历史记录中

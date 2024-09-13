@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天津市消防救援总队架构图</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f6f9fc 0%, #e9f2f9 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .org-chart {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 1200px;
+            width: 95%;
+        }
+        .org-title {
+            text-align: center;
+            font-size: 36px;
+            color: #1a237e;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            padding-bottom: 20px;
+        }
+        .org-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        .departments {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .department {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            margin: 15px;
+            border-radius: 12px;
+            width: calc(33.33% - 30px);
+            box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .department:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(102,126,234,0.4);
+        }
+        .department h3 {
+            margin-top: 0;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 12px;
+        }
+        .department p {
+            font-size: 16px;
+            margin-bottom: 0;
+            background-color: rgba(255,255,255,0.15);
+            padding: 12px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="org-chart">
+        <h1 class="org-title">天津市消防救援总队</h1>
+        <div class="departments">
+            <div class="department">
+                <h3>火调技术处</h3>
+                <p>参与、消防物联网平台建设</p>
+            </div>
+            <div class="department">
+                <h3>法制与社会消防工作处</h3>
+                <p>提供消防技术服务机构信息</p>
+            </div>
+            <div class="department">
+                <h3>防火监督处</h3>
+                <p>监督及处罚</p>
+            </div>
+            <div class="department">
+                <h3>后勤装备处</h3>
+                <p>后勤装备数据支持</p>
+            </div>
+            <div class="department">
+                <h3>信息通信处</h3>
+                <p>协助推进</p>
+            </div>
+            <div class="department">
+                <h3>新闻宣传处</h3>
+                <p>公示信用评分、宣传物联网</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
