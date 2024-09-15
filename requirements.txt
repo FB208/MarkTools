@@ -24,3 +24,7 @@ torchaudio==2.2.1+cpu
 sentence-transformers==3.0.1
 faiss-cpu==1.8.0.post1
 numpy==1.26.4
+
+
+qrcode==7.4.2
+pillow==10.4.0

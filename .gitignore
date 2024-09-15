@@ -289,3 +289,7 @@ marktools.venv/
 *.local
 test_config.py
 google_credentials/
+flask_session/
+itchat.pkl
+QR.png
+tempfiles/

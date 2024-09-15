@@ -1,0 +1,53 @@
+{% extends "_base.html" %}
+
+{% block title %}微信登录{% endblock %}
+
+{% block head %}
+<style>
+  .qr-container {
+    @apply bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-8 shadow-lg flex flex-col items-center transition-all duration-500;
+  }
+  
+  .qr-button {
+    @apply bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:from-green-500 hover:to-blue-600 transition-all duration-300;
+  }
+  
+  #qrcode {
+    @apply mt-4 bg-white p-4 rounded-lg shadow-md;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8 flex justify-center items-center min-h-screen">
+  <div class="qr-container">
+    <h1 class="text-3xl font-bold mb-6 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">微信登录</h1>
+    <button id="getQRCode" class="qr-button">
+      获取登录二维码
+    </button>
+    <div id="qrcode" class="hidden"></div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('#getQRCode').on('click', function() {
+    $.ajax({
+      url: '{{ url_for("wechat.wechat_login_post") }}',
+      method: 'GET',
+      success: function(response) {
+        if (response.qr_code) {
+          $('#qrcode').html('<img src="data:image/png;base64,' + response.qr_code + '" alt="QR Code">');
+          $('#qrcode').removeClass('hidden');
+        } else {
+          showToast('获取二维码失败', 'error');
+        }
+      },
+      error: function() {
+        showToast('获取二维码失败', 'error');
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

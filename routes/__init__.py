@@ -6,5 +6,6 @@ md2all_bp = Blueprint('md2all', __name__)
 speech2text_bp = Blueprint('speech2text', __name__)
 article_bp = Blueprint('article', __name__)
 test_bp = Blueprint('test', __name__)
+wechat_bp = Blueprint('wechat', __name__)
 
-from . import main, translate, md2all, speech2text, article, test   
+from . import main, translate, md2all, speech2text, article, test, wechat
