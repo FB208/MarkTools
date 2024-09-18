@@ -5,6 +5,7 @@ import os
 import docx
 from utils.embeddings.embedding_util import EmbeddingSearch
 from services.test_service import history_chat
+from services.google_tuned import list as google_tuned_list
 @test_bp.route('/test')
 def test():
     return render_template('test.html')
@@ -45,3 +46,8 @@ def get_env():
 @test_bp.route('/test/history', methods=['GET'])
 def test_history():
     return history_chat()
+
+
+@test_bp.route('/test/google_tuned', methods=['GET'])
+def test_google_tuned():
+    google_tuned_list()

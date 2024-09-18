@@ -15,7 +15,7 @@ def wechat_login():
 @wechat_bp.route('/wechat/login_post', methods=['GET'])
 def wechat_login_post():
     # 登录微信
-      itchat.auto_login(
+    itchat.auto_login(
         enableCmdQR=2,
         hotReload=False,
         qrCallback=qrCallback,
@@ -25,7 +25,6 @@ def wechat_login_post():
     
     # 发送测试消息给文件传输助手
     # itchat.send('这是一条测试消息', toUserName='filehelper')
-    
     
     return jsonify({"status": "success"})
     
