@@ -6,7 +6,7 @@ from .llm_interface import LLMInterface
 class GeminiLLMService(LLMInterface):
     def get_client(self):
         # 获取配置变量
-        api_key = app.config['GOOGLE_API_KEY']
+        api_key = app.config['SIMPLE_GOOGLE_API_KEY']
         genai.configure(api_key=api_key)
     
     def get_messages(self, response):

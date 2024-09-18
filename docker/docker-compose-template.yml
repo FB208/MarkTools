@@ -11,7 +11,7 @@ services:
       - OPENAI_API_KEY=your api key
       - OPENAI_BASE_URL=your api url
       - LLM_SERVICE=deepseek
-      - GOOGLE_API_KEY=your google api key(optional)
+      - SIMPLE_GOOGLE_API_KEY=your google api key(optional)
     networks:
       - mynet
 

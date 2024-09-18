@@ -5,7 +5,7 @@ from llm.gemini_llm_service import GeminiLLMService
 @pytest.fixture
 def app():
     app = Flask(__name__)
-    app.config['GOOGLE_API_KEY'] = '111'  # 使用测试用的 API 密钥
+    app.config['SIMPLE_GOOGLE_API_KEY'] = '111'  # 使用测试用的 API 密钥
     return app
 
 def test_get_chat_completion(app):

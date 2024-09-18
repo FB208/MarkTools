@@ -50,4 +50,4 @@ def test_history():
 
 @test_bp.route('/test/google_tuned', methods=['GET'])
 def test_google_tuned():
-    google_tuned_list()
+    return google_tuned_list()
