@@ -1,0 +1,10 @@
+[
+    {
+      "role": "system",
+      "content": "你是一个乐于助人的AI助手"
+    },
+    {
+      "role": "user",
+      "content": ""
+    }
+]

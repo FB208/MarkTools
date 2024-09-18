@@ -33,3 +33,10 @@ class OpenAILLMService(LLMInterface):
             }
         )
         return response
+    def get_chat_completion_o1(self, messages):
+        client = self.get_client()
+        response = client.chat.completions.create(
+            model="o1-preview",
+            messages=messages
+        )
+        return response
