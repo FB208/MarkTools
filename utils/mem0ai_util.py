@@ -13,17 +13,15 @@ class Mem0AIClientSingleton:
             cls._instance = MemoryClient(api_key=api_key)
         return cls._instance
 
-def add_message(user_id, message):
-    client = Mem0AIClientSingleton.get_instance()
-    client.add_message(user_id=user_id, message=message,output_format="v1.1")
 
-def add(user_id, message, metadata={}):
+def add(message, user_id):
     client = Mem0AIClientSingleton.get_instance()
-    client.add(user_id, message, metadata)
+    # 修改这里，将 message 和 user_id 作为关键字参数传递
+    client.add(message, user_id=user_id)
 
-def query(user_id, user_query):
+def query(user_query,user_id):
     client = Mem0AIClientSingleton.get_instance()
-    return client.search(user_id, user_query , output_format="v1.1")
+    return client.search(user_query,user_id=user_id,output_format="v1.1")
 
 def complex_query(user_query,filters):
     '''
@@ -68,5 +66,5 @@ def delete(memory_id):
 
 def delete_all(user_id):
     client = Mem0AIClientSingleton.get_instance()
-    return client.delete_all(user_id)
+    return client.delete_all(user_id=user_id)
 

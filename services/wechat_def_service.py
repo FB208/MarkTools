@@ -1,6 +1,6 @@
 from lib import itchat
 import json
-from utils.mem0ai_util import add_message
+from utils.mem0ai_util import add as mem0ai_add
 from services.wechat_service import simple_reply
 
 
@@ -68,11 +68,30 @@ def text_reply(msg):
     # print(json.dumps(msg, ensure_ascii=False, indent=2))
     # 获取发送者的用户名
     from_user = msg['FromUserName']
+    
+    # 获取用户信息
+    user = msg['User']
+    sender_nickname = user['NickName']
+    sender_sex = '男' if user['Sex'] == 1 else '女' if user['Sex'] == 2 else '未知'
+    sender_signature = user['Signature']
+    sender_address = user['Province'] + user['City']
+    
+    mem0_msg = [
+        {
+            'role':'user',
+            'content':f'我叫{sender_nickname},性别{sender_sex},地址{sender_address},个性签名{sender_signature}'
+        },
+        {
+            'role':'assistant',
+            'content':"好的，我记住了"
+        }
+    ]
+    mem0ai_add(mem0_msg,sender_nickname)
     # 获取消息内容
     content = msg['Text']
 
     # 调用simple_reply获取AI反馈
-    ai_response = simple_reply(content)
+    ai_response = simple_reply(sender_nickname,content)
 
     # 发送AI反馈给用户
     itchat.send(ai_response, toUserName=from_user)
@@ -85,14 +104,29 @@ def group_text_reply(msg):
     # 完整消息在这 https://mark-up.notion.site/itchat-106a2321d4fb80208a1dead0d2cd8e4d?pvs=4
     # 获取消息内容
     content = msg['Content']
-    
+    # 检查消息是否以 "@杨九月儿" 或 "九月" 开头
+    if not (content.startswith("@杨九月儿") or content.startswith("九月")):
+        return  # 如果不是，直接返回，不做任何处理
+    # 去掉开头的@杨九月儿或者九月
+    content = content.lstrip("@杨九月儿").lstrip("九月").strip()
     # 获取群聊的用户名
     group_id = msg['FromUserName']
     # 获取发送消息的群成员的用户名
     sender = msg['ActualNickName']
+    # 从群成员列表中找到对应的成员，并获取其NickName
+    # 从群成员列表中找到对应的成员，并获取其NickName和UserName
+    sender_info = next(({"NickName": member['NickName'], "UserName": member['UserName']} 
+                        for member in msg['User']['MemberList'] 
+                        if member['DisplayName'] == sender), 
+                       {"NickName": "未知用户", "UserName": ""})
 
+    sender_nickname = sender_info["NickName"]
+    # sender_username = sender_info["UserName"]
+    
     # 调用simple_reply获取AI反馈
-    ai_response = simple_reply(content)
+    ai_response = simple_reply(sender_nickname,content)
+    
+
 
     # 构造回复消息，包含发送者的昵称
     reply = f"@{sender}\n{ai_response}"
