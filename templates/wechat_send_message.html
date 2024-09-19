@@ -1,0 +1,134 @@
+{% extends "_base.html" %}
+
+{% block title %}发送微信消息{% endblock %}
+
+{% block head %}
+<style>
+    .wechat-container {
+        max-width: 600px;  /* 增加最大宽度 */
+        width: 90%;  /* 添加这行，使容器在小屏幕上也能自适应 */
+        margin: 2rem auto;
+        padding: 2rem;
+        background: linear-gradient(145deg, #2a2d3e, #1f2235);
+        border-radius: 1.5rem;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+      
+      .wechat-title {
+        font-size: 1.75rem;  /* 增大标题字体 */
+        color: #a5b4fc;
+        margin-bottom: 2rem;  /* 增加底部间距 */
+        text-align: center;
+      }
+      
+      .form-group {
+        margin-bottom: 1.5rem;  /* 增加表单组之间的间距 */
+      }
+      
+      .form-label {
+        display: block;
+        font-size: 1rem;  /* 稍微增大标签字体 */
+        color: #8b95b2;
+        margin-bottom: 0.75rem;
+      }
+      
+      .form-select, .form-input {
+        width: 100%;
+        padding: 1rem;  /* 增加内边距 */
+        background-color: rgba(255, 255, 255, 0.07);  /* 稍微调亮背景 */
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 0.75rem;
+        color: #fff;
+        font-size: 1rem;  /* 增大输入框字体 */
+        transition: all 0.3s ease;
+      }
+      
+      .form-select:focus, .form-input:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      }
+      
+      .form-button {
+        width: 100%;
+        padding: 1rem;  /* 增加按钮内边距 */
+        background: linear-gradient(45deg, #4f46e5, #6366f1);
+        color: white;
+        font-size: 1.1rem;  /* 增大按钮字体 */
+        font-weight: 600;
+        border: none;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .form-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+      }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="wechat-container">
+  <a href="{{ url_for('main.home') }}" class="home-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+  </a>
+  <h2 class="wechat-title">发送微信消息</h2>
+  <form id="sendMessageForm">
+    <div class="form-group">
+      <label for="messageType" class="form-label">发送类型</label>
+      <select id="messageType" name="messageType" class="form-select">
+        <option value="friend">好友</option>
+        <option value="group">群</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="target" class="form-label">接收者</label>
+      <input type="text" id="target" name="target" class="form-input" required placeholder="输入好友昵称或群名称">
+    </div>
+
+    <div class="form-group">
+      <label for="message" class="form-label">消息内容</label>
+      <textarea id="message" name="message" class="form-input" rows="4" required placeholder="输入要发送的消息"></textarea>
+    </div>
+
+    <button type="submit" class="form-button">发送消息</button>
+  </form>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('#sendMessageForm').on('submit', function(e) {
+    e.preventDefault();
+    
+    var formData = {
+      type: $('#messageType').val(),
+      target: $('#target').val(),
+      message: $('#message').val()
+    };
+
+    $.ajax({
+      url: '{{ url_for("wechat.send_message_post") }}',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(formData),
+      success: function(response) {
+        if (response.status === 'success') {
+          showToast(response.message, 'success');
+        } else {
+          showToast(response.message, 'error');
+        }
+      },
+      error: function() {
+        showToast('发送失败，请稍后重试', 'error');
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

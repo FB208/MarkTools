@@ -64,9 +64,17 @@
       if (qrCheckInterval) {
         clearInterval(qrCheckInterval);
       }
-  
+    
       // 开始新的定时器
-      qrCheckInterval = setInterval(checkQRCode, 2000);
+      let startTime = Date.now();
+      qrCheckInterval = setInterval(() => {
+        if (Date.now() - startTime >= 60000) {  // 60000毫秒 = 1分钟
+          clearInterval(qrCheckInterval);
+          showToast('二维码检查已超时', 'warning');
+          return;
+        }
+        checkQRCode();
+      }, 2000);
     }
   
     function checkQRCode() {

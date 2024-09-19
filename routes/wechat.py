@@ -9,8 +9,8 @@ import base64
 import threading
 import io
 from flask import send_from_directory
-from services.wechat_service import simple_reply
 import json
+import services.wechat_def_service as wechat_def_service
 @wechat_bp.route('/wechat/login')
 def wechat_login():
     return render_template('wechat.html')
@@ -58,7 +58,12 @@ def wechat_login_post():
             qr_filename = f'qr_{timestamp}.png'
             qr_path = os.path.join(tempfiles_dir, qr_filename)
             img.save(qr_path)
-            
+    
+    def exitCallback():
+        print("Exit success")
+
+    def loginCallback():
+        print("Login success")
     # 登录微信
     itchat.auto_login(
         enableCmdQR=2,
@@ -75,114 +80,40 @@ def wechat_login_post():
     return jsonify({"status": "success"})
     
 
-@itchat.msg_register('Text')
-def text_reply(msg):
-    print("收到的消息:")
-    # print(json.dumps(msg, ensure_ascii=False, indent=2))
-    '''
-{
-  "MsgId": "677103519078355447",
-  "FromUserName": "@0f15abd887c5669cc9455cbaf039157bb6d39c5300d8626527bbda5692d027db",
-  "ToUserName": "@48526c320137f4d97226fbd4e8e62c4f1b55967b5851468d8157e939e8ebf85f",
-  "MsgType": 1,
-  "Content": "你好",
-  "Status": 3,
-  "ImgStatus": 1,
-  "CreateTime": 1726724473,
-  "VoiceLength": 0,
-  "PlayLength": 0,
-  "FileName": "",
-  "FileSize": "",
-  "MediaId": "",
-  "Url": "",
-  "AppMsgType": 0,
-  "StatusNotifyCode": 0,
-  "StatusNotifyUserName": "",
-  "RecommendInfo": {
-    "UserName": "",
-    "NickName": "",
-    "QQNum": 0,
-    "Province": "",
-    "City": "",
-    "Content": "",
-    "Signature": "",
-    "Alias": "",
-    "Scene": 0,
-    "VerifyFlag": 0,
-    "AttrStatus": 0,
-    "Sex": 0,
-    "Ticket": "",
-    "OpCode": 0
-  },
-  "ForwardFlag": 0,
-  "AppInfo": {
-    "AppID": "",
-    "Type": 0
-  },
-  "HasProductId": 0,
-  "Ticket": "",
-  "ImgHeight": 0,
-  "ImgWidth": 0,
-  "SubMsgType": 0,
-  "NewMsgId": 677103519078355447,
-  "OriContent": "",
-  "EncryFileName": "",
-  "User": {
-    "MemberList": [],
-    "Uin": 0,
-    "UserName": "@0f15abd887c5669cc9455cbaf039157bb6d39c5300d8626527bbda5692d027db",
-    "NickName": "杨惠超",
-    "HeadImgUrl": "/cgi-bin/mmwebwx-bin/webwxgeticon?seq=738861747&username=@0f15abd887c5669cc9455cbaf039157bb6d39c5300d8626527bbda5692d027db&skey=@crypt_1d0296d7_b11077f7306b44aa6cbf43974d926341",
-    "ContactFlag": 3,
-    "MemberCount": 0,
-    "RemarkName": "",
-    "HideInputBarFlag": 0,
-    "Sex": 1,
-    "Signature": "知而不行，只是未知",
-    "VerifyFlag": 0,
-    "OwnerUin": 0,
-    "PYInitial": "YHC",
-    "PYQuanPin": "yanghuichao",
-    "RemarkPYInitial": "",
-    "RemarkPYQuanPin": "",
-    "StarFriend": 0,
-    "AppAccountFlag": 0,
-    "Statues": 0,
-    "AttrStatus": 33660967,
-    "Province": "天津",
-    "City": "河东",
-    "Alias": "",
-    "SnsFlag": 305,
-    "UniFriend": 0,
-    "DisplayName": "",
-    "ChatRoomId": 0,
-    "KeyWord": "yan",
-    "EncryChatRoomId": "",
-    "IsOwner": 0
-  },
-  "Type": "Text",
-  "Text": "你好"
-}
-    '''
-    # 获取发送者的用户名
-    from_user = msg['FromUserName']
-    # 获取消息内容
-    content = msg['Text']
-
-    # 调用simple_reply获取AI反馈
-    ai_response = simple_reply(content)
-
-    # 发送AI反馈给用户
-    itchat.send(ai_response, toUserName=from_user)
-
-def exitCallback():
-    print("Exit success")
-
-def loginCallback():
-    print("Login success")
-    
-
-
 @wechat_bp.route('/tempfiles/<path:filename>')
 def serve_qr(filename):
     return send_from_directory('tempfiles', filename)
+
+@wechat_bp.route('/wechat/refresh_cache', methods=['GET'])
+def refresh_cache():
+    wechat_def_service.refresh_caches()
+    return jsonify({"status": "success", "message": "缓存已刷新"})
+
+# 发送消息
+@wechat_bp.route('/wechat/send_message', methods=['GET'])
+def send_message():
+    return render_template('wechat_send_message.html')
+
+@wechat_bp.route('/wechat/send_message', methods=['POST'])
+def send_message_post():
+    data = request.json
+    message_type = data.get('type')
+    target = data.get('target')
+    message = data.get('message')
+
+    if message_type == 'friend':
+        friend = wechat_def_service.get_friend_by_nickname(target)
+        if friend:
+            wechat_def_service.send_message_to_friend(friend['UserName'], message)
+            return jsonify({"status": "success", "message": "消息已发送给好友"})
+        else:
+            return jsonify({"status": "error", "message": "未找到指定好友"})
+    elif message_type == 'group':
+        group = wechat_def_service.get_group_by_name(target)
+        if group:
+            wechat_def_service.send_message_to_group(group['UserName'], message)
+            return jsonify({"status": "success", "message": "消息已发送到群聊"})
+        else:
+            return jsonify({"status": "error", "message": "未找到指定群聊"})
+    else:
+        return jsonify({"status": "error", "message": "不支持的消息类型"})
