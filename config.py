@@ -12,4 +12,5 @@ class Config:
     BUCKET_NAME = os.getenv('BUCKET_NAME', 'speech-audio-mark')
     LLM_SERVICE = os.getenv('LLM_SERVICE', 'deepseek')
     COZE_PERSONAL_ACCESS_TOKEN = os.getenv('COZE_PERSONAL_ACCESS_TOKEN', 'your_default_coze_personal_access_token')
+    MEM0AI_API_KEY = os.getenv('MEM0AI_API_KEY', 'your_default_mem0ai_api_key')
     # 其他配置变量

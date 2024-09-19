@@ -8,7 +8,8 @@ flask-session==0.8.0
 gunicorn==23.0.0
 python-docx
 tiktoken==0.6.0
-langchain-text-splitters
+langchain-text-splitters==0.2.4
+qdrant-client==1.11.2
 
 
 google-generativeai==0.8.1
