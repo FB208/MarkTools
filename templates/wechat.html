@@ -30,24 +30,68 @@
 </div>
 
 <script>
-$(document).ready(function() {
-  $('#getQRCode').on('click', function() {
-    $.ajax({
-      url: '{{ url_for("wechat.wechat_login_post") }}',
-      method: 'GET',
-      success: function(response) {
-        if (response.qr_code) {
-          $('#qrcode').html('<img src="data:image/png;base64,' + response.qr_code + '" alt="QR Code">');
-          $('#qrcode').removeClass('hidden');
-        } else {
+  $(document).ready(function() {
+    let qrCheckInterval;
+    let qrFilename;
+  
+    $('#getQRCode').on('click', function() {
+      const timestamp = new Date().getTime();
+      qrFilename = `qr_${timestamp}.png`;
+      
+      // 发送请求获取二维码
+      $.ajax({
+        url: '{{ url_for("wechat.wechat_login_post") }}',
+        method: 'GET',
+        data: { timestamp: timestamp },
+        success: function(response) {
+          if (response.status !== "success") {
+            showToast('获取二维码失败', 'error');
+            clearInterval(qrCheckInterval);
+          }
+        },
+        error: function() {
           showToast('获取二维码失败', 'error');
+          clearInterval(qrCheckInterval);
         }
-      },
-      error: function() {
-        showToast('获取二维码失败', 'error');
-      }
+      });
+  
+      // 同时开始检查二维码是否生成
+      startQRCheck();
     });
+  
+    function startQRCheck() {
+      // 清除之前的定时器（如果存在）
+      if (qrCheckInterval) {
+        clearInterval(qrCheckInterval);
+      }
+  
+      // 开始新的定时器
+      qrCheckInterval = setInterval(checkQRCode, 2000);
+    }
+  
+    function checkQRCode() {
+      if (!qrFilename) return;
+  
+      const qrImageUrl = '{{ url_for("wechat.serve_qr", filename="") }}' + qrFilename;
+      
+      // 使用 HEAD 请求检查图片是否存在
+      $.ajax({
+        url: qrImageUrl,
+        method: 'HEAD',
+        success: function() {
+          // 图片存在，显示它
+          $('#qrcode').html('<img src="' + qrImageUrl + '" alt="QR Code">');
+          $('#qrcode').removeClass('hidden');
+          
+          // 图片已显示，停止检查
+          clearInterval(qrCheckInterval);
+        },
+        error: function() {
+          // 图片还不存在，继续等待
+          console.log('QR code not ready yet');
+        }
+      });
+    }
   });
-});
 </script>
 {% endblock %}
