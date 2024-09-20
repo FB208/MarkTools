@@ -293,3 +293,4 @@ flask_session/
 itchat.pkl
 QR.png
 tempfiles/
+docker/docker-compose-yml

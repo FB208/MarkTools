@@ -51,7 +51,7 @@ def wechat_login_post():
             
             img = qr.make_image(fill_color="black", back_color="white")
             # 确保tempfiles文件夹存在
-            tempfiles_dir = os.path.join('tempfiles')
+            tempfiles_dir = os.path.join(app.config['BASE_PATH'], 'tempfiles')
             os.makedirs(tempfiles_dir, exist_ok=True)
 
             # 保存二维码图片，使用时间戳作为文件名的一部分
@@ -82,7 +82,7 @@ def wechat_login_post():
 
 @wechat_bp.route('/tempfiles/<path:filename>')
 def serve_qr(filename):
-    return send_from_directory('tempfiles', filename)
+    return send_from_directory(os.path.join(app.config['BASE_PATH'], 'tempfiles'), filename)
 
 @wechat_bp.route('/wechat/refresh_cache', methods=['GET'])
 def refresh_cache():

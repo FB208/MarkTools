@@ -50,10 +50,10 @@ pytest tests/translate_test.py::test_translate_text
 docker login
 
 # 打包镜像
-docker build -f docker/Dockerfile -t fb208/marktools:0.3.4 .
+docker build -f docker/Dockerfile -t fb208/marktools:0.4.1 .
 
 # 推送镜像到Docker Hub
-docker push fb208/marktools:0.3.4
+docker push fb208/marktools:0.4.1
 
 # 运行docker镜像
 docker run -p 5000:5000 \
@@ -105,3 +105,7 @@ credentials = service_account.Credentials.from_service_account_file(key_path)
 gcloud init
 
 ```
+
+
+# 其他
+项目包很大很大，因为使用了本地的embeeding模型，所以包会很大，如果想要减小包的大小，可以考虑使用在线的embedding服务，比如openai的api，不过需要修改代码了

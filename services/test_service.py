@@ -1,6 +1,7 @@
 import json
 import os
 from llm.llm_factory import LLMFactory
+from flask import current_app as app
 
 def history_chat():
     
@@ -11,7 +12,7 @@ def history_chat():
     # 将新消息追加到历史记录中
     messages.append({"role": "assistant", "content": new_message})
     # 将更新后的历史记录写入文件
-    json_file_path = os.path.join('static', 'json','chat', 'chat_history.json')
+    json_file_path = os.path.join(app.config['BASE_PATH'], 'static', 'json','chat', 'chat_history.json')
     with open(json_file_path, 'w', encoding='utf-8') as file:
         json.dump(messages, file, ensure_ascii=False, indent=2)
     
@@ -19,7 +20,7 @@ def history_chat():
 
 
 def return_history():
-    json_file_path = os.path.join('static', 'json','chat', 'chat_history.json')
+    json_file_path = os.path.join(app.config['BASE_PATH'], 'static', 'json','chat', 'chat_history.json')
     try:
         with open(json_file_path, 'r', encoding='utf-8') as file:
             history = json.load(file)

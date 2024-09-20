@@ -11,7 +11,7 @@ from llm.llm_factory import LLMFactory
 def get_text(file):
     file_extension = os.path.splitext(file.filename)[1]
     temp_file_name = f"{uuid.uuid4()}{file_extension}"
-    file_path = os.path.join('tempfiles', secure_filename(temp_file_name))
+    file_path = os.path.join(app.config['BASE_PATH'], 'tempfiles', secure_filename(temp_file_name))
     file.save(file_path)
     # 确保文件句柄已关闭
     file.close()

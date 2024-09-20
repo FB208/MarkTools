@@ -19,7 +19,7 @@ def test_post():
     
     # 读取 docx 文件
     for i in range(1, 4):
-        doc = docx.Document(f'tempfiles/{i}.docx')
+        doc = docx.Document(os.path.join(app.config['BASE_PATH'], 'tempfiles', f'{i}.docx'))
         full_text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
 
         # 调用 add_long_document 方法

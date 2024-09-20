@@ -2,16 +2,26 @@ version: '3.8'
 
 services:
   web:
-    image: fb208/marktools:0.1.1
+    image: fb208/marktools:0.4.0
     container_name: marktools
     ports:
       - "5000:5000"
     restart: unless-stopped
     environment:
-      - OPENAI_API_KEY=your api key
-      - OPENAI_BASE_URL=your api url
+      - SECRET_KEY=your_secret_key
+      - OPENAI_API_KEY=your_openai_api_key
+      - OPENAI_BASE_URL=https://api.deepseek.com/v1/
+      - DEEPSEEK_API_KEY=your_deepseek_api_key
+      - DEEPSEEK_BASE_URL=https://api.deepseek.com/v1/
+      - SIMPLE_GOOGLE_API_KEY=your_simple_google_api_key
+      - GOOGLE_CLOUD_PROJECT=meta-buckeye-433400-c6
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/google_credentials/meta-buckeye-433400-c6-109fbeae7021.json
+      - BUCKET_NAME=speech-audio-mark
       - LLM_SERVICE=deepseek
-      - SIMPLE_GOOGLE_API_KEY=your google api key(optional)
+      - COZE_PERSONAL_ACCESS_TOKEN=your_coze_personal_access_token
+      - MEM0AI_API_KEY=your_mem0ai_api_key
+    volumes:
+      - ./google_credentials:/app/google_credentials
     networks:
       - mynet
 
