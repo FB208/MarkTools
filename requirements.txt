@@ -10,6 +10,7 @@ python-docx
 tiktoken==0.6.0
 langchain-text-splitters==0.2.4
 qdrant-client==1.11.2
+APScheduler==3.10.4
 
 
 google-generativeai==0.8.1
