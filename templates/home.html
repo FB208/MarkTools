@@ -4,8 +4,6 @@
 
 {% block head %}
 <style>
-
-
   .card-container {
     display: flex;
     flex-wrap: wrap;
@@ -131,6 +129,13 @@
         <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
       </svg>
       <div class="text-lg font-medium text-indigo-200">网络测试</div>
+    </div>
+    <div class="card" data-url="{{ url_for('scheduler.scheduler') }}">
+      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <div class="text-lg font-medium text-indigo-200">定时任务</div>
     </div>
   </div>
 </div>

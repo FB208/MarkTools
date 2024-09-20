@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from scheduler.scheduler_service import add_job, remove_job, get_jobs
 from . import scheduler_bp
+from flask import render_template
 
 @scheduler_bp.route('/jobs', methods=['POST'])
 def create_job():
@@ -23,3 +24,6 @@ def list_jobs():
     job_list = [{"id": job.id, "next_run_time": str(job.next_run_time)} for job in jobs]
     return jsonify(job_list), 200
 
+@scheduler_bp.route('/scheduler', methods=['GET'])
+def scheduler():
+    return render_template('scheduler.html')
