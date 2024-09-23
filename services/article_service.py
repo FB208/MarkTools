@@ -3,7 +3,10 @@ from llm.openai_llm_service import OpenAILLMService
 
 def comment(content,commentBias):
     
-    commentBias = f'''你会有一定的主管偏向性，{commentBias}'''
+    if commentBias:
+        commentBias = f'''你会有一定的主观偏向性，{commentBias}'''
+    else:
+        commentBias = ''
     
     system_prompt = f"""你是一个言辞犀利的评论员，擅长根据文章内容写出犀利的锐评，你总是能写出通俗易懂的口语化文章，从不打官腔，更不会让人觉得你写的东西是AI生成的。
     你会收到一篇文章，你将仔细阅读文章，然后站在中国利益的立场上，对文章写出犀利的锐评。
