@@ -14,4 +14,7 @@ class Config:
     LLM_SERVICE = os.getenv('LLM_SERVICE', 'deepseek')
     COZE_PERSONAL_ACCESS_TOKEN = os.getenv('COZE_PERSONAL_ACCESS_TOKEN', 'your_default_coze_personal_access_token')
     MEM0AI_API_KEY = os.getenv('MEM0AI_API_KEY', 'your_default_mem0ai_api_key')
+    VIKA_API_TOKEN = os.getenv('VIKA_API_TOKEN', 'your_default_vika_api_token')
+    VIKA_SPACE_ID = os.getenv('VIKA_SPACE_ID', 'your_default_vika_space_id')
+    VIKA_DATASHEET_ID = os.getenv('VIKA_DATASHEET_ID', 'your_default_vika_datasheet_id')
     # 其他配置变量

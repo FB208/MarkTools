@@ -51,3 +51,8 @@ def test_history():
 @test_bp.route('/test/google_tuned', methods=['GET'])
 def test_google_tuned():
     return google_tuned_list()
+
+
+@test_bp.route('/test/charts', methods=['GET'])
+def test_charts():
+    return render_template('charts.html')

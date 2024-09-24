@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>报警消息分布</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e3e3e3;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+        #main {
+            width: 80%;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            padding: 20px;
+        }
+        #downloadBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #downloadBtn:hover {
+            background: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <div id="main"></div>
+    <button id="downloadBtn">下载图表</button>
+    <script>
+        var chartDom = document.getElementById('main');
+        var myChart = echarts.init(chartDom);
+        var option;
+
+        option = {
+            title: {
+                text: '隐患筛查漏斗',
+                left: 'center',
+                textStyle: {
+                    color: '#a5b4fc',
+                    fontSize: 24
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b} : {c}%'
+            },
+            legend: {
+                data: ['火灾自动报警系统', '值守离睡岗', '巡检漏查', '自动喷水灭火系统', '设施故障/异常'],
+                bottom: '0%',
+                left: 'center',
+                textStyle: {
+                    color: '#a5b4fc'
+                }
+            },
+            series: [
+                {
+                    name: '隐患筛查漏斗',
+                    type: 'funnel',
+                    left: '10%',
+                    top: 60,
+                    bottom: 60,
+                    width: '80%',
+                    min: 0,
+                    max: 100,
+                    minSize: '0%',
+                    maxSize: '100%',
+                    sort: 'descending',
+                    gap: 2,
+                    label: {
+                        show: true,
+                        position: 'inside',
+                        color: '#fff'
+                    },
+                    labelLine: {
+                        length: 10,
+                        lineStyle: {
+                            width: 1,
+                            type: 'solid'
+                        }
+                    },
+                    itemStyle: {
+                        borderColor: '#fff',
+                        borderWidth: 1,
+                        borderRadius: 8 // 圆润的边角
+                    },
+                    emphasis: {
+                        label: {
+                            fontSize: 20
+                        }
+                    },
+                    data: [
+                        { value: 60, name: '火灾自动报警系统' },
+                        { value: 50, name: '值守离睡岗' },
+                        { value: 40, name: '巡检漏查' },
+                        { value: 30, name: '自动喷水灭火系统' },
+                        { value: 20, name: '设施故障/异常' }
+                    ]
+                }
+            ],
+            backgroundColor: 'rgba(255, 255, 255, 0.05)'
+        };
+
+        option && myChart.setOption(option);
+
+        document.getElementById('downloadBtn').addEventListener('click', function () {
+            var url = myChart.getDataURL({
+                type: 'png',
+                pixelRatio: 2,
+                backgroundColor: '#2c343c'
+            });
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'chart.png';
+            a.click();
+        });
+    </script>
+</body>
+</html>
