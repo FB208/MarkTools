@@ -102,18 +102,24 @@ def send_message_post():
     message = data.get('message')
 
     if message_type == 'friend':
-        friend = wechat_def_service.get_friend_by_nickname(target)
-        if friend:
-            wechat_def_service.send_message_to_friend(friend['UserName'], message)
-            return jsonify({"status": "success", "message": "消息已发送给好友"})
-        else:
-            return jsonify({"status": "error", "message": "未找到指定好友"})
+        try:
+            friend = wechat_def_service.get_friend_by_nickname(target)
+            if friend:
+                wechat_def_service.send_message_to_friend(friend['UserName'], message)
+                return jsonify({"status": "success", "message": "消息已发送给好友"})
+            else:
+                return jsonify({"status": "error", "message": "未找到指定好友"})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)})
     elif message_type == 'group':
-        group = wechat_def_service.get_group_by_name(target)
-        if group:
-            wechat_def_service.send_message_to_group(group['UserName'], message)
-            return jsonify({"status": "success", "message": "消息已发送到群聊"})
-        else:
-            return jsonify({"status": "error", "message": "未找到指定群聊"})
+        try:
+            group = wechat_def_service.get_group_by_name(target)
+            if group:
+                wechat_def_service.send_message_to_group(group['UserName'], message)
+                return jsonify({"status": "success", "message": "消息已发送到群聊"})
+            else:
+                return jsonify({"status": "error", "message": "未找到指定群聊"})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)})
     else:
         return jsonify({"status": "error", "message": "不支持的消息类型"})
