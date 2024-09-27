@@ -67,7 +67,7 @@ def wechat_login_post():
     # 登录微信
     itchat.auto_login(
         enableCmdQR=2,
-        hotReload=False,
+        hotReload=True,
         qrCallback=qrCallback,
         exitCallback=exitCallback,
         loginCallback=loginCallback

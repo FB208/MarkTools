@@ -20,6 +20,10 @@ services:
       - LLM_SERVICE=deepseek
       - COZE_PERSONAL_ACCESS_TOKEN=your_coze_personal_access_token
       - MEM0AI_API_KEY=your_mem0ai_api_key
+      - VIKA_API_TOKEN=vika_api_token
+      - VIKA_SPACE_ID=space_id
+      - VIKA_DATASHEET_ID=datasheet_id
+
     volumes:
       - ./google_credentials:/app/google_credentials
     networks:
