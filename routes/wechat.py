@@ -65,6 +65,7 @@ def wechat_login_post():
         print("Exit success")
 
     def loginCallback():
+        wechat_def_service.refresh_caches()
         print("Login success")
     # 登录微信
     itchat.auto_login(
@@ -115,6 +116,7 @@ def wechat_login_post():
 
 @wechat_bp.route('/tempfiles/<path:filename>')
 def serve_qr(filename):
+    print(os.path.join(app.config['BASE_PATH'], 'tempfiles'), filename)
     return send_from_directory(os.path.join(app.config['BASE_PATH'], 'tempfiles'), filename)
 
 @wechat_bp.route('/wechat/refresh_cache', methods=['GET'])
@@ -136,22 +138,22 @@ def send_message_post():
 
     if message_type == 'friend':
         try:
-            friend = wechat_def_service.get_friend_by_nickname(target)
-            if friend:
-                RedisUtil().publish_message('wechat_cmd', json.dumps({"nickname": target, "msg": message, "type": "friend"}))
-                return jsonify({"status": "success", "message": "消息已发送给好友"})
-            else:
-                return jsonify({"status": "error", "message": "未找到指定好友"})
+            # friend = wechat_def_service.get_friend_by_nickname(target)
+            friends = itchat.search_friends(name=target)
+            friend=friends[0]['UserName']
+            wechat_def_service.send_message_to_friend(friend, message)
+            # RedisUtil().publish_message('wechat_cmd', json.dumps({"nickname": target, "msg": message, "type": "friend"}))
+            return jsonify({"status": "success", "message": "消息已发送给好友"})
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)})
     elif message_type == 'group':
         try:
-            group = wechat_def_service.get_group_by_name(target)
-            if group:
-                RedisUtil().publish_message('wechat_cmd', json.dumps({"nickname": target, "msg": message, "type": "group"}))
-                return jsonify({"status": "success", "message": "消息已发送到群聊"})
-            else:
-                return jsonify({"status": "error", "message": "未找到指定群聊"})
+            # group = wechat_def_service.get_group_by_name(target)
+            groups = itchat.search_chatrooms(name=target)
+            group=groups[0]['UserName']
+            wechat_def_service.send_message_to_group(group, message)
+            # RedisUtil().publish_message('wechat_cmd', json.dumps({"nickname": target, "msg": message, "type": "group"}))
+            return jsonify({"status": "success", "message": "消息已发送到群聊"})
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)})
     else:

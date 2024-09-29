@@ -2,12 +2,9 @@ from lib import itchat
 import json
 from utils.mem0ai_util import add as mem0ai_add
 from services.wechat_service import simple_reply
+from utils.redis_util import RedisUtil
 
 
-
-# 全局变量用于缓存
-friends_cache = None
-groups_cache = None
 
 def send_message_to_friend(friend_username, message):
     """
@@ -27,31 +24,35 @@ def send_message_to_file_helper(message):
     """
     itchat.send(message, toUserName='filehelper')
 def update_friends_cache():
-    global friends_cache
-    friends_cache = itchat.get_friends(update=True)
+    friends_cache = itchat.get_friends(update=False)
+    RedisUtil().set_value('friends_cache', json.dumps(friends_cache, ensure_ascii=False, indent=2))
     print("Friends cache updated:")
     print(json.dumps(friends_cache, ensure_ascii=False, indent=2))
 
 def update_groups_cache():
-    global groups_cache
-    groups_cache = itchat.get_chatrooms(update=True)
+    groups_cache = itchat.get_chatrooms(update=False)
+    RedisUtil().set_value('groups_cache', json.dumps(groups_cache, ensure_ascii=False, indent=2))
     print("Groups cache updated:")
     print(json.dumps(groups_cache, ensure_ascii=False, indent=2))
 
 
 def get_friend_by_nickname(name):
-    global friends_cache
+    friends_cache = RedisUtil().get_value('friends_cache')
     if friends_cache is None:
         update_friends_cache()
+    # 将取回的值转换为 JSON 对象
+    friends_cache = json.loads(friends_cache)
     return next((friend for friend in friends_cache if 
                  friend['UserName'] == name or 
                  friend['NickName'] == name or 
                  friend['RemarkName'] == name), None)
 
 def get_group_by_name(name):
-    global groups_cache
+    groups_cache = RedisUtil().get_value('groups_cache')
     if groups_cache is None:
         update_groups_cache()
+    # 将取回的值转换为 JSON 对象
+    groups_cache = json.loads(groups_cache)
     return next((group for group in groups_cache if 
                  group['UserName'] == name or 
                  group['NickName'] == name or 

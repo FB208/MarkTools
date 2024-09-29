@@ -18,8 +18,8 @@ def test_set_value():
 def test_publish_message():
     with app.app_context():
         redis_util = RedisUtil()
-        # redis_util.publish_message('wechat_cmd', '{"nickname": "杨惠超", "msg": "msg", "type": "friend"}')
-        redis_util.publish_message('wechat_cmd', '{"nickname": "峻峰的人工智能物联网研发事业部", "msg": "呜啦啦", "type": "group"}')
+        redis_util.publish_message('wechat_cmd', '{"nickname": "杨惠超", "msg": "msg", "type": "friend"}')
+        # redis_util.publish_message('wechat_cmd', '{"nickname": "峻峰的人工智能物联网研发事业部", "msg": "呜啦啦", "type": "group"}')
 
 # pytest -s tests/utils/redis_util_test.py::test_listen
 def test_listen():
