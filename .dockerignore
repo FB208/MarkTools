@@ -1,0 +1,4 @@
+.env
+test_config.py
+docker/
+google_credentials/

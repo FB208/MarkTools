@@ -22,3 +22,14 @@ class RedisUtil:
         """更新键值对"""
         self.set_value(key, value)
 
+    def publish_message(self, channel, message):
+        """发布消息到指定频道"""
+        self.client.publish(channel, message)
+
+    def listen(self, channel, message_handler):
+        """持续监听订阅的频道并处理收到的消息"""
+        pubsub = self.client.pubsub()
+        pubsub.subscribe(channel)
+        for message in pubsub.listen():
+            if message['type'] == 'message':
+                message_handler(message['data'])

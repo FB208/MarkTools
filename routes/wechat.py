@@ -11,6 +11,8 @@ import io
 from flask import send_from_directory
 import json
 import services.wechat_def_service as wechat_def_service
+from utils.redis_util import RedisUtil
+
 @wechat_bp.route('/wechat/login')
 def wechat_login():
     return render_template('wechat.html')
@@ -67,7 +69,7 @@ def wechat_login_post():
     # 登录微信
     itchat.auto_login(
         enableCmdQR=2,
-        hotReload=True,
+        hotReload=False,
         qrCallback=qrCallback,
         exitCallback=exitCallback,
         loginCallback=loginCallback
@@ -76,7 +78,38 @@ def wechat_login_post():
     # 发送测试消息给文件传输助手
     # itchat.send('这是一条测试消息', toUserName='filehelper')
     # 在auto_login之后添加
+    
+    
+    def handle_message(data):
+        '''
+        {
+            "nickname": "nickname",
+            "msg": "msg",
+            "type": "friend"/group
+        }
+        '''
+        try:
+            data = json.loads(data)
+            nickname = data.get('nickname')
+            msg = data.get('msg')
+            msg_type = data.get('type')
+            if msg_type == "friend":
+                friend = wechat_def_service.get_friend_by_nickname(nickname)
+                if friend:
+                    wechat_def_service.send_message_to_friend(friend['UserName'], msg)
+            elif msg_type == "group":
+                group = wechat_def_service.get_group_by_name(nickname)
+                if group:
+                    wechat_def_service.send_message_to_group(group['UserName'], msg)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding message: {e}")
+        except Exception as e:
+            print(f"Error sending message: {e}")
+
+    redis_util = RedisUtil()
+    threading.Thread(target=redis_util.listen, args=('wechat_cmd', handle_message), daemon=True).start()
     itchat.run()
+    # threading.Thread(target=itchat.run, daemon=True).start()
     return jsonify({"status": "success"})
     
 
@@ -105,7 +138,7 @@ def send_message_post():
         try:
             friend = wechat_def_service.get_friend_by_nickname(target)
             if friend:
-                wechat_def_service.send_message_to_friend(friend['UserName'], message)
+                RedisUtil().publish_message('wechat_cmd', json.dumps({"nickname": target, "msg": message, "type": "friend"}))
                 return jsonify({"status": "success", "message": "消息已发送给好友"})
             else:
                 return jsonify({"status": "error", "message": "未找到指定好友"})
@@ -115,7 +148,7 @@ def send_message_post():
         try:
             group = wechat_def_service.get_group_by_name(target)
             if group:
-                wechat_def_service.send_message_to_group(group['UserName'], message)
+                RedisUtil().publish_message('wechat_cmd', json.dumps({"nickname": target, "msg": message, "type": "group"}))
                 return jsonify({"status": "success", "message": "消息已发送到群聊"})
             else:
                 return jsonify({"status": "error", "message": "未找到指定群聊"})
