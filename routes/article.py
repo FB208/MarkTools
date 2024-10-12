@@ -1,4 +1,4 @@
-from flask import current_app as app, copy_current_request_context
+from flask import current_app as app, copy_current_request_context, stream_with_context
 from flask import render_template, request, jsonify, Response, session
 import json
 import time
@@ -107,6 +107,28 @@ def do_rewrite_stream():
     del session[uuid]
     return Response(generate(), content_type='text/event-stream')
 
+# 文稿校验
 @article_bp.route('/verify', methods=['GET'])
 def verify():
     return render_template('verify.html')
+
+
+@article_bp.route('/do_verify_stream')
+def do_verify_stream():
+    content = request.args.get('content')
+    if not content:
+        return jsonify({'error': '内容不能为空'}), 400
+    
+    @stream_with_context
+    def generate():
+        yield "data: " + json.dumps({"step": "show_toast", "content": "开始校验文稿"}) + "\n\n"
+        
+        # 这里是校验逻辑,您可以根据需要自行实现
+        # verify_result = your_verify_function(content)
+        verify_result = "这里是校验结果"  # 临时占位
+        
+        yield "data: " + json.dumps({"step": "verify_result", "content": verify_result}) + "\n\n"
+        
+        yield "data: " + json.dumps({"step": "complete", "content": "校验完成"}) + "\n\n"
+
+    return Response(generate(), mimetype='text/event-stream')

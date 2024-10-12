@@ -15,10 +15,17 @@
 
   .left-panel,
   .right-panel {
-    width: 48%;
+    width: 50%;
     display: flex;
     flex-direction: column;
     padding-left: 20px;
+  }
+
+  .control-panel {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 10px;
   }
 
   .textarea-container {
@@ -40,20 +47,6 @@
     line-height: 1.6;
   }
 
-  #article-content:focus,
-  #verify-result:focus {
-    outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-  }
-
-  .panel-title {
-    font-size: 1.2em;
-    color: #a5b4fc;
-    margin-bottom: 10px;
-    text-align: center;
-  }
-
   .word-count {
     text-align: right;
     font-size: 14px;
@@ -61,10 +54,18 @@
     margin-top: 5px;
   }
 
-  /* 添加错误标记样式 */
-  .error-mark {
-    border-bottom: 2px solid red;
-    background-color: transparent;
+  .button {
+    background-image: linear-gradient(to right, #6366f1, #9333ea);
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition-duration: 300ms;
+  }
+
+  .button:hover {
+    background-image: linear-gradient(to right, #4f46e5, #7e22ce);
   }
 </style>
 {% endblock %}
@@ -81,14 +82,22 @@
     <h1 class="title">文稿校验</h1>
     <div class="content-wrapper">
       <div class="left-panel">
-        <div class="panel-title">原文</div>
+        <div class="control-panel">
+          <button id="verify-btn" class="button">
+            校验
+          </button>
+        </div>
         <div class="textarea-container">
           <div id="article-content" contenteditable="true" class="editable-content"></div>
         </div>
         <div id="left-word-count" class="word-count">0 字</div>
       </div>
       <div class="right-panel">
-        <div class="panel-title">校验结果</div>
+        <div class="control-panel">
+          <button id="copy-btn" class="button">
+            复制
+          </button>
+        </div>
         <div class="textarea-container">
           <div id="verify-result"></div>
         </div>
@@ -99,6 +108,7 @@
 </div>
 
 <script>
+// 这里保留原有的JavaScript代码,并添加复制功能
 $(document).ready(function() {
   const articleContent = document.getElementById('article-content');
   const markInstance = new Mark(articleContent);
@@ -108,42 +118,72 @@ $(document).ready(function() {
     $('#left-word-count').text(wordCount + ' 字');
   }
 
-  function highlightErrors(errors) {
-    markInstance.unmark(); // 清除之前的标记
-    errors.forEach(error => {
-      markInstance.mark(error.word, {
-        className: 'error-mark',
-        acrossElements: true,
-        separateWordSearch: false,
-        each: function(element) {
-          element.setAttribute('title', error.suggestion);
-        }
-      });
-    });
-  }
-
   articleContent.addEventListener('input', function() {
     updateWordCount();
-    // 这里可以添加发送文本到后端进行校验的逻辑
-    // 例如使用防抖函数来控制请求频率
   });
 
-  // 模拟错误检测结果
-  const simulateErrorCheck = () => {
-    const text = articleContent.innerText;
-    const errors = [
-      { word: '错误', suggestion: '这是一个错别字' },
-      { word: '有问题', suggestion: '这个短语可能有问题' }
-    ];
-    highlightErrors(errors);
-  };
+  $('#verify-btn').on('click', function () {
+    var content = $('#article-content').text();
 
-  // 为了演示,我们在输入后延迟1秒模拟错误检查
-  let timer;
-  articleContent.addEventListener('input', function() {
-    clearTimeout(timer);
-    timer = setTimeout(simulateErrorCheck, 1000);
+    const eventSource = new EventSource('/do_verify_stream?' + $.param({
+      content: content
+    }));
+
+    eventSource.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+      console.log(data);
+      switch (data.step) {
+        case 'verify_result':
+          typewriterEffect($('#verify-result'), data.content);
+          break;
+        case 'show_toast':
+        case 'complete':
+          showToast(data.content, 'success');
+          eventSource.close();
+          break;
+      }
+    };
+
+    eventSource.onerror = function (error) {
+      console.error('EventSource failed:', error);
+      showToast('校验过程中发生错误', 'error');
+      eventSource.close();
+    };
+  });
+
+  // 添加复制功能
+  $('#copy-btn').on('click', function () {
+    var resultText = $('#verify-result').text();
+
+    var tempTextArea = $('<textarea>');
+    tempTextArea.val(resultText);
+    $('body').append(tempTextArea);
+
+    tempTextArea.select();
+    document.execCommand('copy');
+
+    tempTextArea.remove();
+
+    showToast('复制成功', 'success');
   });
 });
+
+// 添加打字机效果函数
+function typewriterEffect($element, text, speed = 10) {
+  let i = 0;
+  $element.html('').css('white-space', 'pre-wrap');
+
+  function typeWriter() {
+    if (i < text.length) {
+      $element.html($element.html() + text.charAt(i));
+      i++;
+      setTimeout(typeWriter, speed);
+    }
+  }
+
+  typeWriter();
+  let wordCount = text.length;
+  $('#right-word-count').text(wordCount + ' 字');
+}
 </script>
 {% endblock %}
