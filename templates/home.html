@@ -4,19 +4,59 @@
 
 {% block head %}
 <style>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
   .card-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 20px;
-    max-width: 800px;
-    margin-top: 100px;
-    /* 为固定的header留出空间 */
+    margin-top: 120px;
+  }
+
+  .category-section {
+    margin-bottom: 3rem;
+    width: 100%;
+  }
+
+  .category-section h2 {
+    font-size: 1.8rem;
+    color: #a5b4fc;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    position: relative;
+    display: inline-block;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .category-section h2::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #a5b4fc, #8b5cf6, #a5b4fc);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s ease;
+  }
+
+  .category-section:hover h2::after,
+  .category-section.active h2::after {
+    transform: scaleX(1);
+    transform-origin: left;
   }
 
   .card {
-    width: 150px;
-    height: 150px;
+    width: calc(25% - 15px);
+    aspect-ratio: 1 / 1;
     border-radius: 15px;
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
@@ -34,20 +74,24 @@
     box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5), 0 0 20px rgba(79, 70, 229, 0.6);
   }
 
-  .card img {
-    width: 60px;
-    height: 60px;
+  .card svg {
+    width: 40px;
+    height: 40px;
     margin-bottom: 10px;
+    color: #a5b4fc;
   }
 
-  .label {
-    margin-top: 10px;
+  .card .text {
     text-align: center;
-    font-size: 16px;
-    color: #a5b4fc;
+    font-size: 1rem;
+    color: #e0e7ff;
     font-weight: 500;
   }
+
   #toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -57,93 +101,120 @@
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
+    z-index: 2000;
+    display: none;
   }
 
-  #toast.show {
-    transform: translateY(0);
-    opacity: 1;
+  @media (max-width: 1200px) {
+    .card {
+      width: calc(33.333% - 13.333px);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .card {
+      width: calc(50% - 10px);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .card {
+      width: 100%;
+    }
   }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="container mx-auto px-4 py-8">
+<div class="container">
   <header class="fixed top-0 left-0 w-full bg-opacity-80 backdrop-blur-md z-50 py-4 flex justify-center items-center">
     <h1 class="title text-5xl font-bold mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent shadow-lg">MarkTools</h1>
   </header>
   
-  <div class="flex flex-wrap justify-center gap-6 mt-24">
-    <div class="card" data-url="{{ url_for('translate.translate') }}">
-      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 8l6 6" />
-        <path d="M4 14l6-6 2-3" />
-        <path d="M2 5h12" />
-        <path d="M7 2v3" />
-        <path d="M22 22l-5-10-5 10" />
-        <path d="M14 18h6" />
-      </svg>
-      <div class="text-lg font-medium text-indigo-200">提示词翻译</div>
+  <div class="card-container">
+    <div class="category-section">
+      <h2>工作辅助</h2>
+      <div class="flex flex-wrap justify-start gap-6">
+        <div class="card" data-url="{{ url_for('translate.translate') }}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 8l6 6" />
+            <path d="M4 14l6-6 2-3" />
+            <path d="M2 5h12" />
+            <path d="M7 2v3" />
+            <path d="M22 22l-5-10-5 10" />
+            <path d="M14 18h6" />
+          </svg>
+          <div class="text">提示词翻译</div>
+        </div>
+        <div class="card" data-url="{{ url_for('speech2text.speech2text') }}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+          <div class="text">语音识别</div>
+        </div>
+      </div>
     </div>
-    <div class="card" data-url="{{ url_for('md2all.md2all') }}">
-      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 4h16v16H4z"/>
-        <path d="M7 8v8"/>
-        <path d="M7 12h4"/>
-        <path d="M17 8v8"/>
-        <path d="M17 12h-4"/>
-      </svg>
-      <div class="text-lg font-medium text-indigo-200">Markdown</div>
+
+    <div class="category-section">
+      <h2>自媒体工具</h2>
+      <div class="flex flex-wrap justify-start gap-6">
+        <div class="card" data-url="{{ url_for('md2all.md2all') }}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16v16H4z"/>
+            <path d="M7 8v8"/>
+            <path d="M7 12h4"/>
+            <path d="M17 8v8"/>
+            <path d="M17 12h-4"/>
+          </svg>
+          <div class="text">Markdown</div>
+        </div>
+        <div class="card" data-url="{{ url_for('article.rewrite') }}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          <div class="text">智能洗稿</div>
+        </div>
+      </div>
     </div>
-    <div class="card" data-url="{{ url_for('speech2text.speech2text') }}">
-      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-        <line x1="12" y1="19" x2="12" y2="23"/>
-        <line x1="8" y1="23" x2="16" y2="23"/>
-      </svg>
-      <div class="text-lg font-medium text-indigo-200">语音识别</div>
-    </div>
-    <div class="card" data-url="{{ url_for('article.rewrite') }}">
-      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="16" y1="13" x2="8" y2="13"/>
-        <line x1="16" y1="17" x2="8" y2="17"/>
-        <polyline points="10 9 9 9 8 9"/>
-      </svg>
-      <div class="text-lg font-medium text-indigo-200">智能洗稿</div>
-    </div>
-    <div class="card" data-message="“代码助手”正在使劲儿开发中！！！！">
-      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="16 18 22 12 16 6"/>
-        <polyline points="8 6 2 12 8 18"/>
-        <circle cx="12" cy="12" r="1"/>
-        <line x1="12" y1="8" x2="12" y2="16"/>
-      </svg>
-      <div class="text-lg font-medium text-indigo-200">代码助手</div>
-    </div>
-    <div class="card" data-message="“网络测试”正在使劲儿开发中！！！！">
-      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="2" y1="12" x2="22" y2="12"/>
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-      </svg>
-      <div class="text-lg font-medium text-indigo-200">网络测试</div>
-    </div>
-    <div class="card" data-url="{{ url_for('scheduler.scheduler') }}">
-      <svg class="w-12 h-12 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
-      </svg>
-      <div class="text-lg font-medium text-indigo-200">定时任务</div>
+
+    <div class="category-section">
+      <h2>其他</h2>
+      <div class="flex flex-wrap justify-start gap-6">
+        <div class="card" data-message="代码助手正在使劲儿开发中！！！！">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+          <div class="text">代码助手</div>
+        </div>
+        <div class="card" data-message="网络测试正在使劲儿开发中！！！！">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <div class="text">网络测试</div>
+        </div>
+        <div class="card" data-url="{{ url_for('scheduler.scheduler') }}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <div class="text">定时任务</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- 提示组件 -->
-<div id="toast" class="fixed top-4 right-4 hidden bg-yellow-500 text-white px-4 py-2 rounded shadow-lg z-[2000]">
-  功能开发中
-</div>
+<div id="toast">功能开发中</div>
 
 <script>
 $(document).ready(function() {
@@ -159,9 +230,9 @@ $(document).ready(function() {
 
   function showToast(message) {
     const toast = $('#toast');
-    toast.text(message).removeClass('hidden');
+    toast.text(message).fadeIn();
     setTimeout(() => {
-      toast.addClass('hidden');
+      toast.fadeOut();
     }, 3000);
   }
 });
