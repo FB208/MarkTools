@@ -106,3 +106,7 @@ def do_rewrite_stream():
     # 删除这个uuid的session
     del session[uuid]
     return Response(generate(), content_type='text/event-stream')
+
+@article_bp.route('/verify', methods=['GET'])
+def verify():
+    return render_template('verify.html')
