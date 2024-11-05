@@ -32,3 +32,9 @@ torchvision==0.17.1+cpu
 torchaudio==2.2.1+cpu
 --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 redis==5.1.0
+google-api-python-client==2.142.0
+beautifulsoup4==4.12.3
+chardet==5.2.0
+# newspaper3k==0.2.8
+# lxml-html-clean==0.3.1
+# goose3==3.1.19
