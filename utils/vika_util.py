@@ -5,6 +5,7 @@ class VikaClient:
         self.api_token = app.config['VIKA_API_TOKEN']
         self.space_id = app.config['VIKA_SPACE_ID']
 
+    # 创建数据表
     def create_datasheet(self, name, description="", folder_id=None, pre_node_id=None, fields=None):
         url = f"https://vika.cn/fusion/v1/spaces/{self.space_id}/datasheets"
         headers = {
@@ -25,3 +26,5 @@ class VikaClient:
             return response.json()
         else:
             response.raise_for_status()
+            
+    
