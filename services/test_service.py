@@ -6,7 +6,7 @@ from flask import current_app as app
 def history_chat():
     
     messages = return_history()
-    llm_service = LLMFactory.get_llm_service("openai")
+    llm_service = LLMFactory.get_llm_service("gemini")
     completion = llm_service.get_chat_completion(messages)
     new_message = llm_service.get_messages(completion)
     # 将新消息追加到历史记录中
