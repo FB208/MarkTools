@@ -1,0 +1,407 @@
+{% extends "_base.html" %}
+
+{% block title %}怼咕报告{% endblock %}
+
+{% block head %}
+<style>
+  .editor-container {
+    width: 100%;
+    max-width: 800px;
+    min-height: calc(100vh - 200px);
+    background-color: rgba(30, 32, 47, 0.7);
+    border-radius: 15px;
+    padding: 30px;
+    margin: 0 auto;
+    user-select: text;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .editor-content {
+    width: 100%;
+    min-height: 100%;
+    outline: none;
+    color: #e3e3e3;
+    font-size: 16px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .editor-content::selection,
+  .editor-content *::selection {
+    background: rgba(99, 102, 241, 0.3);
+    color: #ffffff;
+  }
+
+  .editor-content:empty:before {
+    content: attr(data-placeholder);
+    color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+  }
+
+  .editor-content::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .editor-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+
+  .editor-content::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+  }
+
+  .editor-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.5);
+  }
+
+  h1.title {
+    font-size: 2.5rem;
+    margin-bottom: 2.5rem;
+    background-image: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: 2px;
+  }
+
+  .control-panel {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 15px;
+    backdrop-filter: blur(8px);
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(30, 32, 47, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .button {
+    background-image: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+  }
+
+  .button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.5);
+    background-image: linear-gradient(135deg, #4f46e5, #7c3aed);
+  }
+
+  .button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+  }
+
+  .editor-content div,
+  .editor-content p {
+    margin: 0;
+    padding: 0;
+    line-height: inherit;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  /* 右键菜单样式 */
+  .custom-context-menu {
+    position: fixed;
+    background: rgba(30, 32, 47, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+
+  .menu-item {
+    padding: 8px 16px;
+    color: #e3e3e3;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+
+  .menu-item:hover {
+    background: rgba(99, 102, 241, 0.2);
+  }
+
+  .has-submenu {
+    padding-right: 24px;
+  }
+
+  .has-submenu::after {
+    content: '▶';
+    position: absolute;
+    right: 8px;
+    font-size: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .submenu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background: rgba(30, 32, 47, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 120px;
+    display: none;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .has-submenu:hover .submenu {
+    display: block;
+  }
+
+  /* 标题样式优化 */
+  .editor-content h1 {
+    font-size: 2.5em;
+    font-weight: 800;
+    margin: 1em 0 0.5em;
+    background-image: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+  }
+
+  .editor-content h2 {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0.8em 0 0.4em;
+    color: #a5b4fc;
+    border-bottom: 2px solid rgba(165, 180, 252, 0.3);
+    padding-bottom: 0.2em;
+    line-height: 1.3;
+  }
+
+  .editor-content h3 {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin: 0.6em 0 0.3em;
+    color: #93c5fd;
+    line-height: 1.4;
+  }
+
+  .editor-content h4 {
+    font-size: 1.25em;
+    font-weight: 600;
+    margin: 0.5em 0 0.25em;
+    color: #bfdbfe;
+    line-height: 1.5;
+  }
+
+  .editor-content h5 {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin: 0.4em 0 0.2em;
+    color: #ddd6fe;
+    line-height: 1.6;
+  }
+
+  /* 标题悬浮效果 */
+  .editor-content h1:hover,
+  .editor-content h2:hover,
+  .editor-content h3:hover,
+  .editor-content h4:hover,
+  .editor-content h5:hover {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  /* 右键菜单样式优化 */
+  .menu-item[data-heading="h1"] {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #8b5cf6;
+  }
+
+  .menu-item[data-heading="h2"] {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #a5b4fc;
+  }
+
+  .menu-item[data-heading="h3"] {
+    font-size: 1em;
+    color: #93c5fd;
+  }
+
+  .menu-item[data-heading="h4"] {
+    font-size: 0.95em;
+    color: #bfdbfe;
+  }
+
+  .menu-item[data-heading="h5"] {
+    font-size: 0.9em;
+    color: #ddd6fe;
+  }
+
+  /* 添加正文菜单项样式 */
+  .menu-item[data-heading="p"] {
+    font-size: 0.9em;
+    color: #e3e3e3;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <a href="{{ url_for('main.home') }}" class="home-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+  </a>
+  
+  <div class="flex flex-col items-center w-full">
+    <h1 class="title">怼咕报告</h1>
+    
+    <div class="editor-container">
+      <div class="editor-content" contenteditable="true" data-placeholder="开始输入..."></div>
+    </div>
+
+    <div class="control-panel">
+      <button id="save-btn" class="button">保存</button>
+      <button id="generate-btn" class="button">生成报告</button>
+    </div>
+  </div>
+</div>
+
+<div class="custom-context-menu" style="display: none;">
+  <div class="menu-item has-submenu">
+    标题
+    <div class="submenu">
+      <div class="menu-item" data-heading="h1">一级标题</div>
+      <div class="menu-item" data-heading="h2">二级标题</div>
+      <div class="menu-item" data-heading="h3">三级标题</div>
+      <div class="menu-item" data-heading="h4">四级标题</div>
+      <div class="menu-item" data-heading="h5">五级标题</div>
+      <div class="menu-item" data-heading="p">正文</div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  const contextMenu = $('.custom-context-menu');
+  const editor = $('.editor-content');
+  let savedRange = null;
+  
+  // 禁用默认右键菜单
+  editor.on('contextmenu', function(e) {
+    e.preventDefault();
+    console.log('右键菜单被触发');
+    
+    // 保存当前选区
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      savedRange = selection.getRangeAt(0).cloneRange();
+      console.log('保存的选中文本:', savedRange.toString());
+    }
+    
+    // 显示自定义菜单
+    contextMenu.css({
+      display: 'block',
+      left: e.pageX + 'px',
+      top: e.pageY + 'px'
+    });
+  });
+
+  // 点击其他地方时隐藏菜单
+  $(document).on('click', function() {
+    contextMenu.hide();
+    savedRange = null;
+  });
+
+  // 防止点击菜单时菜单消失
+  contextMenu.on('click', function(e) {
+    e.stopPropagation();
+  });
+
+  // 处理标题选择
+  $('.menu-item[data-heading]').on('click', function() {
+    console.log('点击了菜单项');
+    const headingType = $(this).data('heading');
+    console.log('选择的类型:', headingType);
+    
+    if (savedRange) {
+      try {
+        // 获取选中文本的容器元素
+        let container = savedRange.commonAncestorContainer;
+        // 如果选中的是文本节点，获取其父元素
+        if (container.nodeType === 3) {
+          container = container.parentNode;
+        }
+        
+        console.log('当前容器标签:', container.tagName);
+        
+        // 如果当前已经是标题元素
+        if (/^H[1-5]$/i.test(container.tagName)) {
+          if (headingType === 'p') {
+            console.log('转换为正文');
+            // 直接用文本内容替换标题
+            const textContent = container.textContent;
+            const textNode = document.createTextNode(textContent);
+            container.parentNode.replaceChild(textNode, container);
+          } else {
+            console.log('修改标题级别');
+            // 创建新标题
+            const newHeading = document.createElement(headingType);
+            newHeading.innerHTML = container.innerHTML;
+            // 替换旧标题
+            container.parentNode.replaceChild(newHeading, container);
+          }
+        } else if (headingType !== 'p') {
+          console.log('创建新标题');
+          // 恢复选区
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(savedRange);
+          
+          // 创建新标题
+          const selectedContent = savedRange.extractContents();
+          const heading = document.createElement(headingType);
+          heading.appendChild(selectedContent);
+          savedRange.insertNode(heading);
+        }
+        
+        // 隐藏菜单
+        contextMenu.hide();
+        savedRange = null;
+        
+        console.log('操作完成，最终HTML:', editor.html());
+      } catch (error) {
+        console.error('发生错误:', error);
+      }
+    } else {
+      console.log('没有保存的选区');
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -132,3 +132,26 @@ def do_verify_stream():
         yield "data: " + json.dumps({"step": "complete", "content": "校验完成"}) + "\n\n"
 
     return Response(generate(), mimetype='text/event-stream')
+
+@article_bp.route('/workreport', methods=['GET'])
+def workreport():
+    return render_template('workreport.html')
+
+@article_bp.route('/do_workreport_stream')
+def do_workreport_stream():
+    content = request.args.get('content')
+    if not content:
+        return jsonify({'error': '内容不能为空'}), 400
+    
+    @stream_with_context
+    def generate():
+        yield "data: " + json.dumps({"step": "show_toast", "content": "开始生成怼咕报告"}) + "\n\n"
+        
+        # 这里是生成怼咕报告的逻辑
+        report_result = "这里是怼咕报告内容"  # 临时占位
+        
+        yield "data: " + json.dumps({"step": "report_result", "content": report_result}) + "\n\n"
+        
+        yield "data: " + json.dumps({"step": "complete", "content": "生成完成"}) + "\n\n"
+
+    return Response(generate(), mimetype='text/event-stream')
