@@ -1,5 +1,6 @@
 from flask import Blueprint
 
+
 main_bp = Blueprint('main', __name__)
 translate_bp = Blueprint('translate', __name__)
 md2all_bp = Blueprint('md2all', __name__)
@@ -8,5 +9,6 @@ article_bp = Blueprint('article', __name__)
 test_bp = Blueprint('test', __name__)
 wechat_bp = Blueprint('wechat', __name__)
 scheduler_bp = Blueprint('scheduler', __name__)
+life_bp = Blueprint('life', __name__)
 
-from . import main, translate, md2all, speech2text, article, test, wechat, scheduler
+from . import main, translate, md2all, speech2text, article, test, wechat, scheduler, life

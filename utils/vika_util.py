@@ -1,5 +1,6 @@
 import requests
 from flask import current_app as app
+from urllib.parse import quote
 class VikaClient:
     def __init__(self):
         self.api_token = app.config['VIKA_API_TOKEN']
@@ -22,27 +23,19 @@ class VikaClient:
         
         response = requests.post(url, headers=headers, json=data)
         
-        if response.status_code == 200:
+        if response.status_code in [200, 201]:
             return response.json()
         else:
             response.raise_for_status()
             
-    def insert_records(self, datasheet_id, records):
+    def insert_records(self, datasheet_id, records, field_key="name"):
         """
         向指定的数据表中插入记录
         
         Args:
             datasheet_id (str): 数据表ID
             records (list): 要插入的记录列表，每个记录是一个包含 fields 的字典
-                例如：[
-                    {
-                        "fields": {
-                            "姓名": "张三",
-                            "年龄": 25,
-                            "日期": "2024-01-01"
-                        }
-                    }
-                ]
+            field_key (str): 字段的键名类型，默认为 "name"
         
         Returns:
             dict: API 响应结果
@@ -54,12 +47,14 @@ class VikaClient:
         }
         
         data = {
-            "records": records
+            "records": records,
+            "fieldKey": field_key
         }
         
         response = requests.post(url, headers=headers, json=data)
-        
-        if response.status_code == 200:
+        print(response.json())
+        print(response.status_code)
+        if response.status_code in [200, 201]:
             return response.json()
         else:
             response.raise_for_status()
@@ -94,7 +89,7 @@ class VikaClient:
         
         response = requests.delete(url, headers=headers, params=params)
         
-        if response.status_code == 200:
+        if response.status_code in [200, 201]:
             return response.json()
         else:
             response.raise_for_status()
@@ -115,15 +110,11 @@ class VikaClient:
                 - sort (list): 排序规则，例如 [{"field": "年龄", "order": "desc"}]
         
         Returns:
-            dict: API 响应结果，包含查询到的记录数据（已过滤掉空记录）
-        
-        Raises:
-            requests.exceptions.HTTPError: 当API请求失败时抛出异常
+            dict: API 响应结果
         """
         url = f"https://vika.cn/fusion/v1/datasheets/{datasheet_id}/records"
         headers = {
-            "Authorization": f"Bearer {self.api_token}",
-            "Content-Type": "application/json"
+            "Authorization": f"Bearer {self.api_token}"
         }
         
         # 构建查询参数
@@ -135,11 +126,11 @@ class VikaClient:
             
         # 添加字段列表
         if 'fields' in kwargs:
-            params['fields'] = kwargs['fields']
+            params['fields'] = ','.join(kwargs['fields']) if isinstance(kwargs['fields'], list) else kwargs['fields']
             
         # 添加筛选公式
         if 'filterByFormula' in kwargs:
-            params['filterByFormula'] = kwargs['filterByFormula']
+            params['filterByFormula'] = quote(kwargs['filterByFormula'])
             
         # 添加最大记录数
         if 'maxRecords' in kwargs:
@@ -157,7 +148,7 @@ class VikaClient:
         
         response = requests.get(url, headers=headers, params=params)
         
-        if response.status_code == 200:
+        if response.status_code in [200, 201]:
             result = response.json()
             # 过滤掉空记录
             if result['success'] and 'records' in result['data']:
@@ -171,3 +162,40 @@ class VikaClient:
         else:
             response.raise_for_status()
             
+    def update_records(self, datasheet_id, records, field_key="name"):
+        """
+        更新指定数据表中的记录
+        
+        Args:
+            datasheet_id (str): 数据表ID
+            records (list): 要更新的记录列表，每个记录必须包含 recordId 和 fields
+                例如：[{
+                    "recordId": "recDohwc0aUCD",
+                    "fields": {
+                        "卡号": "6226022057353822",
+                        "刷卡时间": 1731899820000
+                    }
+                }]
+            field_key (str): 字段的键名类型，默认为 "name"
+        
+        Returns:
+            dict: API 响应结果
+        """
+        url = f"https://vika.cn/fusion/v1/datasheets/{datasheet_id}/records"
+        headers = {
+            "Authorization": f"Bearer {self.api_token}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "records": records,
+            "fieldKey": field_key
+        }
+        
+        response = requests.patch(url, headers=headers, json=data)
+        
+        if response.status_code in [200, 201]:
+            return response.json()
+        else:
+            response.raise_for_status()
+      

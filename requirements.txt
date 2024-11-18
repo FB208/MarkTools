@@ -38,3 +38,5 @@ chardet==5.2.0
 # newspaper3k==0.2.8
 # lxml-html-clean==0.3.1
 # goose3==3.1.19
+
+peewee==3.17.8

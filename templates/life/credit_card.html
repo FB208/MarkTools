@@ -1,0 +1,325 @@
+{% extends "_base.html" %}
+
+{% block title %}信用卡管理{% endblock %}
+
+{% block head %}
+<style type="text/css">
+  .home-icon {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: #a5b4fc;
+    transition: all 0.3s ease;
+  }
+
+  .home-icon:hover {
+    color: #6366f1;
+    transform: scale(1.1);
+  }
+
+  .title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    background-image: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .credit-cards-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .credit-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .credit-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .card-summary {
+    padding: 1rem 1.5rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .card-summary {
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem;
+    }
+    
+    .card-summary > *:not(:first-child):not(:last-child) {
+      display: none;
+    }
+  }
+
+  .bank-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .bank-name {
+    font-weight: 600;
+    color: #93c5fd;
+  }
+
+  .card-number {
+    color: #e0e7ff;
+    font-family: monospace;
+    font-size: 0.875rem;
+  }
+
+  .info-item {
+    color: #e0e7ff;
+    font-size: 0.875rem;
+  }
+
+  .info-label {
+    color: #a5b4fc;
+    font-size: 0.75rem;
+    display: block;
+  }
+
+  .swipe-btn {
+    background-image: linear-gradient(to right, #6366f1, #9333ea);
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .swipe-btn:hover {
+    background-image: linear-gradient(to right, #4f46e5, #7e22ce);
+    transform: translateY(-1px);
+  }
+
+  .card-details {
+    opacity: 1;
+    max-height: 500px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .credit-card.show-details .card-details {
+    opacity: 0;
+    max-height: 0;
+    padding: 0;
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .swipe-count {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .progress-text {
+    font-size: 0.75rem;
+    color: #a5b4fc;
+    margin-top: 0.25rem;
+  }
+
+  .swipe-progress {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 0.25rem 0;
+  }
+
+  .progress-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-image: linear-gradient(to right, #6366f1, #9333ea);
+    transition: width 0.3s ease;
+  }
+
+  .remaining-count {
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .remaining-count.urgent {
+    background: rgba(248, 113, 113, 0.2);
+    color: #f87171;
+  }
+
+  .remaining-count.warning {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+  }
+
+  .remaining-count.good {
+    background: rgba(52, 211, 153, 0.2);
+    color: #34d399;
+  }
+
+  @media (max-width: 768px) {
+    .card-summary {
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+    }
+    
+    .card-summary > *:not(:first-child):not(:last-child) {
+      display: none;
+    }
+
+    .card-details {
+      display: block;
+      padding: 1rem 1.5rem;
+    }
+
+    .details-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <a href="{{ url_for('main.home') }}" class="home-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+  </a>
+
+  <div class="flex flex-col items-center w-full max-w-7xl mx-auto">
+    <h1 class="title">信用卡管理</h1>
+    
+    <div class="credit-cards-list">
+      {% for card in credit_cards %}
+      <div class="credit-card show-details">
+        <div class="card-summary">
+          <div class="bank-info">
+            <span class="bank-name">{{ card.fields.银行 }}</span>
+            <span class="card-number">**** {{ card.fields.卡号[-4:] }}</span>
+            <span class="remaining-count {{ 'urgent' if card.fields.剩余应刷次数 > 8 else 'warning' if card.fields.剩余应刷次数 > 4 else 'good' }}">
+              {{ card.fields.剩余应刷次数 }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">还款日</span>
+            {{ card.fields.还款日 }}
+          </div>
+          <div class="info-item swipe-count">
+            <div>
+              <span class="info-label">免年费进度 ({{ card.fields.统计年度 }})</span>
+              <div class="swipe-progress">
+                <div class="progress-bar" style="width: {{ (card.fields.已刷次数 / card.fields.免年费次数 * 100) | round }}%"></div>
+              </div>
+              <span class="progress-text">
+                {{ card.fields.已刷次数 }}/{{ card.fields.免年费次数 }}次
+              </span>
+            </div>
+            <span class="remaining-count {{ 'urgent' if card.fields.剩余应刷次数 > 8 else 'warning' if card.fields.剩余应刷次数 > 4 else 'good' }}" 
+                  title="剩余应刷次数">
+              剩余{{ card.fields.剩余应刷次数 }}次
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">年费</span>
+            {{ card.fields.年费 }}元
+          </div>
+          <button class="swipe-btn" data-card-id="{{ card.recordId }}">
+            刷卡
+          </button>
+        </div>
+        <div class="card-details">
+          <div class="details-grid">
+            <div class="info-item">
+              <span class="info-label">银行</span>
+              {{ card.fields.银行 }}
+            </div>
+            <div class="info-item">
+              <span class="info-label">卡号</span>
+              **** {{ card.fields.卡号[-4:] }}
+            </div>
+            <div class="info-item">
+              <span class="info-label">还款日</span>
+              {{ card.fields.还款日 }}号
+            </div>
+            <div class="info-item">
+              <span class="info-label">年费</span>
+              {{ card.fields.年费 }}元
+            </div>
+            <div class="info-item">
+              <span class="info-label">统计年度</span>
+              {{ card.fields.统计年度 }}
+            </div>
+            <div class="info-item">
+              <span class="info-label">刷卡进度</span>
+              已刷{{ card.fields.已刷次数 }}次，剩余{{ card.fields.剩余应刷次数 }}次
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  // 点击卡片展开/收起详情
+  $('.card-summary').on('click', function(e) {
+    if (!$(e.target).hasClass('swipe-btn')) {
+      $(this).closest('.credit-card').toggleClass('show-details');
+    }
+  });
+
+  // 刷卡按钮点击事件
+  $('.swipe-btn').on('click', function(e) {
+    e.stopPropagation();  // 防止触发卡片展开
+    const recordId = $(this).data('card-id');  // 使用 data-card-id 属性获取 recordId
+    
+    // 调用刷卡接口
+    $.ajax({
+        url: '{{ url_for("life.swipe_card") }}',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ record_id: recordId }),
+        success: function(response) {
+            if (response.success) {
+                showToast('刷卡成功', 'success');
+                // 刷新页面以更新数据
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(response.message, 'error');
+            }
+        },
+        error: function() {
+            showToast('操作失败，请稍后重试', 'error');
+        }
+    });
+  });
+});
+</script>
+{% endblock %}

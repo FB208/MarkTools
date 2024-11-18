@@ -18,4 +18,5 @@ class Config:
     VIKA_SPACE_ID = os.getenv('VIKA_SPACE_ID', 'your_default_vika_space_id')
   #   VIKA_DATASHEET_ID = os.getenv('VIKA_DATASHEET_ID', 'your_default_vika_datasheet_id')
     REDIS_URL = os.getenv('REDIS_URL', 'your_default_redis_url')
+    MYSQL = os.getenv('MYSQL', 'your_default_mysql')
     # 其他配置变量

@@ -55,8 +55,9 @@
   }
 
   .card {
-    width: calc(23% - 16px);
-    aspect-ratio: 1 / 1;
+    width: calc(25% - 20px);
+    min-width: 200px;
+    height: 160px;
     border-radius: 15px;
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
@@ -107,13 +108,13 @@
 
   @media (max-width: 1200px) {
     .card {
-      width: calc(31% - 15px);
+      width: calc(33.33% - 20px);
     }
   }
 
   @media (max-width: 900px) {
     .card {
-      width: calc(48% - 13px);
+      width: calc(50% - 20px);
     }
   }
 
@@ -200,6 +201,19 @@
             <line x1="10" y1="9" x2="8" y2="9"/>
           </svg>
           <div class="text">文稿校验</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-section">
+      <h2>生活</h2>
+      <div class="flex flex-wrap justify-start gap-6">
+        <div class="card" data-url="{{ url_for('life.credit_card') }}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+          </svg>
+          <div class="text">信用卡管理</div>
         </div>
       </div>
     </div>
