@@ -23,3 +23,29 @@ def test_create_vika_datasheet():
             print(result)
         except Exception as e:
             print(f"Error: {e}")
+
+# pytest -s tests/utils/vika_util_test.py::test_get_records
+def test_get_records():
+    with app.app_context():
+        vika_client = VikaClient()
+        
+        # 查询所有数据
+        result = vika_client.get_records(
+            datasheet_id="dstGf7rE8sHNARigHC",
+            pageSize=100  # 每页返回100条记录
+        )
+        
+        print(result)
+        # 验证API调用是否成功
+        assert result['success'] == True
+        
+        # 打印记录总数
+        total = result['data']['total']
+        print(f"\n总记录数: {total}")
+        
+        # 打印每条记录的内容
+        records = result['data']['records']
+        for record in records:
+            print("\n记录ID:", record['recordId'])
+            print("字段内容:", record['fields'])
+
