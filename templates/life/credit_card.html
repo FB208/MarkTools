@@ -213,117 +213,168 @@
 
   <div class="flex flex-col items-center w-full max-w-7xl mx-auto">
     <h1 class="title">信用卡管理</h1>
-    
     <div class="credit-cards-list">
-      {% for card in credit_cards %}
-      <div class="credit-card show-details">
-        <div class="card-summary">
-          <div class="bank-info">
-            <span class="bank-name">{{ card.fields.银行 }}</span>
-            <span class="card-number">**** {{ card.fields.卡号[-4:] }}</span>
-            <span class="remaining-count {{ 'urgent' if card.fields.剩余应刷次数 > 8 else 'warning' if card.fields.剩余应刷次数 > 4 else 'good' }}">
-              {{ card.fields.剩余应刷次数 }}
-            </span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">还款日</span>
-            {{ card.fields.还款日 }}
-          </div>
-          <div class="info-item swipe-count">
-            <div>
-              <span class="info-label">免年费进度 ({{ card.fields.统计年度 }})</span>
-              <div class="swipe-progress">
-                <div class="progress-bar" style="width: {{ (card.fields.已刷次数 / card.fields.免年费次数 * 100) | round if card.fields.免年费次数 > 0 else 0 }}%"></div>
-              </div>
-              <span class="progress-text">
-                {% if card.fields.免年费次数 > 0 %}
-                  {{ card.fields.已刷次数 }}/{{ card.fields.免年费次数 }}次
-                {% else %}
-                  无免年费要求
-                {% endif %}
-              </span>
-            </div>
-            <span class="remaining-count {{ 'urgent' if card.fields.剩余应刷次数 > 8 else 'warning' if card.fields.剩余应刷次数 > 4 else 'good' }}" 
-                  title="剩余应刷次数">
-              剩余{{ card.fields.剩余应刷次数 }}次
-            </span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">年费</span>
-            {{ card.fields.年费 }}元
-          </div>
-          <button class="swipe-btn" data-card-id="{{ card.recordId }}">
-            刷卡
-          </button>
-        </div>
-        <div class="card-details">
-          <div class="details-grid">
-            <div class="info-item">
-              <span class="info-label">银行</span>
-              {{ card.fields.银行 }}
-            </div>
-            <div class="info-item">
-              <span class="info-label">卡号</span>
-              **** {{ card.fields.卡号[-4:] }}
-            </div>
-            <div class="info-item">
-              <span class="info-label">还款日</span>
-              {{ card.fields.还款日 }}号
-            </div>
-            <div class="info-item">
-              <span class="info-label">年费</span>
-              {{ card.fields.年费 }}元
-            </div>
-            <div class="info-item">
-              <span class="info-label">统计年度</span>
-              {{ card.fields.统计年度 }}
-            </div>
-            <div class="info-item">
-              <span class="info-label">刷卡进度</span>
-              已刷{{ card.fields.已刷次数 }}次，剩余{{ card.fields.剩余应刷次数 }}次
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+      <!-- 卡片将由 Handlebars 模板渲染 -->
     </div>
   </div>
 </div>
 
+<!-- Handlebars 模板 -->
+<script id="card-template" type="text/x-handlebars-template">
+  {% raw %}
+  {{#each cards}}
+  <div class="credit-card show-details" data-card-id="{{recordId}}">
+    <div class="card-summary">
+      <div class="bank-info">
+        <span class="bank-name">{{fields.bank}}</span>
+        <span class="card-number">**** {{fields.cardNumber}}</span>
+        <span class="remaining-count {{remainingCountClass fields.remainingCount}}">
+          差{{fields.remainingCount}}次
+        </span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">还款日</span>
+        <span class="repayment-date">{{fields.repaymentDate}}</span>
+      </div>
+      <div class="info-item swipe-count">
+        <div>
+          <span class="info-label">免年费进度 (<span class="stat-year">{{fields.statYear}}</span>)</span>
+          <div class="swipe-progress">
+            <div class="progress-bar" style="width: {{progressPercent fields.swipeCount fields.freeNeedCount}}%"></div>
+          </div>
+          <span class="progress-text">
+            {{#if fields.freeNeedCount}}
+              {{fields.swipeCount}}/{{fields.freeNeedCount}}次
+            {{else}}
+              无免年费要求
+            {{/if}}
+          </span>
+        </div>
+        <span class="remaining-count {{remainingCountClass fields.remainingCount}}">
+          剩余{{fields.remainingCount}}次
+        </span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">年费</span>
+        <span class="annual-fee">{{fields.annualFee}}元</span>
+      </div>
+      <button class="swipe-btn">刷卡</button>
+    </div>
+    <div class="card-details">
+      <div class="details-grid">
+        <div class="info-item">
+          <span class="info-label">银行</span>
+          <span class="bank-name">{{fields.bank}}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">卡号</span>
+          <span class="card-number">**** {{fields.cardNumber}}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">还款日</span>
+          <span class="repayment-date">{{fields.repaymentDate}}号</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">年费</span>
+          <span class="annual-fee">{{fields.annualFee}}元</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">统计年度</span>
+          <span class="stat-year">{{fields.statYear}}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">刷卡进度</span>
+          <span class="swipe-progress-text">
+            已刷{{fields.swipeCount}}次，剩余{{fields.remainingCount}}次
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{/each}}
+  {% endraw %}
+</script>
+
 <script>
 $(document).ready(function() {
-  // 点击卡片展开/收起详情
-  $('.card-summary').on('click', function(e) {
-    if (!$(e.target).hasClass('swipe-btn')) {
-      $(this).closest('.credit-card').toggleClass('show-details');
-    }
+  // 注册 Handlebars 辅助函数
+  Handlebars.registerHelper('progressPercent', function(swipeCount, freeNeedCount) {
+    return freeNeedCount > 0 ? (swipeCount / freeNeedCount * 100) : 0;
   });
 
-  // 刷卡按钮点击事件
-  $('.swipe-btn').on('click', function(e) {
-    e.stopPropagation();  // 防止触发卡片展开
-    const recordId = $(this).data('card-id');  // 使用 data-card-id 属性获取 recordId
-    
-    // 调用刷卡接口
-    $.ajax({
-        url: '{{ url_for("life.swipe_card") }}',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ record_id: recordId }),
-        success: function(response) {
-            if (response.success) {
-                showToast('刷卡成功', 'success');
-                // 刷新页面以更新数据
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                showToast(response.message, 'error');
-            }
-        },
-        error: function() {
-            showToast('操作失败，请稍后重试', 'error');
-        }
-    });
+  Handlebars.registerHelper('remainingCountClass', function(remainingCount) {
+    return remainingCount > 8 ? 'urgent' : 
+           remainingCount > 4 ? 'warning' : 'good';
   });
+
+  // 编译模板
+  const cardTemplate = Handlebars.compile($('#card-template').html());
+
+  // 加载数据并渲染
+  function loadCardsData() {
+    $.get('{{ url_for("life.credit_card_list") }}', function(cards) {
+      const $container = $('.credit-cards-list');
+      $container.html(cardTemplate({ cards: cards }));
+      
+      // 为新渲染的元素绑定事件
+      bindEvents();
+      
+      // 存储数据到DOM元素
+      cards.forEach(cardData => {
+        $(`[data-card-id="${cardData.recordId}"]`).data('card', cardData);
+      });
+    });
+  }
+
+  // 绑定事件
+  function bindEvents() {
+    $('.card-summary').off('click').on('click', function(e) {
+      if (!$(e.target).hasClass('swipe-btn')) {
+        $(this).closest('.credit-card').toggleClass('show-details');
+      }
+    });
+
+    $('.swipe-btn').off('click').on('click', function(e) {
+      e.stopPropagation();
+      handleSwipe($(this));
+    });
+  }
+
+  // 处理刷卡
+  function handleSwipe($btn) {
+    if ($btn.prop('disabled')) return;
+
+    const $card = $btn.closest('.credit-card');
+    const card = $card.data('card');
+    
+    $btn.prop('disabled', true)
+      .text('处理中...');
+
+    $.ajax({
+      url: '{{ url_for("life.swipe_card") }}',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ record_id: card.recordId }),
+      success: function(response) {
+        if (response.success) {
+          showToast('刷卡成功', 'success');
+          loadCardsData();
+        } else {
+          showToast(response.message, 'error');
+        }
+      },
+      error: function() {
+        showToast('操作失败，请稍后重试', 'error');
+      },
+      complete: function() {
+        $btn.prop('disabled', false)
+          .text('刷卡');
+      }
+    });
+  }
+
+  // 初始加载数据
+  loadCardsData();
 });
 </script>
 {% endblock %}

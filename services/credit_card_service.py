@@ -36,15 +36,15 @@ def get_credit_cards():
             card_data = {
                 'recordId': str(card.id),  # 保持与前端兼容
                 'fields': {
-                    '卡号': card.card_code[-4:] if card.card_code else '',
-                    '银行': card.bank,
-                    '月份': card.credit_month,
-                    '还款日': card.repayment_date,
-                    '年费': float(card.annual_fee) if card.annual_fee else 0,
-                    '免年费次数': card.free_need_count or 0,
-                    '已刷次数': swipe_count,
-                    '剩余应刷次数': max(0, (card.free_need_count or 0) - swipe_count),
-                    '统计年度': f"{now.year}.{card_month:02d}-至今" if card_month <= now.month else f"{now.year-1}.{card_month:02d}-至今"
+                    'cardNumber': card.card_code[-4:] if card.card_code else '',
+                    'bank': card.bank,
+                    'month': card.credit_month,
+                    'repaymentDate': card.repayment_date,
+                    'annualFee': float(card.annual_fee) if card.annual_fee else 0,
+                    'freeNeedCount': card.free_need_count or 0,
+                    'swipeCount': swipe_count,
+                    'remainingCount': max(0, (card.free_need_count or 0) - swipe_count),
+                    'statYear': f"{now.year}.{card_month:02d}-至今" if card_month <= now.month else f"{now.year-1}.{card_month:02d}-至今"
                 }
             }
             result.append(card_data)

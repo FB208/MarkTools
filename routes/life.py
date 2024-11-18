@@ -5,8 +5,14 @@ from services.credit_card_service import get_credit_cards, add_swipe_record
 @life_bp.route('/credit_card')
 def credit_card():
     """信用卡管理页面"""
+  
+    return render_template('life/credit_card.html')
+
+@life_bp.route('/credit_card/list', methods=['GET'])
+def credit_card_list():
+    """信用卡列表接口"""
     credit_cards = get_credit_cards()
-    return render_template('life/credit_card.html', credit_cards=credit_cards)
+    return jsonify(credit_cards)
 
 @life_bp.route('/credit_card/swipe', methods=['POST'])
 def swipe_card():
