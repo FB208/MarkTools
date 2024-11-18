@@ -112,6 +112,7 @@
     max-height: 500px;
     overflow: hidden;
     transition: all 0.3s ease;
+    padding: 0 1.5rem 1rem 1.5rem;
   }
 
   .credit-card.show-details .card-details {
@@ -122,9 +123,31 @@
 
   .details-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
+    gap: 1.5rem;
     margin-top: 1rem;
+  }
+
+  @media (min-width: 769px) {
+    .details-grid {
+      grid-template-columns: repeat(6, 1fr);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 1rem;
+    }
+
+    .info-item {
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .card-details {
+      display: block;
+      padding: 1rem 1.5rem;
+    }
+
+    .details-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   .swipe-count {
@@ -180,23 +203,26 @@
     color: #34d399;
   }
 
+  /* 添加PC端的特殊样式 */
+  @media (min-width: 769px) {
+    .bank-info {
+      display: grid;
+      grid-template-columns: auto auto 1fr;  /* 使用grid布局，让最后一个元素自动占据剩余空间 */
+      align-items: center;
+      gap: 1.5rem;  /* 增加间距 */
+    }
+
+    .remaining-count {
+      justify-self: center;  /* 居中显示 */
+    }
+  }
+
+  /* 保持移动端样式不变 */
   @media (max-width: 768px) {
-    .card-summary {
-      grid-template-columns: 1fr auto;
+    .bank-info {
+      display: flex;
+      align-items: center;
       gap: 1rem;
-    }
-    
-    .card-summary > *:not(:first-child):not(:last-child) {
-      display: none;
-    }
-
-    .card-details {
-      display: block;
-      padding: 1rem 1.5rem;
-    }
-
-    .details-grid {
-      grid-template-columns: repeat(2, 1fr);
     }
   }
 </style>
@@ -250,9 +276,6 @@
             {{/if}}
           </span>
         </div>
-        <span class="remaining-count {{remainingCountClass fields.remainingCount}}">
-          剩余{{fields.remainingCount}}次
-        </span>
       </div>
       <div class="info-item">
         <span class="info-label">年费</span>
