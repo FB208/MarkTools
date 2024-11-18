@@ -233,10 +233,14 @@
             <div>
               <span class="info-label">免年费进度 ({{ card.fields.统计年度 }})</span>
               <div class="swipe-progress">
-                <div class="progress-bar" style="width: {{ (card.fields.已刷次数 / card.fields.免年费次数 * 100) | round }}%"></div>
+                <div class="progress-bar" style="width: {{ (card.fields.已刷次数 / card.fields.免年费次数 * 100) | round if card.fields.免年费次数 > 0 else 0 }}%"></div>
               </div>
               <span class="progress-text">
-                {{ card.fields.已刷次数 }}/{{ card.fields.免年费次数 }}次
+                {% if card.fields.免年费次数 > 0 %}
+                  {{ card.fields.已刷次数 }}/{{ card.fields.免年费次数 }}次
+                {% else %}
+                  无免年费要求
+                {% endif %}
               </span>
             </div>
             <span class="remaining-count {{ 'urgent' if card.fields.剩余应刷次数 > 8 else 'warning' if card.fields.剩余应刷次数 > 4 else 'good' }}" 
