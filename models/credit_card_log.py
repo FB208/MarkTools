@@ -4,7 +4,7 @@ from .credit_card import CreditCard
 
 class CreditCardLog(BaseModel):
     """信用卡刷卡记录表"""
-    id = BigIntegerField(primary_key=True)  # 使用 BigIntegerField 对应 bigint
+    id = AutoField(primary_key=True)  # 修改为 AutoField 对应自增主键
     card_code = CharField(max_length=50, null=True, help_text='卡号')
     insert_time = DateTimeField(null=True, help_text='刷卡时间')
     
