@@ -1,79 +1,462 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>Word 加载项</title>
-    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-</head>
-<body>
-    <button id="set-color">设置背景色为蓝色</button>
-    <button id="chatButton">聊天</button>
-    <script>
-        Office.onReady((info) => {
-            if (info.host === Office.HostType.Word) {
-                document.getElementById("set-color").onclick = setBackgroundColor;
-                document.getElementById('chatButton').onclick = handleChatButtonClick;
+{% extends "_base.html" %}
+
+{% block title %}怼咕报告{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/event-source-polyfill@1.0.31/src/eventsource.min.js"></script>
+<style>
+  .container {
+    position: relative;
+    padding: 0;
+    justify-content: flex-start;
+  }   
+
+  .content-wrapper {
+    margin-top: 60px;
+    width: 100%;
+    position: relative;
+  }
+
+  .tab-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    background: linear-gradient(to right, #1a1c2d, #2a2d3d);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+    height: 60px;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .tab-button {
+    position: relative;
+    color: #8b92b2;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 0 24px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .tab-button:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+
+  .tab-button:hover {
+    color: #fff;
+  }
+
+  .tab-button:hover:after {
+    width: 100%;
+  }
+
+  .tab-button.active {
+    color: #fff;
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+  }
+
+  .tab-button.active:after {
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  }
+
+  .tab-content {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    position: relative;
+  }
+
+  .tab-content.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .button-group {
+    display: flex;
+    background: rgba(17, 24, 39, 0.4);
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .button {
+    flex: 1;
+    font-size: 13px;
+    padding: 8px 12px;
+    background: rgba(45, 49, 66, 0.95);
+    color: #e2e4fd;
+    border: 1px solid rgba(99, 102, 241, 0.5);
+    transition: all 0.2s ease;
+    position: relative;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    border-radius: 0;
+    margin: 0;
+    z-index: 1;
+  }
+
+  .button:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+  }
+
+  .button:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+  }
+
+  .button + .button {
+    margin-left: -1px;
+  }
+
+  .button:not(:last-child) {
+    border-right: none;
+  }
+
+  .button:hover {
+    z-index: 2;
+    color: #ffffff;
+    background: rgba(55, 60, 80, 0.95);
+    border-color: rgba(99, 102, 241, 0.8);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+  }
+
+  .button:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  .button.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border-color: rgba(99, 102, 241, 0.9);
+    box-shadow: 
+      0 2px 8px rgba(79, 70, 229, 0.3),
+      inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  }
+
+  .button i {
+    margin-right: 6px;
+    font-size: 14px;
+    opacity: 0.9;
+    color: #a5b4fc;
+  }
+
+  .button:hover i {
+    opacity: 1;
+    color: #ffffff;
+  }
+
+
+  .result {
+    font-size: 14px;
+    margin-top: 12px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: #e3e3e3;
+  }
+
+  /* 添加工具提示样式 */
+  .button {
+    /* 保持现有样式 */
+    position: relative;  /* 确保是relative */
+  }
+
+  .button::after {
+    content: attr(data-tooltip);
+    position: fixed;
+    top: auto;
+    bottom: 50%;
+    left: 50%;
+    transform: translate(-50%, 150%);
+    padding: 10px 16px;
+    background: rgba(15, 23, 42, 0.95);
+    color: #e2e4fd;
+    font-size: 15px;
+    line-height: 1.6;
+    font-weight: normal;
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 99;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    width: 200px;  /* 设置合适的固定宽度 */
+    max-width: calc(100vw - 32px);  /* 留出边距 */
+    text-align: left;  /* 改为左对齐 */
+    pointer-events: none;
+    word-wrap: break-word;
+    white-space: normal;  /* 允许正常换行 */
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+
+
+  .button:hover::after {
+    opacity: 1;
+    visibility: visible;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-2" style="display: flex; flex-direction: column; align-items: center; height: auto;">
+    <div class="content-wrapper">
+        <div class="tab-menu">
+            <button class="tab-button active" data-tab="content">文案助手</button>
+            <button class="tab-button" data-tab="layout">排版助手</button>
+        </div>
+
+        <div id="content" class="tab-content active">
+            <div class="button-group">
+                <button id="inspiration2outlineButton" class="button" data-tooltip="将您的灵感快速转换为结构化提纲，帮助您理清思路和文章结构。">
+                    <i class="fas fa-lightbulb"></i>灵感转提纲
+                </button>
+                <button id="chatButton" class="button" data-tooltip="基于现有提纲，智能扩充完整的文案内容，让您的文章更加丰富。">
+                    <i class="fas fa-expand"></i>提纲扩充
+                </button>
+                <button id="vulnerabilityButton" class="button" data-tooltip="一键清理文案中的提纲标记，输出整洁的纯文本内容。">
+                    <i class="fas fa-magic"></i>文案去提纲
+                </button>
+            </div>
+
+            <div id="vulnerabilityResult" class="result"></div>
+        </div>
+
+        <div id="layout" class="tab-content">
+            <div class="button-group">
+                <button id="spell-check" class="button">排查错别字</button>
+                <button id="format-check" class="button">格式检查</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+Office.onReady((info) => {
+    if (info.host === Office.HostType.Word) {
+        // 初始化按钮事件
+        document.getElementById("inspiration2outlineButton").onclick = inspiration2outlineClick;
+        document.getElementById('chatButton').onclick = handleChatButtonClick;
+        document.getElementById('vulnerabilityButton').onclick = handleVulnerabilityButtonClick;
+        
+        // 添加标签切换功能
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // 移除所有活动状态
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => {
+                    content.style.display = 'none';
+                    content.classList.remove('active');
+                });
+                
+                // 添加当前选中标签的活动状态
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                const activeContent = document.getElementById(tabId);
+                if (activeContent) {
+                    activeContent.style.display = 'block';
+                    activeContent.classList.add('active');
+                }
+            });
+        });
+    }
+});
+
+function inspiration2outlineClick() {
+    Word.run(async function (context) {
+        // 获取选中的文本
+        const range = context.document.getSelection();
+        range.load('text');
+        await context.sync();
+        
+        const selectedText = range.text;
+        if (!selectedText) {
+            showToast('请先选择文本', 'warning');
+            return;
+        }
+
+        // 显示结果区域
+        const resultDiv = document.getElementById('vulnerabilityResult');
+        resultDiv.innerHTML = '正在生成提纲...';
+
+        // 创建 SSE 连接
+        const eventSource = new EventSource('{{ url_for("word_plugin.inspiration2outline_stream") }}?' + $.param({
+            text: selectedText
+        }));
+
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log('收到SSE消息:', data);  // 调试日志
+            
+            switch (data.step) {
+                case 'outline':
+                    console.log('收到提纲内容:', data.message);  // 调试日志
+                    typewriterEffect($('#vulnerabilityResult'), data.message);
+                    break;
+                case 'show_toast':
+                    showToast(data.content, 'info');
+                    break;
+                case 'complete':
+                    showToast(data.content, 'success');
+                    eventSource.close();
+                    break;
+            }
+        };
+
+        eventSource.onerror = function(error) {
+            console.error('EventSource failed:', error);
+            showToast('生成提纲时发生错误', 'error');
+            eventSource.close();
+        };
+    }).catch(function (error) {
+        console.log("Error: " + error);
+        if (error instanceof OfficeExtension.Error) {
+            console.log("Debug info: " + JSON.stringify(error.debugInfo));
+        }
+        showToast("操作失败，请重试", 'error');
+    });
+}
+
+function handleChatButtonClick() {
+    Word.run(function (context) {
+        const range = context.document.getSelection();
+        range.load('text');
+        return context.sync().then(function () {
+            let selectedText = range.text;
+            if (selectedText) {
+                fetch('{{ url_for("word_plugin.simple_chat") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: selectedText })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    insertTextToWord(data.message);
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                alert('请先选择文本');
             }
         });
-
-        function setBackgroundColor() {
-            Word.run(function (context) {
-                const range = context.document.getSelection();
-                range.font.highlightColor = "blue";
-                return context.sync();
-            }).catch(function (error) {
-                console.log("Error: " + error);
-                if (error instanceof OfficeExtension.Error) {
-                    console.log("Debug info: " + JSON.stringify(error.debugInfo));
-                }
-                alert('设置背景色时出错，请重试。');
-            });
+    }).catch(function (error) {
+        console.log("Error: " + error);
+        if (error instanceof OfficeExtension.Error) {
+            console.log("Debug info: " + JSON.stringify(error.debugInfo));
         }
+    });
+}
 
-        function handleChatButtonClick() {
-            Word.run(function (context) {
-                const range = context.document.getSelection();
-                range.load('text');
-                return context.sync().then(function () {
-                    let selectedText = range.text;
-                    if (selectedText) {
-                        fetch('{{ url_for("word_plugin.simple_chat") }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ text: selectedText })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            insertTextToWord(data.message);
-                        })
-                        .catch(error => console.error('Error:', error));
-                    } else {
-                        alert('请先选择文本');
-                    }
-                });
-            }).catch(function (error) {
-                console.log("Error: " + error);
-                if (error instanceof OfficeExtension.Error) {
-                    console.log("Debug info: " + JSON.stringify(error.debugInfo));
-                }
-            });
+function insertTextToWord(text) {
+    Word.run(function (context) {
+        const range = context.document.getSelection();
+        range.insertText(text, Word.InsertLocation.replace);
+        return context.sync();
+    }).catch(function (error) {
+        console.log("Error: " + error);
+        if (error instanceof OfficeExtension.Error) {
+            console.log("Debug info: " + JSON.stringify(error.debugInfo));
         }
+        alert('插入文本时出错，请重试。');
+    });
+}
 
-        function insertTextToWord(text) {
-            Word.run(function (context) {
-                const range = context.document.getSelection();
-                range.insertText(text, Word.InsertLocation.replace);
-                return context.sync();
-            }).catch(function (error) {
-                console.log("Error: " + error);
-                if (error instanceof OfficeExtension.Error) {
-                    console.log("Debug info: " + JSON.stringify(error.debugInfo));
-                }
-                alert('插入文本时出错，请重试。');
+function handleVulnerabilityButtonClick() {
+    Word.run(function (context) {
+        // 获取所有段落
+        const paragraphs = context.document.body.paragraphs;
+        paragraphs.load('text');
+        
+        return context.sync().then(function () {
+            // 将所有段落的文本组合成完整文档
+            let documentText = '';
+            for (let i = 0; i < paragraphs.items.length; i++) {
+                documentText += paragraphs.items[i].text + '\n';
+            }
+            
+            // 显加载状态
+            document.getElementById('vulnerabilityResult').innerText = '正在分析文档...';
+            // 在页面显示获取到的文档
+            document.getElementById('vulnerabilityResult').innerText = documentText;
+            
+            fetch('{{ url_for("word_plugin.logic_vulnerability") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: documentText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('vulnerabilityResult').innerText = '漏洞排查结果: ' + data.message;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('vulnerabilityResult').innerText = '排查漏洞时出错，请重试。';
             });
+            
+        });
+    }).catch(function (error) {
+        console.log("Error: " + error);
+        if (error instanceof OfficeExtension.Error) {
+            console.log("Debug info: " + JSON.stringify(error.debugInfo));
         }
-    </script>
-</body>
-</html>
+        document.getElementById('vulnerabilityResult').innerText = '排查漏洞时出错，请重试';
+    });
+}
+
+
+// 添加打字机效果函数
+function typewriterEffect($element, text, speed = 10) {
+  let i = 0;
+  $element.html('').css('white-space', 'pre-wrap');
+
+  function typeWriter() {
+    if (i < text.length) {
+      $element.html($element.html() + text.charAt(i));
+      i++;
+      setTimeout(typeWriter, speed);
+    }
+  }
+
+  typeWriter();
+}
+</script>
+{% endblock %}

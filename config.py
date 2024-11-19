@@ -5,6 +5,8 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_default_secret_key')
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'your_default_openai_api_key')
     OPENAI_BASE_URL = os.getenv('OPENAI_BASE_URL', 'https://api.deepseek.com/v1/')
+    GROK_API_KEY = os.getenv('GROK_API_KEY', 'your_default_grok_api_key')
+    GROK_BASE_URL = os.getenv('GROK_BASE_URL', 'https://api.grok.com/v1/')
     DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', 'your_default_deepseek_api_key')
     DEEPSEEK_BASE_URL = os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1/')
     SIMPLE_GOOGLE_API_KEY = os.getenv('SIMPLE_GOOGLE_API_KEY', 'your_default_SIMPLE_GOOGLE_API_KEY')

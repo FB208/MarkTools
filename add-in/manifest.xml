@@ -40,6 +40,7 @@
   </Hosts>
   <DefaultSettings>
     <SourceLocation DefaultValue="http://localhost:5000/word_plugin/home" />
+    <RequestedWidth>400</RequestedWidth>   <!-- 最小宽度(像素) -->
   </DefaultSettings>
   <!-- End TaskPane Mode integration.  -->
 
