@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Word 加载项</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+</head>
+<body>
+    <button id="set-color">设置背景色为蓝色</button>
+    <button id="chatButton">聊天</button>
+    <script>
+        Office.onReady((info) => {
+            if (info.host === Office.HostType.Word) {
+                document.getElementById("set-color").onclick = setBackgroundColor;
+                document.getElementById('chatButton').onclick = handleChatButtonClick;
+            }
+        });
+
+        function setBackgroundColor() {
+            Word.run(function (context) {
+                const range = context.document.getSelection();
+                range.font.highlightColor = "blue";
+                return context.sync();
+            }).catch(function (error) {
+                console.log("Error: " + error);
+                if (error instanceof OfficeExtension.Error) {
+                    console.log("Debug info: " + JSON.stringify(error.debugInfo));
+                }
+                alert('设置背景色时出错，请重试。');
+            });
+        }
+
+        function handleChatButtonClick() {
+            Word.run(function (context) {
+                const range = context.document.getSelection();
+                range.load('text');
+                return context.sync().then(function () {
+                    let selectedText = range.text;
+                    if (selectedText) {
+                        fetch('{{ url_for("word_plugin.simple_chat") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ text: selectedText })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            insertTextToWord(data.message);
+                        })
+                        .catch(error => console.error('Error:', error));
+                    } else {
+                        alert('请先选择文本');
+                    }
+                });
+            }).catch(function (error) {
+                console.log("Error: " + error);
+                if (error instanceof OfficeExtension.Error) {
+                    console.log("Debug info: " + JSON.stringify(error.debugInfo));
+                }
+            });
+        }
+
+        function insertTextToWord(text) {
+            Word.run(function (context) {
+                const range = context.document.getSelection();
+                range.insertText(text, Word.InsertLocation.replace);
+                return context.sync();
+            }).catch(function (error) {
+                console.log("Error: " + error);
+                if (error instanceof OfficeExtension.Error) {
+                    console.log("Debug info: " + JSON.stringify(error.debugInfo));
+                }
+                alert('插入文本时出错，请重试。');
+            });
+        }
+    </script>
+</body>
+</html>
