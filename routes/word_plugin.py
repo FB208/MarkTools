@@ -2,7 +2,7 @@ import os
 from flask import current_app as app
 from flask import render_template, request, jsonify, Blueprint, Response, stream_with_context
 from . import word_plugin_bp
-from services.word_plugin_service import simple_chat as simple_chat_service, logic_vulnerability as logic_vulnerability_service, inspiration2outline
+from services.word_plugin_service import simple_chat as simple_chat_service, logic_vulnerability as logic_vulnerability_service, inspiration2outline, simple_optimize, super_expand
 import json
 
 @word_plugin_bp.route('/word_plugin/home')
@@ -11,6 +11,77 @@ def home():
 
     return render_template('word_plugin/home.html')
 
+# 简单优化
+@word_plugin_bp.route('/word_plugin/simple_optimize')
+def simple_optimize_stream():
+    text = request.args.get('text', '')
+    
+    if not text:
+        return {'error': '请提供文本内容'}, 400
+    @stream_with_context
+    def generate():
+        try:
+            yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在思考，请稍后。。。'}, ensure_ascii=False)}\n\n"
+            
+            optimize_content = simple_optimize(text)
+            print("获取到优化内容:", optimize_content)  # 调试日志
+
+            data = json.dumps({'step': 'optimize', 'message': optimize_content}, ensure_ascii=False)
+           
+            
+            yield f"data: {data}\n\n"
+            
+            # 添加完成消息
+            yield f"data: {json.dumps({'step': 'complete', 'content': '优化完成'}, ensure_ascii=False)}\n\n"
+            
+        except Exception as e:
+            print(f"Error in generate: {str(e)}")
+            yield f"data: {json.dumps({'step': 'show_toast', 'content': f'发生错误: {str(e)}'}, ensure_ascii=False)}\n\n"
+
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+        }
+    )
+
+# 超级扩写
+@word_plugin_bp.route('/word_plugin/super_expand')
+def super_expand_stream():
+    text = request.args.get('text', '')
+    
+    if not text:
+        return {'error': '请提供文本内容'}, 400
+    @stream_with_context
+    def generate():
+        try:
+            yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在思考，请稍后。。。'}, ensure_ascii=False)}\n\n"
+            
+            expand_content = super_expand(text)
+            print("获取到扩写内容:", expand_content)  # 调试日志
+
+            data = json.dumps({'step': 'content', 'message': expand_content}, ensure_ascii=False)
+           
+            
+            yield f"data: {data}\n\n"
+            
+            # 添加完成消息
+            yield f"data: {json.dumps({'step': 'complete', 'content': '优化完成'}, ensure_ascii=False)}\n\n"
+            
+        except Exception as e:
+            print(f"Error in generate: {str(e)}")
+            yield f"data: {json.dumps({'step': 'show_toast', 'content': f'发生错误: {str(e)}'}, ensure_ascii=False)}\n\n"
+
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+        }
+    )
 
 @word_plugin_bp.route('/word_plugin/simple_chat', methods=['POST'])
 def simple_chat():

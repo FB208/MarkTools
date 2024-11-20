@@ -7,6 +7,32 @@
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/event-source-polyfill@1.0.31/src/eventsource.min.js"></script>
 <style>
+    /* 隐藏滚动条但保持可滚动 */
+  html, body {
+    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+  }
+  
+  /* Webkit browsers (Chrome, Safari) */
+  html::-webkit-scrollbar, 
+  body::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* 确保内容区域也隐藏滚动条 */
+  .content-wrapper,
+  .result-container,
+  .result-content {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .content-wrapper::-webkit-scrollbar,
+  .result-container::-webkit-scrollbar,
+  .result-content::-webkit-scrollbar {
+    display: none;
+  }
+
   .container {
     position: relative;
     padding: 0;
@@ -27,10 +53,10 @@
     display: flex;
     background: linear-gradient(to right, #1a1c2d, #2a2d3d);
     backdrop-filter: blur(12px);
-    z-index: 100;
     height: 60px;
     align-items: center;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 10;
   }
 
   .tab-button {
@@ -90,21 +116,23 @@
     opacity: 0;
     transition: opacity 0.3s ease;
     position: relative;
+    margin-bottom: 0;
+    display: none;
   }
 
   .tab-content.active {
     display: block;
     opacity: 1;
   }
-
+ .button-group-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
   .button-group {
     display: flex;
-    background: rgba(17, 24, 39, 0.4);
-    padding: 4px;
-    border-radius: 8px;
-  }
 
-  .button {
+  }
+ .button {
     flex: 1;
     font-size: 13px;
     padding: 8px 12px;
@@ -116,19 +144,36 @@
     font-weight: 500;
     white-space: nowrap;
     cursor: pointer;
-    border-radius: 0;
+    border-radius: 0 !important;
     margin: 0;
     z-index: 1;
   }
+  .button-group-wrapper > .button-group:first-child > .button:first-child {
+    border-top-left-radius: 6px !important;
+  }
+
+  .button-group-wrapper > .button-group:first-child > .button:last-child {
+    border-top-right-radius: 6px !important;
+  }
+
+  .button-group-wrapper > .button-group:last-child > .button:first-child {
+    border-bottom-left-radius: 6px !important;
+  }
+
+  .button-group-wrapper > .button-group:last-child > .button:last-child {
+    border-bottom-right-radius: 6px !important;
+  }
+
+ 
 
   .button:first-child {
     border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
+    border-bottom-left-radius: 0;
   }
 
   .button:last-child {
     border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
+    border-bottom-right-radius: 0;
   }
 
   .button + .button {
@@ -175,13 +220,17 @@
   }
 
 
-  .result {
+  .result-container {
     font-size: 14px;
-    margin-top: 12px;
-    padding: 10px;
+    padding: 16px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
+    border-radius: 8px;
     color: #e3e3e3;
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    min-height: 100px;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 1.6;
   }
 
   /* 添加工具提示样式 */
@@ -208,7 +257,7 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.2s ease;
-    z-index: 99;
+    z-index: 999;
     border: 1px solid rgba(99, 102, 241, 0.2);
     width: 200px;  /* 设置合适的固定宽度 */
     max-width: calc(100vw - 32px);  /* 留出边距 */
@@ -226,31 +275,120 @@
     opacity: 1;
     visibility: visible;
   }
+
+  /* 添加工具条样式 */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(30, 32, 47, 0.95);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    backdrop-filter: blur(8px);
+    margin: 0px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .word-count {
+    font-size: 14px;
+    color: #a5b4fc;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tool-button {
+    background: transparent;
+    border: none;
+    color: #a5b4fc;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tool-button:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: #fff;
+  }
+
+  .result-content {
+    min-height: 60px;
+    background: linear-gradient(135deg, #1a1c2d, #2a2d3d);
+    color: #e3e3e3;
+  }
+
+  /* 添加置顶按钮样式 */
+  .scroll-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border-radius: 50%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    border: none;
+    color: white;
+  }
+
+  .scroll-to-top:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+  }
+
+  .scroll-to-top i {
+    font-size: 20px;
+  }
+
+ 
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="container mx-auto px-2" style="display: flex; flex-direction: column; align-items: center; height: auto;">
     <div class="content-wrapper">
-        <div class="tab-menu">
+        <div class="tab-menu z-10">
             <button class="tab-button active" data-tab="content">文案助手</button>
             <button class="tab-button" data-tab="layout">排版助手</button>
         </div>
 
         <div id="content" class="tab-content active">
-            <div class="button-group">
-                <button id="inspiration2outlineButton" class="button" data-tooltip="将您的灵感快速转换为结构化提纲，帮助您理清思路和文章结构。">
-                    <i class="fas fa-lightbulb"></i>灵感转提纲
-                </button>
-                <button id="chatButton" class="button" data-tooltip="基于现有提纲，智能扩充完整的文案内容，让您的文章更加丰富。">
-                    <i class="fas fa-expand"></i>提纲扩充
-                </button>
-                <button id="vulnerabilityButton" class="button" data-tooltip="一键清理文案中的提纲标记，输出整洁的纯文本内容。">
-                    <i class="fas fa-magic"></i>文案去提纲
-                </button>
+            <div class="button-group-wrapper">
+                <div class="button-group">
+                    <button id="simple_optimize" class="button" data-tooltip="修正错别字、语病，适当补充内容并优化文案。">
+                        <i class="fas fa-magic"></i>简单优化
+                    </button>
+                    <button id="super_expand" class="button" data-tooltip="自动从google搜索内容来扩种">
+                        <i class="fas fa-expand-alt"></i>超级扩写
+                    </button>
+                </div>
+                <div class="button-group">
+                    <button id="inspiration2outlineButton" class="button" data-tooltip="将您的灵感快速转换为结构化提纲，帮助您理清思路和文章结构。">
+                        <i class="fas fa-lightbulb"></i>灵感转提纲
+                    </button>
+                    <button id="chatButton" class="button" data-tooltip="基于现有提纲，智能扩充完整的文案内容，让您的文章更加丰富。">
+                        <i class="fas fa-expand"></i>提纲扩充
+                    </button>
+                    <button id="vulnerabilityButton" class="button" data-tooltip="一键清理文案中的提纲标记，输出整洁的纯文本容。">
+                        <i class="fas fa-eraser"></i>文案去提纲
+                    </button>
+                </div>
             </div>
-
-            <div id="vulnerabilityResult" class="result"></div>
         </div>
 
         <div id="layout" class="tab-content">
@@ -259,8 +397,31 @@
                 <button id="format-check" class="button">格式检查</button>
             </div>
         </div>
+        <div id="result-container" class="result-container">
+            <!-- 添加工具条 -->
+            <div class="toolbar">
+                <div class="word-count">
+                    <i class="fas fa-font text-indigo-400"></i>
+                    <span id="word-counter">0</span> 字
+                </div>
+                <div class="toolbar-actions">
+                    <button class="tool-button" id="copy-btn" data-tooltip="复制到剪贴板">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="tool-button" id="insert-btn" data-tooltip="插入到文档">
+                        <i class="fas fa-file-import"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="result-content" class="result-content"></div>
+        </div>
     </div>
 </div>
+
+<!-- 添加置顶按钮 -->
+<button class="scroll-to-top" id="scrollToTop">
+    <i class="fas fa-arrow-up"></i>
+</button>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -271,6 +432,8 @@ Office.onReady((info) => {
         document.getElementById("inspiration2outlineButton").onclick = inspiration2outlineClick;
         document.getElementById('chatButton').onclick = handleChatButtonClick;
         document.getElementById('vulnerabilityButton').onclick = handleVulnerabilityButtonClick;
+        document.getElementById('simple_optimize').onclick = handleSimpleOptimizeClick;
+        document.getElementById('super_expand').onclick = handleSuperExpandClick;
         
         // 添加标签切换功能
         const tabButtons = document.querySelectorAll('.tab-button');
@@ -296,7 +459,184 @@ Office.onReady((info) => {
             });
         });
     }
+
+    $(document).ready(function(){
+          //解决工具条盖住button悬浮提示的问题
+      $(document).on('mouseenter', '#content', function() {
+            $(".result-container").fadeOut(1000); // 200ms淡出效果
+      });
+      $(document).on('mouseleave', '#content', function() {
+            $(".result-container").fadeIn(1000);  // 200ms淡入效果
+      });
+    });
 });
+    // 添加工具条功能
+  document.addEventListener('DOMContentLoaded', function() {
+    const copyBtn = document.getElementById('copy-btn');
+    const insertBtn = document.getElementById('insert-btn');
+    const wordCounter = document.getElementById('word-counter');
+    const resultContent = document.getElementById('result-content');
+
+    // 更新字数统计
+    function updateWordCount() {
+        const text = resultContent.textContent || '';
+        wordCounter.textContent = text.length;
+    }
+
+    // 复制功能
+    copyBtn.addEventListener('click', async () => {
+        const text = resultContent.textContent || '';
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast('已复制到剪切板', 'success');
+        } catch (err) {
+            showToast('复制失败', 'error');
+        }
+    });
+
+    // 插入功能
+    insertBtn.addEventListener('click', () => {
+        const text = resultContent.textContent || '';
+        Word.run(async (context) => {
+            // 获取当前选区(光标位置)
+            const range = context.document.getSelection();
+            // 在光标位置插入文本
+            range.insertText(text, Word.InsertLocation.replace);
+            
+            await context.sync();
+            showToast('已插入到文档', 'success');
+        }).catch(error => {
+            console.error('Error:', error);
+            showToast('插入失败，请重试', 'error');
+        });
+    });
+
+    // 监听内容变化
+    const observer = new MutationObserver(updateWordCount);
+    observer.observe(resultContent, { 
+        childList: true, 
+        characterData: true, 
+        subtree: true 
+    });
+
+    // 初始化字数统计
+    updateWordCount();
+
+
+  });
+
+//下面开始是逻辑函数
+
+//简单优化
+function handleSimpleOptimizeClick() {
+    Word.run(async function (context) {
+        // 获取选中的文本
+        const range = context.document.getSelection();
+        range.load('text');
+        await context.sync();
+        
+        const selectedText = range.text;
+        if (!selectedText) {
+            showToast('请先选择文本', 'warning');
+            return;
+        }
+
+        // 显示结果区域
+        const resultDiv = $('#result-content');
+
+        // 创建 SSE 连接
+        const eventSource = new EventSource('{{ url_for("word_plugin.simple_optimize_stream") }}?' + $.param({
+            text: selectedText
+        }));
+
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log('收���SSE消息:', data);  // 调试日志
+            
+            switch (data.step) {
+                case 'optimize':
+                    console.log('收到内容:', data.message);  // 调试日志
+                    typewriterEffect(resultDiv, data.message);
+                    break;
+                case 'show_toast':
+                    showToast(data.content, 'info');
+                    break;
+                case 'complete':
+                    showToast(data.content, 'success');
+                    eventSource.close();
+                    break;
+            }
+        };
+
+        eventSource.onerror = function(error) {
+            console.error('EventSource failed:', error);
+            showToast('生成提纲时发生错误', 'error');
+            eventSource.close();
+        };
+    }).catch(function (error) {
+        console.log("Error: " + error);
+        if (error instanceof OfficeExtension.Error) {
+            console.log("Debug info: " + JSON.stringify(error.debugInfo));
+        }
+        showToast("操作失败，请重试", 'error');
+    });
+
+}
+//超级扩写
+function handleSuperExpandClick() {
+    Word.run(async function (context) {
+        // 获取选中的文本
+        const range = context.document.getSelection();
+        range.load('text');
+        await context.sync();
+        
+        const selectedText = range.text;
+        if (!selectedText) {
+            showToast('请先选择文本', 'warning');
+            return;
+        }
+
+        // 显示结果区域
+        const resultDiv = $('#result-content');
+
+        // 创建 SSE 连接
+        const eventSource = new EventSource('{{ url_for("word_plugin.super_expand_stream") }}?' + $.param({
+            text: selectedText
+        }));
+
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log('收到SSE消息:', data);  // 调试日志
+            
+            switch (data.step) {
+                case 'content':
+                    console.log('收到内容:', data.message);  // 调试日志
+                    typewriterEffect(resultDiv, data.message);
+                    break;
+                case 'show_toast':
+                    showToast(data.content, 'info');
+                    break;
+                case 'complete':
+                    showToast(data.content, 'success');
+                    eventSource.close();
+                    break;
+            }
+        };
+
+        eventSource.onerror = function(error) {
+            console.error('EventSource failed:', error);
+            showToast('生成提纲时发生错误', 'error');
+            eventSource.close();
+        };
+    }).catch(function (error) {
+        console.log("Error: " + error);
+        if (error instanceof OfficeExtension.Error) {
+            console.log("Debug info: " + JSON.stringify(error.debugInfo));
+        }
+        showToast("操作失败，请重试", 'error');
+    });
+}
+
 
 function inspiration2outlineClick() {
     Word.run(async function (context) {
@@ -447,7 +787,7 @@ function handleVulnerabilityButtonClick() {
 function typewriterEffect($element, text, speed = 10) {
   let i = 0;
   $element.html('').css('white-space', 'pre-wrap');
-
+    $(".result-container").show();
   function typeWriter() {
     if (i < text.length) {
       $element.html($element.html() + text.charAt(i));
@@ -458,5 +798,28 @@ function typewriterEffect($element, text, speed = 10) {
 
   typeWriter();
 }
+
+// 添加置顶按钮功能
+document.addEventListener('DOMContentLoaded', function() {
+    const scrollToTopBtn = document.getElementById('scrollToTop');
+    
+    // 监听滚动事件
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 200) {
+            scrollToTopBtn.style.display = 'flex';
+        } else {
+            scrollToTopBtn.style.display = 'none';
+        }
+    });
+    
+    // 点击事件
+    scrollToTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+});
+
 </script>
 {% endblock %}
