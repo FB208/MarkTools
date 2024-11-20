@@ -110,7 +110,7 @@
     border-radius: 8px;
     border: 1px solid rgba(99, 102, 241, 0.1);
     backdrop-filter: blur(10px);
-    border-radius: 12px;
+    border-radius: 0px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     opacity: 0;
@@ -127,6 +127,13 @@
  .button-group-wrapper {
     display: flex;
     flex-direction: column;
+    background: linear-gradient(145deg, #1e2235, #2a2d3d);
+    padding: 2px;
+    border-radius: 8px;
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
   }
   .button-group {
     display: flex;
@@ -136,7 +143,7 @@
     flex: 1;
     font-size: 13px;
     padding: 8px 12px;
-    background: rgba(45, 49, 66, 0.95);
+    background: linear-gradient(145deg, #1a1c2d, #2a2d3d);
     color: #e2e4fd;
     border: 1px solid rgba(99, 102, 241, 0.5);
     transition: all 0.2s ease;
@@ -164,7 +171,7 @@
     border-bottom-right-radius: 6px !important;
   }
 
- 
+
 
   .button:first-child {
     border-top-left-radius: 6px;
@@ -187,15 +194,18 @@
   .button:hover {
     z-index: 2;
     color: #ffffff;
-    background: rgba(55, 60, 80, 0.95);
+    background: linear-gradient(145deg, #2a2d3d, #3a3d4d);
     border-color: rgba(99, 102, 241, 0.8);
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
   }
 
   .button:active {
+    background: linear-gradient(145deg, #1a1c2d, #2a2d3d);
     transform: translateY(0);
-    box-shadow: none;
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.2),
+        0 1px 2px rgba(255, 255, 255, 0.1);
   }
 
   .button.active {
@@ -203,8 +213,8 @@
     background: linear-gradient(135deg, #4f46e5, #6366f1);
     border-color: rgba(99, 102, 241, 0.9);
     box-shadow: 
-      0 2px 8px rgba(79, 70, 229, 0.3),
-      inset 0 1px 2px rgba(255, 255, 255, 0.2);
+        0 2px 8px rgba(79, 70, 229, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
   }
 
   .button i {
@@ -212,21 +222,22 @@
     font-size: 14px;
     opacity: 0.9;
     color: #a5b4fc;
+    transition: all 0.3s ease;
   }
 
   .button:hover i {
     opacity: 1;
     color: #ffffff;
+    transform: scale(1.1) translateY(-1px);
+    text-shadow: 0 0 8px rgba(165, 180, 252, 0.5);
   }
 
 
   .result-container {
     font-size: 14px;
-    padding: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
+    padding: 0px;
+    border-radius: 0px;
     color: #e3e3e3;
-    border: 1px solid rgba(99, 102, 241, 0.1);
     min-height: 100px;
     width: 100%;
     box-sizing: border-box;
@@ -286,7 +297,6 @@
     align-items: center;
     padding: 8px 12px;
     background: rgba(30, 32, 47, 0.95);
-    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
     backdrop-filter: blur(8px);
     margin: 0px;
     border-radius: 12px 12px 0 0;
@@ -322,6 +332,7 @@
 
   .result-content {
     min-height: 60px;
+    padding: 0px 26px 26px 26px;
     background: linear-gradient(135deg, #1a1c2d, #2a2d3d);
     color: #e3e3e3;
   }
@@ -413,7 +424,24 @@
                     </button>
                 </div>
             </div>
-            <div id="result-content" class="result-content"></div>
+            <div id="result-content" class="result-content">
+西青区消防物联网系统新增联网单位项目（以下简称“该项目”）由西青区消防救援支队牵头，天津众嘉工程管理有限公司作为招标代理进行公开招标，该项目于2023年11月21日在中国政府采购网上进行公开招标，并在2023年12月12日发布中标公告，中标供应商为天津擎宏科技有限公司，中标金额为70万元，中标后西青区消防救援支队与中标供应商天津擎宏科技有限公司在2024年4月10日完成了合同签订。
+西青区消防物联网监控系统通过收集联网单位的火灾自动报警主机、消防采集终端等各类物联网设备发送的数据信息，实现了对联网用户消防设施状态、消防控制室值班等信息的实时监测、统计与分析。这套系统不仅向市级系统平台、政府行业主管部门、消防救援支队及联网单位提供了详尽的运行数据和统计分析信息，还为支队及总队有关部门提供了大量第一手的、切实有效的真实数据，确保了消防部门决策和执法的可靠性与科学性。
+西青区消防物联网系统新增联网单位项目（以下简称“该项目”）由西青区消防救援支队牵头，天津众嘉工程管理有限公司作为招标代理进行公开招标，该项目于2023年11月21日在中国政府采购网上进行公开招标，并在2023年12月12日发布中标公告，中标供应商为天津擎宏科技有限公司，中标金额为70万元，中标后西青区消防救援支队与中标供应商天津擎宏科技有限公司在2024年4月10日完成了合同签订。
+西青区消防物联网监控系统通过收集联网单位的火灾自动报警主机、消防采集终端等各类物联网设备发送的数据信息，实现了对联网用户消防设施状态、消防控制室值班等信息的实时监测、统计与分析。这套系统不仅向市级系统平台、政府行业主管部门、消防救援支队及联网单位提供了详尽的运行数据和统计分析信息，还为支队及总队有关部门提供了大量第一手的、切实有效的真实数据，确保了消防部门决策和执法的可靠性与科学性。
+西青区消防物联网系统新增联网单位项目（以下简称“该项目”）由西青区消防救援支队牵头，天津众嘉工程管理有限公司作为招标代理进行公开招标，该项目于2023年11月21日在中国政府采购网上进行公开招标，并在2023年12月12日发布中标公告，中标供应商为天津擎宏科技有限公司，中标金额为70万元，中标后西青区消防救援支队与中标供应商天津擎宏科技有限公司在2024年4月10日完成了合同签订。
+西青区消防物联网监控系统通过收集联网单位的火灾自动报警主机、消防采集终端等各类物联网设备发送的数据信息，实现了对联网用户消防设施状态、消防控制室值班等信息的实时监测、统计与分析。这套系统不仅向市级系统平台、政府行业主管部门、消防救援支队及联网单位提供了详尽的运行数据和统计分析信息，还为支队及总队有关部门提供了大量第一手的、切实有效的真实数据，确保了消防部门决策和执法的可靠性与科学性。
+西青区消防物联网系统新增联网单位项目（以下简称“该项目”）由西青区消防救援支队牵头，天津众嘉工程管理有限公司作为招标代理进行公开招标，该项目于2023年11月21日在中国政府采购网上进行公开招标，并在2023年12月12日发布中标公告，中标供应商为天津擎宏科技有限公司，中标金额为70万元，中标后西青区消防救援支队与中标供应商天津擎宏科技有限公司在2024年4月10日完成了合同签订。
+西青区消防物联网监控系统通过收集联网单位的火灾自动报警主机、消防采集终端等各类物联网设备发送的数据信息，实现了对联网用户消防设施状态、消防控制室值班等信息的实时监测、统计与分析。这套系统不仅向市级系统平台、政府行业主管部门、消防救援支队及联网单位提供了详尽的运行数据和统计分析信息，还为支队及总队有关部门提供了大量第一手的、切实有效的真实数据，确保了消防部门决策和执法的可靠性与科学性。
+西青区消防物联网系统新增联网单位项目（以下简称“该项目”）由西青区消防救援支队牵头，天津众嘉工程管理有限公司作为招标代理进行公开招标，该项目于2023年11月21日在中国政府采购网上进行公开招标，并在2023年12月12日发布中标公告，中标供应商为天津擎宏科技有限公司，中标金额为70万元，中标后西青区消防救援支队与中标供应商天津擎宏科技有限公司在2024年4月10日完成了合同签订。
+西青区消防物联网监控系统通过收集联网单位的火灾自动报警主机、消防采集终端等各类物联网设备发送的数据信息，实现了对联网用户消防设施状态、消防控制室值班等信息的实时监测、统计与分析。这套系统不仅向市级系统平台、政府行业主管部门、消防救援支队及联网单位提供了详尽的运行数据和统计分析信息，还为支队及总队有关部门提供了大量第一手的、切实有效的真实数据，确保了消防部门决策和执法的可靠性与科学性。
+西青区消防物联网系统新增联网单位项目（以下简称“该项目”）由西青区消防救援支队牵头，天津众嘉工程管理有限公司作为招标代理进行公开招标，该项目于2023年11月21日在中国政府采购网上进行公开招标，并在2023年12月12日发布中标公告，中标供应商为天津擎宏科技有限公司，中标金额为70万元，中标后西青区消防救援支队与中标供应商天津擎宏科技有限公司在2024年4月10日完成了合同签订。
+西青区消防物联网监控系统通过收集联网单位的火灾自动报警主机、消防采集终端等各类物联网设备发送的数据信息，实现了对联网用户消防设施状态、消防控制室值班等信息的实时监测、统计与分析。这套系统不仅向市级系统平台、政府行业主管部门、消防救援支队及联网单位提供了详尽的运行数据和统计分析信息，还为支队及总队有关部门提供了大量第一手的、切实有效的真实数据，确保了消防部门决策和执法的可靠性与科学性。
+西青区消防物联网系统新增联网单位项目（以下简称“该项目”）由西青区消防救援支队牵头，天津众嘉工程管理有限公司作为招标代理进行公开招标，该项目于2023年11月21日在中国政府采购网上进行公开招标，并在2023年12月12日发布中标公告，中标供应商为天津擎宏科技有限公司，中标金额为70万元，中标后西青区消防救援支队与中标供应商天津擎宏科技有限公司在2024年4月10日完成了合同签订。
+西青区消防物联网监控系统通过收集联网单位的火灾自动报警主机、消防采集终端等各类物联网设备发送的数据信息，实现了对联网用户消防设施状态、消防控制室值班等信息的实时监测、统计与分析。这套系统不仅向市级系统平台、政府行业主管部门、消防救援支队及联网单位提供了详尽的运行数据和统计分析信息，还为支队及总队有关部门提供了大量第一手的、切实有效的真实数据，确保了消防部门决策和执法的可靠性与科学性。
+
+
+            </div>
         </div>
     </div>
 </div>
@@ -463,10 +491,10 @@ Office.onReady((info) => {
     $(document).ready(function(){
           //解决工具条盖住button悬浮提示的问题
       $(document).on('mouseenter', '#content', function() {
-            $(".result-container").fadeOut(1000); // 200ms淡出效果
+            $(".result-container").fadeOut(800); // 200ms淡出效果
       });
       $(document).on('mouseleave', '#content', function() {
-            $(".result-container").fadeIn(1000);  // 200ms淡入效果
+            $(".result-container").fadeIn(200);  // 200ms淡入效果
       });
     });
 });
@@ -551,7 +579,7 @@ function handleSimpleOptimizeClick() {
 
         eventSource.onmessage = function(event) {
             const data = JSON.parse(event.data);
-            console.log('收���SSE消息:', data);  // 调试日志
+            console.log('收SSE消息:', data);  // 调试日志
             
             switch (data.step) {
                 case 'optimize':
@@ -666,7 +694,7 @@ function inspiration2outlineClick() {
             
             switch (data.step) {
                 case 'outline':
-                    console.log('收到提纲内容:', data.message);  // 调试日志
+                    console.log('收到提纲内容:', data.message);  // ���试日志
                     typewriterEffect($('#vulnerabilityResult'), data.message);
                     break;
                 case 'show_toast':
