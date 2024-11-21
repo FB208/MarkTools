@@ -16,12 +16,12 @@
   <ProviderName>https://github.com/FB208/MarkTools</ProviderName>
   <DefaultLocale>zh-CN</DefaultLocale>
   <!-- The display name of your add-in. Used on the store and various places of the Office UI such as the add-ins dialog. -->
-  <DisplayName DefaultValue="怼咕报告" />
+  <DisplayName DefaultValue="许愿池乌龟" />
   <Description DefaultValue="[Document Add-in description]"/>
 
   <!-- Icon for your add-in. Used on installation screens and the add-ins dialog. -->
-  <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png" />
-  <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-80.png"/>
+  <IconUrl DefaultValue="https://qiniu.bigdudu.cn/202411210843292.png" />
+  <HighResolutionIconUrl DefaultValue="https://qiniu.bigdudu.cn/202411210840152.png"/>
 
   <!--If you plan to submit this add-in to the Office Store, uncomment the SupportUrl element below-->
   <!--<SupportUrl DefaultValue="[Insert the URL of a page that provides support information for the app]" />-->
@@ -124,9 +124,9 @@
     <!-- You can use resources across hosts and form factors. -->
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16x16" DefaultValue="https://localhost:3000/assets/icon-16.png"/>
-        <bt:Image id="Icon.32x32" DefaultValue="https://localhost:3000/assets/icon-32.png"/>
-        <bt:Image id="Icon.80x80" DefaultValue="https://localhost:3000/assets/icon-80.png"/>
+        <bt:Image id="Icon.16x16" DefaultValue="https://qiniu.bigdudu.cn/202411210845157.png"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://qiniu.bigdudu.cn/202411210844131.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://qiniu.bigdudu.cn/202411210844947.png"/>
       </bt:Images>
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812" />
@@ -136,13 +136,13 @@
       <!-- ShortStrings max characters==125. -->
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with your sample add-in!" />
-        <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group" />
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Show Taskpane" />
+        <bt:String id="CommandsGroup.Label" DefaultValue="许愿池乌龟" />
+        <bt:String id="TaskpaneButton.Label" DefaultValue="许愿池乌龟" />
       </bt:ShortStrings>
       <!-- LongStrings max characters==250. -->
       <bt:LongStrings>
-        <bt:String id="GetStarted.Description" DefaultValue="Your sample add-in loaded successfully. Go to the HOME tab and click the 'Show Taskpane' button to get started." />
-        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to Show a Taskpane" />
+        <bt:String id="GetStarted.Description" DefaultValue="插件加载成功！点击主页面的'许愿池乌龟'按钮开始使用。" />
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="点击打开许愿池乌龟" />
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
