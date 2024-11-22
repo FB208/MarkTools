@@ -39,7 +39,8 @@
     <Host Name="Document" />
   </Hosts>
   <DefaultSettings>
-    <SourceLocation DefaultValue="http://localhost:5000/word_plugin/home" />
+    <!-- <SourceLocation DefaultValue="http://localhost:5000/word_plugin/home" /> -->
+    <SourceLocation DefaultValue="https://tools.agnet.top/word_plugin/home" />
     <RequestedWidth>520</RequestedWidth>   <!-- 最小宽度(像素) -->
   </DefaultSettings>
   <!-- End TaskPane Mode integration.  -->
@@ -131,7 +132,8 @@
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812" />
         <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html" />
-        <bt:Url id="Taskpane.Url" DefaultValue="http://localhost:5000/word_plugin/home" />
+        <!-- <bt:Url id="Taskpane.Url" DefaultValue="http://localhost:5000/word_plugin/home" /> -->
+        <bt:Url id="Taskpane.Url" DefaultValue="https://tools.agnet.top/word_plugin/home" />
       </bt:Urls>
       <!-- ShortStrings max characters==125. -->
       <bt:ShortStrings>

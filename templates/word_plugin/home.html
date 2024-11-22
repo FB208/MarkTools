@@ -6,6 +6,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/event-source-polyfill@1.0.31/src/eventsource.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/atom-one-dark.min.css">
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/highlight.min.js"></script>
 <style>
     /* 隐藏滚动条但保持可滚动 */
   html, body {
@@ -367,16 +370,120 @@
     font-size: 20px;
   }
 
- 
+  .logo-container {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+  }
+
+  .logo-image {
+    height: 32px;
+    width: 32px;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    padding: 2px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .logo-image:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* 添加 Markdown 渲染样式 */
+  .markdown-body {
+    color: #e3e3e3;
+    line-height: 1.6;
+  }
+
+  .markdown-body h1,
+  .markdown-body h2,
+  .markdown-body h3,
+  .markdown-body h4,
+  .markdown-body h5,
+  .markdown-body h6 {
+    color: #fff;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .markdown-body h1 { font-size: 2em; }
+  .markdown-body h2 { font-size: 1.5em; }
+  .markdown-body h3 { font-size: 1.25em; }
+
+  .markdown-body ul,
+  .markdown-body ol {
+    padding-left: 2em;
+    margin-bottom: 16px;
+  }
+
+  .markdown-body li {
+    margin: 0.25em 0;
+  }
+
+  .markdown-body code {
+    background: rgba(99, 102, 241, 0.1);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.85em;
+  }
+
+  .markdown-body pre {
+    background: #282c34;
+    padding: 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+
+  .markdown-body pre code {
+    background: none;
+    padding: 0;
+  }
+
+  .markdown-body blockquote {
+    padding: 0 1em;
+    color: #8b92b2;
+    border-left: 0.25em solid #4f46e5;
+    margin: 16px 0;
+  }
+
+  .markdown-body table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+  }
+
+  .markdown-body table th,
+  .markdown-body table td {
+    padding: 6px 13px;
+    border: 1px solid #4f46e5;
+  }
+
+  .markdown-body table th {
+    background: rgba(99, 102, 241, 0.1);
+  }
+
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="container mx-auto px-2" style="display: flex; flex-direction: column; align-items: center; height: auto;">
     <div class="content-wrapper">
-        <div class="tab-menu z-10">
+        <div class="tab-menu z-10 flex justify-between items-center">
             <button class="tab-button active" data-tab="content">文案助手</button>
             <button class="tab-button" data-tab="layout">排版助手</button>
+            <div class="logo-container">
+                <img src="https://qiniu.bigdudu.cn/202411210904831.png" alt="logo" class="logo-image">
+            </div>
         </div>
 
         <div id="content" class="tab-content active">
@@ -556,7 +663,7 @@ function handleSimpleOptimizeClick() {
         // 显示结果区域
         const resultDiv = $('#result-content');
 
-        // 创建 SSE 连接
+        // 建 SSE 连接
         const eventSource = new EventSource('{{ url_for("word_plugin.simple_optimize_stream") }}?' + $.param({
             text: selectedText
         }));
@@ -637,7 +744,7 @@ function handleSuperExpandClick() {
 
         eventSource.onerror = function(error) {
             console.error('EventSource failed:', error);
-            showToast('生成提纲时发生错误', 'error');
+            showToast(error, 'error');
             eventSource.close();
         };
     }).catch(function (error) {
@@ -678,7 +785,7 @@ function inspiration2outlineClick() {
             
             switch (data.step) {
                 case 'outline':
-                    console.log('收到提纲内容:', data.message);  // ���试日志
+                    console.log('收到提纲内容:', data.message);  // 试日志
                     typewriterEffect($('#vulnerabilityResult'), data.message);
                     break;
                 case 'show_toast':
@@ -737,16 +844,43 @@ function handleChatButtonClick() {
 }
 
 function insertTextToWord(text) {
-    Word.run(function (context) {
+    Word.run(async function (context) {
         const range = context.document.getSelection();
-        range.insertText(text, Word.InsertLocation.replace);
-        return context.sync();
+        
+        // 转换 Markdown 为纯文本
+        const md = window.markdownit();
+        let htmlContent = md.render(text);
+        
+        // 简单的 HTML 到 Word 格式的转换
+        let wordContent = htmlContent
+            .replace(/<h1>(.*?)<\/h1>/g, '$1\n')
+            .replace(/<h2>(.*?)<\/h2>/g, '$1\n')
+            .replace(/<h3>(.*?)<\/h3>/g, '$1\n')
+            .replace(/<ul>/g, '')
+            .replace(/<\/ul>/g, '\n')
+            .replace(/<li>(.*?)<\/li>/g, '• $1\n')
+            .replace(/<strong>(.*?)<\/strong>/g, '$1')
+            .replace(/<em>(.*?)<\/em>/g, '$1')
+            .replace(/<code>(.*?)<\/code>/g, '$1')
+            .replace(/<pre>(.*?)<\/pre>/g, '$1\n')
+            .replace(/<p>(.*?)<\/p>/g, '$1\n')
+            .replace(/<br\s*\/?>/g, '\n')
+            .replace(/<[^>]*>/g, '')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&')
+            .replace(/&quot;/g, '"');
+
+        range.insertText(wordContent, Word.InsertLocation.replace);
+        await context.sync();
+        showToast('已插入到文档', 'success');
     }).catch(function (error) {
-        console.log("Error: " + error);
+        console.error("Error:", error);
         if (error instanceof OfficeExtension.Error) {
-            console.log("Debug info: " + JSON.stringify(error.debugInfo));
+            console.log("Debug info:", JSON.stringify(error.debugInfo));
         }
-        alert('插入文本时出错，请重试。');
+        showToast('插入失败，请重试', 'error');
     });
 }
 
@@ -795,20 +929,44 @@ function handleVulnerabilityButtonClick() {
 }
 
 
-// 添加打字机效果函数
+// 修改打字机效果函数
 function typewriterEffect($element, text, speed = 10) {
-  let i = 0;
-  $element.html('').css('white-space', 'pre-wrap');
-    $(".result-container").show();
-  function typeWriter() {
-    if (i < text.length) {
-      $element.html($element.html() + text.charAt(i));
-      i++;
-      setTimeout(typeWriter, speed);
-    }
-  }
+    // 初始化 markdown-it
+    const md = window.markdownit({
+        html: true,
+        linkify: true,
+        typographer: true,
+        highlight: function (str, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return hljs.highlight(str, { language: lang }).value;
+                } catch (__) {}
+            }
+            return ''; // 使用默认的转义
+        }
+    });
 
-  typeWriter();
+    let i = 0;
+    let renderedText = '';
+    $element.addClass('markdown-body').html('');
+    $(".result-container").show();
+
+    function typeWriter() {
+        if (i < text.length) {
+            renderedText += text.charAt(i);
+            // 实时渲染 Markdown
+            $element.html(md.render(renderedText));
+            i++;
+            setTimeout(typeWriter, speed);
+        } else {
+            // 完成后执行代码高亮
+            $element.find('pre code').each(function(i, block) {
+                hljs.highlightBlock(block);
+            });
+        }
+    }
+
+    typeWriter();
 }
 
 // 添加置顶按钮功能
@@ -832,6 +990,48 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// 添加 Markdown 转换函数
+function convertMarkdownToWord(markdownText) {
+    // 初始化 markdown-it
+    const md = window.markdownit();
+    
+    // 转换 Markdown 为 HTML
+    let html = md.render(markdownText);
+    
+    // 替换 HTML 标签为 Word 格式
+    html = html
+        // 处理标题
+        .replace(/<h1>(.*?)<\/h1>/g, '$1\n')
+        .replace(/<h2>(.*?)<\/h2>/g, '$1\n')
+        .replace(/<h3>(.*?)<\/h3>/g, '$1\n')
+        // 处理列表
+        .replace(/<ul>/g, '')
+        .replace(/<\/ul>/g, '\n')
+        .replace(/<li>(.*?)<\/li>/g, '• $1\n')
+        // 处理粗体
+        .replace(/<strong>(.*?)<\/strong>/g, '$1')
+        // 处理斜体
+        .replace(/<em>(.*?)<\/em>/g, '$1')
+        // 处理链接
+        .replace(/<a href="(.*?)">(.*?)<\/a>/g, '$2')
+        // 处理段落
+        .replace(/<p>(.*?)<\/p>/g, '$1\n')
+        // 处理换行
+        .replace(/<br\s*\/?>/g, '\n')
+        // 移除其他 HTML 标签
+        .replace(/<[^>]*>/g, '');
+    
+    // 解码 HTML 实体
+    html = html
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"');
+    
+    return html;
+}
 
 </script>
 {% endblock %}

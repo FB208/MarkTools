@@ -50,10 +50,10 @@ pytest tests/translate_test.py::test_translate_text
 docker login
 
 # 打包镜像
-docker build -f docker/Dockerfile -t fb208/marktools:0.4.34 .
+docker build -f docker/Dockerfile -t fb208/marktools:0.5.0 .
 
 # 推送镜像到Docker Hub
-docker push fb208/marktools:0.4.34
+docker push fb208/marktools:0.5.0
 
 # 运行docker镜像
 docker run -p 5000:5000 \

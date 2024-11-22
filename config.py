@@ -12,6 +12,8 @@ class Config:
     SIMPLE_GOOGLE_API_KEY = os.getenv('SIMPLE_GOOGLE_API_KEY', 'your_default_SIMPLE_GOOGLE_API_KEY')
     GOOGLE_CLOUD_PROJECT = os.getenv('GOOGLE_CLOUD_PROJECT', 'meta-buckeye-433400-c6')
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'google_credentials/meta-buckeye-433400-c6-109fbeae7021.json')
+    GOOGLE_SEARCH_API_KEY = os.getenv('GOOGLE_SEARCH_API_KEY', 'your_default_google_search_api_key')
+    GOOGLE_SEARCH_CX = os.getenv('GOOGLE_SEARCH_CX', 'your_default_google_search_cx')
     BUCKET_NAME = os.getenv('BUCKET_NAME', 'speech-audio-mark')
     LLM_SERVICE = os.getenv('LLM_SERVICE', 'deepseek')
     COZE_PERSONAL_ACCESS_TOKEN = os.getenv('COZE_PERSONAL_ACCESS_TOKEN', 'your_default_coze_personal_access_token')

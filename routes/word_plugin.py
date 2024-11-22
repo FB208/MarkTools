@@ -4,6 +4,11 @@ from flask import render_template, request, jsonify, Blueprint, Response, stream
 from . import word_plugin_bp
 from services.word_plugin_service import simple_chat as simple_chat_service, logic_vulnerability as logic_vulnerability_service, inspiration2outline, simple_optimize, super_expand
 import json
+from services.google_search_service import extract_search_keywords
+from utils.google_search_util import GoogleSearchUtil
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from utils.embeddings.embedding_util import EmbeddingSearch
+
 
 @word_plugin_bp.route('/word_plugin/home')
 def home():
@@ -54,19 +59,71 @@ def super_expand_stream():
     
     if not text:
         return {'error': '请提供文本内容'}, 400
+    
+    def fetch_content(result, google_search_util):
+        link = result['link']
+        return google_search_util.fetch_page_content(link)
+    def search_keyword(keyword, es):
+        return es.search(keyword, top_k=3)
+
     @stream_with_context
     def generate():
         try:
             yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在思考，请稍后。。。'}, ensure_ascii=False)}\n\n"
+            print("获取到扩写内容:", text)  # 调试日志
+            # 提取搜索关键词
+            keywords = extract_search_keywords(text)
+            yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在从互联网搜索'}, ensure_ascii=False)}\n\n"
+            google_search_util = GoogleSearchUtil()
+            search_results = google_search_util.search(query=keywords,num_results=3)
+            yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在处理搜索结果'}, ensure_ascii=False)}\n\n"
             
-            expand_content = super_expand(text)
-            print("获取到扩写内容:", expand_content)  # 调试日志
-
+            # 使用线程池并发获取页面内容
+            page_contents = []
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                # 提交所有任务，传入 google_search_util
+                future_to_url = {executor.submit(fetch_content, result, google_search_util): result 
+                               for result in search_results}
+                
+                # 获取完成的任务结果
+                for future in as_completed(future_to_url):
+                    page_result = future.result()
+                    if page_result['status'] == 'success':
+                        page_contents.append(page_result['content'])
+            
+            # 向量化，防止搜索结果过长
+            yield f"data: {json.dumps({'step': 'show_toast', 'content': '二次匹配搜索结果中最相关的内容'}, ensure_ascii=False)}\n\n"
+            for content in page_contents:
+                es = EmbeddingSearch()
+                es.add_long_document(content)
+            
+            es.load()
+            embedding_search_results = []
+            # 使用线程池并发执行关键词搜索
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                # 提交所有搜索任务
+                future_to_keyword = {
+                    executor.submit(search_keyword, keyword, es): keyword 
+                    for keyword in keywords.split()
+                }
+                
+                # 收集所有搜索结果
+                for future in as_completed(future_to_keyword):
+                    try:
+                        search_result = future.result()
+                        # 过滤掉长度小于10的结果
+                        filtered_results = [(d, t) for d, t in search_result if len(t) >= 10]
+                        embedding_search_results.extend(filtered_results)
+                    except Exception as e:
+                        print(f"搜索关键词时发生错误: {str(e)}")
+                        continue
+            yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在润色文案'}, ensure_ascii=False)}\n\n"
+            
+            
+            expand_content = super_expand(text, embedding_search_results)
             data = json.dumps({'step': 'content', 'message': expand_content}, ensure_ascii=False)
-           
-            
             yield f"data: {data}\n\n"
-            
+            # expand_content = super_expand(text)
             # 添加完成消息
             yield f"data: {json.dumps({'step': 'complete', 'content': '优化完成'}, ensure_ascii=False)}\n\n"
             

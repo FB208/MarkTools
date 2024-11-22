@@ -5,35 +5,37 @@ from bs4 import BeautifulSoup
 import json
 import os
 import chardet
-from newspaper import Article
-from goose3 import Goose
 from langchain.document_loaders import WebBaseLoader
+from flask import current_app as app
 
 class GoogleSearchUtil:
-    def __init__(self, api_key: str, cx: str):
+    def __init__(self):
         """
         初始化Google搜索工具
         :param api_key: Google API密钥
         :param cx: 搜索引擎ID
         """
-        self.api_key = api_key
-        self.cx = cx
-        self.service = build('customsearch', 'v1', developerKey=api_key)
+        self.api_key = app.config.get('GOOGLE_SEARCH_API_KEY')
+        self.cx = app.config.get('GOOGLE_SEARCH_CX')
+        self.service = build('customsearch', 'v1', developerKey=self.api_key)
 
     def search(self, query: str, num_results: int = 5) -> List[Dict[str, Any]]:
         """
-        执行Google搜索
-        :param query: 搜索关键词
-        :param num_results: 返回结果数量(最大为10)
+        执行Google搜索，只返回HTML页面结果
+        :param query: 搜索查询
+        :param num_results: 需要返回的结果数量
         :return: 搜索结果列表
         """
+        # 只搜索HTML和HTM页面
+        modified_query = f"{query} (filetype:html OR filetype:htm OR filetype:php OR filetype:asp OR filetype:aspx OR filetype:jsp)"
+        
         try:
             result = self.service.cse().list(
-                q=query,
+                q=modified_query,
                 cx=self.cx,
-                num=min(num_results, 10)
+                num=num_results
             ).execute()
-
+            
             search_results = []
             if 'items' in result:
                 for item in result['items']:
