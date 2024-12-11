@@ -2,7 +2,7 @@ import pytest
 import json
 import os
 from utils.google_blob_util import list_buckets
-from run import create_app
+from app import create_app
 from test_config import TestConfig
 
 # 创建Flask应用

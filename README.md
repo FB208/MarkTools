@@ -7,9 +7,15 @@ python -m venv marktools.venv
 marktools.venv\Scripts\activate
 
 # 通过conda创建虚拟环境
-conda create --name marktools
+conda create --name marktools python=3.10.11
 conda init
 conda activate marktools
+conda install python=3.10.11
+
+
+# 删除虚拟环境
+conda deactivate
+conda remove --name marktools --all
 ```
 
 ## 安装依赖
@@ -109,3 +115,14 @@ gcloud init
 
 # 其他
 项目包很大很大，因为使用了本地的embeeding模型，所以包会很大，如果想要减小包的大小，可以考虑使用在线的embedding服务，比如openai的api，不过需要修改代码了
+
+## chromadb不能安装问题
+在windows上安装chromadb会报错，需要安装build tools，可以参考https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+然后在build-tools中选择下面两项进行安装
+
+![](https://qiniu.bigdudu.cn/20241210115154751.png)
+
+和
+
+![](https://qiniu.bigdudu.cn/20241210115205917.png)

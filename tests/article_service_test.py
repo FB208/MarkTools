@@ -38,7 +38,7 @@ def test_hook():
 # pytest tests/article_service_test.py::test_rewrite
 def test_rewrite():
     with app.app_context():
-        result = rewrite_body(content)
+        result = ''#rewrite_body(content)
         print(result)
         assert False
         

@@ -3,7 +3,7 @@ from flask import render_template, request, jsonify
 from . import test_bp
 import os
 import docx
-from utils.embeddings.embedding_util import EmbeddingSearch
+from utils.embeddings.embedding_v2_util import EmbeddingSearchV2 as EmbeddingSearch
 from services.test_service import history_chat
 from services.google_tuned import list as google_tuned_list
 @test_bp.route('/test')
@@ -56,3 +56,10 @@ def test_google_tuned():
 @test_bp.route('/test/charts', methods=['GET'])
 def test_charts():
     return render_template('charts.html')
+
+
+@test_bp.route('/v1/license/activate', methods=['POST'])
+def test_license_activate():
+    data = {"ok":True,"code":2000,"message":"license success"}
+    
+    return data

@@ -1,7 +1,7 @@
 import pytest
 import json
 from utils.coze_api_util import conversation_create, chat, message_create
-from run import create_app
+from app import create_app
 from test_config import TestConfig
 
 # 创建Flask应用

@@ -7,7 +7,7 @@ import json
 from services.google_search_service import extract_search_keywords
 from utils.google_search_util import GoogleSearchUtil
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from utils.embeddings.embedding_util import EmbeddingSearch
+from utils.embeddings.embedding_v2_util import EmbeddingSearchV2 as EmbeddingSearch
 
 
 @word_plugin_bp.route('/word_plugin/home')
