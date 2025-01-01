@@ -31,11 +31,11 @@ class EmbeddingSearchV2:
     def _get_embedding(self, text: str) -> np.ndarray:
         """获取文本的向量嵌入"""
         try:
-            embedding = self.model.embed_content_info(
+            embedding = self.model.embed_content(
                 content=text,
-                task_type="retrieval_document",
+                task_type="retrieval_document"
             )
-            return np.array(embedding.embeddings[0]).astype('float32')
+            return np.array(embedding['embedding']).astype('float32')
         except Exception as e:
             print(f"获取嵌入向量失败: {e}")
             return None
