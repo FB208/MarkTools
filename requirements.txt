@@ -53,3 +53,5 @@ peewee==3.17.8
 # this need install build tools : https://visualstudio.microsoft.com/visual-cpp-build-tools/
 # if you still can't install, please read the readme.md
 chromadb
+
+faiss-cpu==1.8.0.post1
