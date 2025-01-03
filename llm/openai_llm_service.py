@@ -15,28 +15,28 @@ class OpenAILLMService(LLMInterface):
     def get_messages(self, response):
         return response.choices[0].message.content
 
-    def get_chat_completion(self, messages):
+    def get_chat_completion(self, messages,model:str="gpt-4o-mini"):
         client = self.get_client()
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=model,
             messages=messages
         )
         return response
 
-    def get_json_completion(self, messages):
+    def get_json_completion(self, messages,model:str="gpt-4o-mini"):
         client = self.get_client()
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=model,
             messages=messages,
             response_format={
                 'type': 'json_object'
             }
         )
         return response
-    def get_chat_completion_o1(self, messages):
+    def get_chat_completion_o1(self, messages,model:str="o1-preview"):
         client = self.get_client()
         response = client.chat.completions.create(
-            model="o1-preview",
+            model=model,
             messages=messages
         )
         return response

@@ -13,7 +13,7 @@ class GeminiLLMService(LLMInterface):
         print(response)
         return response.text
 
-    def get_chat_completion(self, messages):
+    def get_chat_completion(self, messages,model:str="gemini-1.5-flash"):
         self.get_client()
         
         # 检查最后一条消息是否为用户消息
@@ -35,15 +35,15 @@ class GeminiLLMService(LLMInterface):
                 history.append({"role": role, "parts": [msg["content"]]})  # 修改为列表形式
         
         model = genai.GenerativeModel(
-            model_name='gemini-1.5-flash',
+            model_name=model,
             system_instruction=system_instruction
         )
         chat = model.start_chat(history=history)
 
         return chat.send_message(last_user_message)  # 发送最后一条用户消息
 
-    def get_json_completion(self, messages):
+    def get_json_completion(self, messages,model:str="gemini-1.5-flash"):
         self.get_client()
-        model = genai.GenerativeModel('gemini-1.5-flash',generative_config={"response_mime_type": "application/json"})
+        model = genai.GenerativeModel(model_name=model,generative_config={"response_mime_type": "application/json"})
         response = model.generate_content(messages)
         return response

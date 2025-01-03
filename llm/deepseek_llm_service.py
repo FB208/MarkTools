@@ -26,7 +26,7 @@ class DeepSeekLLMService(LLMInterface):
     def get_json_completion(self, messages):
         client = self.get_client()
         response = client.chat.completions.create(
-            model="deepseek-coder",
+            model="deepseek-chat",
             messages=messages,
             response_format={
                 'type': 'json_object'
