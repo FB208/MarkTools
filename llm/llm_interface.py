@@ -41,3 +41,9 @@ class LLMInterface(ABC):
     def get_chat_completion(self, messages):
         pass
 
+    def get_search_chat_completion(self, messages):
+        """
+        搜索相关的聊天补全功能，这是一个可选实现的方法
+        默认实现是直接调用普通的chat completion
+        """
+        return self.get_chat_completion(messages)
