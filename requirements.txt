@@ -43,11 +43,11 @@ peewee==3.17.8
 
 ##### local embedding #####
 faiss-cpu==1.8.0.post1
-sentence-transformers==3.0.1
-torch==2.2.1+cpu
-torchvision==0.17.1+cpu
-torchaudio==2.2.1+cpu
---find-links https://download.pytorch.org/whl/cpu/torch_stable.html
+# sentence-transformers==3.0.1
+# torch==2.2.1+cpu
+# torchvision==0.17.1+cpu
+# torchaudio==2.2.1+cpu
+# --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 ##### end #####
 
 

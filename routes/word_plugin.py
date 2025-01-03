@@ -8,6 +8,9 @@ from services.google_search_service import extract_search_keywords
 from utils.google_search_util import GoogleSearchUtil
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from utils.embeddings.embedding_v2_util import EmbeddingSearchV2 as EmbeddingSearch
+from utils.embeddings.embedding_openai_faiss_util import OpenAIFaissUtil
+
+
 
 
 @word_plugin_bp.route('/word_plugin/home')
@@ -93,30 +96,18 @@ def super_expand_stream():
             
             # 向量化，防止搜索结果过长
             yield f"data: {json.dumps({'step': 'show_toast', 'content': '二次匹配搜索结果中最相关的内容'}, ensure_ascii=False)}\n\n"
+            faiss_util = OpenAIFaissUtil()
+            search_result_texts = []
             for content in page_contents:
-                es = EmbeddingSearch()
-                es.add_long_document(content)
-            
-            es.load()
-            embedding_search_results = []
-            # 使用线程池并发执行关键词搜索
-            with ThreadPoolExecutor(max_workers=3) as executor:
-                # 提交所有搜索任务
-                future_to_keyword = {
-                    executor.submit(search_keyword, keyword, es): keyword 
-                    for keyword in keywords.split()
-                }
+                search_result_texts.extend(faiss_util.split_text(content,500))
                 
-                # 收集所有搜索结果
-                for future in as_completed(future_to_keyword):
-                    try:
-                        search_result = future.result()
-                        # 过滤掉长度小于10的结果
-                        filtered_results = [(d, t) for d, t in search_result if len(t) >= 10]
-                        embedding_search_results.extend(filtered_results)
-                    except Exception as e:
-                        print(f"搜索关键词时发生错误: {str(e)}")
-                        continue
+            embedding_search_results = []
+            embedding_search_results = faiss_util.search_fast(
+                query=search_keyword, 
+                texts=search_result_texts, 
+                top_k=3
+            )
+            print("embedding_search_results:", embedding_search_results)
             yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在润色文案'}, ensure_ascii=False)}\n\n"
             
             

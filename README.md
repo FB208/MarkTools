@@ -126,3 +126,35 @@ gcloud init
 和
 
 ![](https://qiniu.bigdudu.cn/20241210115205917.png)
+
+# 关于word插件
+
+## 安装
+首先共享项目中/word-plugin文件夹
+添加everyone用户，配置读写权限
+![](https://qiniu.bigdudu.cn/20250103225406078.png)
+
+复制共享文件夹的“网络路径”
+![](https://qiniu.bigdudu.cn/20250103225457657.png)
+
+打开word，进入选项--信任中心--信任中心设置--受信任的加载项
+![](https://qiniu.bigdudu.cn/20250103225218440.png)
+
+在目录(url)中输入共享文件夹的网络路径，点击“添加目录”，勾选“显示在菜单中”，然后点击“确定”
+![](https://qiniu.bigdudu.cn/20250103225807836.png)
+
+在“开始”处点击“加载项”
+![](https://qiniu.bigdudu.cn/20250103230112321.png)
+
+添加更多加载项
+![](https://qiniu.bigdudu.cn/20250103230151546.png)
+
+如果之前的共享文件夹设置正确，这里就应该出现“共享文件夹”选项，切换进去可以看到“许愿池乌龟”
+![](https://qiniu.bigdudu.cn/20250103230227466.png)
+
+
+## 开发
+修改/word-plugin/manifest.xml中的`SourceLocation`，指向本地开发环境
+修改/word-plugin/manifest.xml中的`<bt:Url id="Taskpane.Url"`，指向本地开发环境
+
+修改完manifest.xml，在加载项中刷新并重新添加加载项，然后重启word

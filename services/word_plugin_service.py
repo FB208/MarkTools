@@ -23,7 +23,7 @@ def simple_optimize(text):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ]
-    llm_service = LLMFactory.get_llm_service("grok")
+    llm_service = LLMFactory.get_llm_service("openai_proxy")
     completion = llm_service.get_chat_completion(messages)
     return llm_service.get_messages(completion)
 
@@ -60,7 +60,7 @@ def super_expand(text, search_results):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ]
-    llm_service = LLMFactory.get_llm_service()
+    llm_service = LLMFactory.get_llm_service("openai_proxy")
     completion = llm_service.get_chat_completion(messages)
     return llm_service.get_messages(completion)
 
@@ -87,7 +87,7 @@ def simple_chat(text):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ]
-    llm_service = LLMFactory.get_llm_service("grok")
+    llm_service = LLMFactory.get_llm_service("openai_proxy")
     completion = llm_service.get_chat_completion(messages)
     return llm_service.get_messages(completion)
 
@@ -124,7 +124,7 @@ def inspiration2outline(text):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ]
-    llm_service = LLMFactory.get_llm_service("grok")
+    llm_service = LLMFactory.get_llm_service("openai_proxy")
     completion = llm_service.get_chat_completion(messages)
     print(llm_service.get_messages(completion))
     return llm_service.get_messages(completion)
