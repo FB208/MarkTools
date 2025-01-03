@@ -99,11 +99,11 @@ def super_expand_stream():
             faiss_util = OpenAIFaissUtil()
             search_result_texts = []
             for content in page_contents:
-                search_result_texts.extend(faiss_util.split_text(content,500))
+                search_result_texts.extend(faiss_util.split_text(content,1000))
                 
             embedding_search_results = []
             embedding_search_results = faiss_util.search_fast(
-                query=search_keyword, 
+                query=keywords, 
                 texts=search_result_texts, 
                 top_k=3
             )
