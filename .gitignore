@@ -292,3 +292,4 @@ itchat.pkl
 QR.png
 tempfiles/
 docker/docker-compose-yml
+static/embedding/
