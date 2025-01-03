@@ -18,7 +18,7 @@ def extract_search_keywords(text):
         {'role': 'system', 'content': system_prompt},
         {'role': 'user', 'content': user_prompt}
     ]
-    llm_service = LLMFactory.get_llm_service('openai')
+    llm_service = LLMFactory.get_llm_service('openai_proxy')
     completion = llm_service.get_chat_completion(messages) 
     content = llm_service.get_messages(completion)
 

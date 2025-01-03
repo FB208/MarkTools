@@ -3,6 +3,7 @@ from .gemini_llm_service import GeminiLLMService
 from .openai_llm_service import OpenAILLMService
 from .deepseek_llm_service import DeepSeekLLMService
 from .grok_llm_service import GrokLLMService
+from .openai_proxy_llm_service import OpenAIProxyLLMService
 from flask import current_app as app
 
 class LLMFactory:
@@ -14,5 +15,6 @@ class LLMFactory:
             'gemini': GeminiLLMService(),
             'openai': OpenAILLMService(),
             'deepseek': DeepSeekLLMService(),
-            'grok': GrokLLMService()
+            'grok': GrokLLMService(),
+            'openai_proxy': OpenAIProxyLLMService()
         }.get(service_type, DeepSeekLLMService())

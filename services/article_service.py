@@ -1,5 +1,5 @@
 from llm.llm_factory import LLMFactory
-from llm.openai_llm_service import OpenAILLMService
+
 
 def comment(content,commentBias):
     
@@ -95,7 +95,7 @@ def rewrite_body_master(content):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
         ]
-        llm_service = OpenAILLMService()
+        llm_service = LLMFactory.get_llm_service("openai_proxy")
         completion = llm_service.get_chat_completion(messages)
         return llm_service.get_messages(completion)
         
