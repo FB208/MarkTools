@@ -1,0 +1,324 @@
+{% block introduce_container_style %}
+<style>
+  .introduce-container {
+    display: none;
+    background: linear-gradient(145deg, #1e2235, #2a2d3d);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: #e3e3e3;
+  }
+
+  .introduce-container.active {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .introduce-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  .introduce-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border-radius: 8px;
+    margin-right: 12px;
+  }
+
+  .introduce-icon i {
+    font-size: 16px;
+    color: white;
+  }
+
+  .introduce-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .introduce-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #a5b4fc;
+    margin-bottom: 20px;
+  }
+
+  .introduce-settings {
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .setting-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .setting-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .setting-label {
+    flex: 1;
+    font-size: 14px;
+    color: #e2e4fd;
+  }
+
+  .setting-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 开关样式 */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(99, 102, 241, 0.2);
+    transition: .3s;
+    border-radius: 24px;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #e2e4fd;
+    transition: .3s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: #6366f1;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+
+  /* 选择器样式 */
+  .select-wrapper {
+    position: relative;
+    min-width: 120px;
+  }
+
+  .custom-select {
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 14px;
+    color: #e2e4fd;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .select-wrapper::after {
+    content: '\f107';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a5b4fc;
+    pointer-events: none;
+  }
+
+  .custom-select:focus {
+    outline: none;
+    border-color: #6366f1;
+  }
+
+  .custom-select option {
+    background-color: #1e2235;
+    color: #e2e4fd;
+  }
+</style>
+{% endblock %}
+
+{% block introduce_container_html %}
+<div class="introduce-container" id="introduce-container">
+    <div class="introduce-header">
+        <div class="introduce-icon">
+            <i class="fas fa-magic"></i>
+        </div>
+        <div class="introduce-title">简单优化</div>
+    </div>
+    <div class="introduce-description">
+        通过AI智能分析，修正错别字和语病，优化文案结构和表达，让您的文章更加专业流畅。
+    </div>
+    <div class="introduce-settings">
+        <div class="setting-item">
+            <div class="setting-label">智能扩充内容</div>
+            <div class="setting-control">
+                <label class="switch">
+                    <input type="checkbox" id="expand-content" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="setting-item">
+            <div class="setting-label">优化程度</div>
+            <div class="setting-control">
+                <div class="select-wrapper">
+                    <select class="custom-select" id="optimize-level">
+                        <option value="light">轻度优化</option>
+                        <option value="medium" selected>中度优化</option>
+                        <option value="heavy">深度优化</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block introduce_container_script %}
+<script>
+class IntroduceManager {
+    constructor() {
+        this.activeButton = null;
+        this.container = document.getElementById('introduce-container');
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // 监听所有可能触发介绍面板的按钮
+        const buttons = document.querySelectorAll('[data-introduce]');
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => this.handleButtonClick(e));
+        });
+    }
+
+    handleButtonClick(event) {
+        const button = event.currentTarget;
+        const introduceId = button.getAttribute('data-introduce');
+
+        if (this.activeButton === button) {
+            // 第二次点击同一个按钮
+            this.hideIntroduce();
+            this.executeButtonAction(button);
+        } else {
+            // 首次点击或点击不同按钮
+            this.showIntroduce(button, introduceId);
+        }
+    }
+
+    showIntroduce(button, introduceId) {
+        // 如果之前有激活的按钮，先重置
+        if (this.activeButton) {
+            this.activeButton.classList.remove('active');
+        }
+
+        // 更新介绍面板内容
+        this.updateIntroduceContent(introduceId);
+        
+        // 显示介绍面板
+        this.container.classList.add('active');
+        button.classList.add('active');
+        this.activeButton = button;
+    }
+
+    hideIntroduce() {
+        this.container.classList.remove('active');
+        if (this.activeButton) {
+            this.activeButton.classList.remove('active');
+            this.activeButton = null;
+        }
+    }
+
+    updateIntroduceContent(introduceId) {
+        // 根据不同的按钮更新介绍面板的内容
+        const contents = {
+            'simple-optimize': {
+                icon: 'fa-magic',
+                title: '简单优化',
+                description: '通过AI智能分析，修正错别字和语病，优化文案结构和表达，让您的文章更加专业流畅。'
+            },
+            'super-expand': {
+                icon: 'fa-expand-alt',
+                title: '超级扩写',
+                description: '基于Google搜索结果，智能扩充文章内容，让您的文章更加丰富详实。'
+            }
+            // 可以继续添加其他按钮的配置
+        };
+
+        const content = contents[introduceId];
+        if (!content) return;
+
+        // 更新内容
+        this.container.querySelector('.introduce-icon i').className = `fas ${content.icon}`;
+        this.container.querySelector('.introduce-title').textContent = content.title;
+        this.container.querySelector('.introduce-description').textContent = content.description;
+    }
+
+    executeButtonAction(button) {
+        // 获取当前设置
+        const settings = this.getCurrentSettings();
+        
+        // 触发按钮原有的点击事件处理函数
+        const originalHandler = button.getAttribute('data-original-handler');
+        if (originalHandler && window[originalHandler]) {
+            window[originalHandler](settings);
+        }
+    }
+
+    getCurrentSettings() {
+        return {
+            expandContent: document.getElementById('expand-content').checked,
+            optimizeLevel: document.getElementById('optimize-level').value
+        };
+    }
+}
+
+// 初始化介绍管理器
+document.addEventListener('DOMContentLoaded', () => {
+    window.introduceManager = new IntroduceManager();
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,230 @@
+{% block result_container_style %}
+<style>
+  /* 确保内容区域隐藏滚动条 */
+  .result-container,
+  .result-content {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .result-container::-webkit-scrollbar,
+  .result-content::-webkit-scrollbar {
+    display: none;
+  }
+
+  .result-container {
+    font-size: 14px;
+    padding: 0px;
+    border-radius: 0px;
+    color: #e3e3e3;
+    min-height: 100px;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 1.6;
+  }
+
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(30, 32, 47, 0.95);
+    backdrop-filter: blur(8px);
+    margin: 0px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .word-count {
+    font-size: 14px;
+    color: #a5b4fc;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tool-button {
+    background: transparent;
+    border: none;
+    color: #a5b4fc;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tool-button:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: #fff;
+  }
+
+  .result-content {
+    min-height: 60px;
+    padding: 0px 26px 26px 26px;
+    background: linear-gradient(135deg, #1a1c2d, #2a2d3d);
+    color: #e3e3e3;
+    font-size: 16px;
+  }
+
+  /* 工具提示样式 */
+  .tool-button[data-tooltip] {
+    position: relative;
+  }
+
+  .tool-button[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: fixed;
+    top: auto;
+    bottom: 50%;
+    left: 50%;
+    transform: translate(-50%, 150%);
+    padding: 10px 16px;
+    background: rgba(15, 23, 42, 0.95);
+    color: #e2e4fd;
+    font-size: 15px;
+    line-height: 1.6;
+    font-weight: normal;
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 999;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    width: 200px;
+    max-width: calc(100vw - 32px);
+    text-align: left;
+    pointer-events: none;
+    word-wrap: break-word;
+    white-space: normal;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .tool-button[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+  }
+</style>
+{% endblock %}
+
+{% block result_container_html %}
+<div id="result-container" class="result-container">
+    <div class="toolbar">
+        <div class="word-count">
+            <i class="fas fa-font text-indigo-400"></i>
+            <span id="word-counter">0</span> 字
+        </div>
+        <div class="toolbar-actions">
+            <button class="tool-button" id="copy-btn" data-tooltip="复制到剪贴板">
+                <i class="fas fa-copy"></i>
+            </button>
+            <button class="tool-button" id="insert-btn" data-tooltip="插入到文档">
+                <i class="fas fa-file-import"></i>
+            </button>
+        </div>
+    </div>
+    <div id="result-content" class="result-content"></div>
+</div>
+{% endblock %}
+
+{% block result_container_script %}
+<script>
+// 添加打字机效果函数
+window.typewriterEffect = function($element, text, speed = 10) {
+    // 初始化 markdown-it
+    const md = window.markdownit({
+        html: true,
+        linkify: true,
+        typographer: true,
+        highlight: function (str, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return hljs.highlight(str, { language: lang }).value;
+                } catch (__) {}
+            }
+            return ''; // 使用默认的转义
+        }
+    });
+
+    let i = 0;
+    let renderedText = '';
+    $element.addClass('markdown-body').html('');
+    $(".result-container").show();
+
+    function typeWriter() {
+        if (i < text.length) {
+            renderedText += text.charAt(i);
+            // 实时渲染 Markdown
+            $element.html(md.render(renderedText));
+            i++;
+            setTimeout(typeWriter, speed);
+        } else {
+            // 完成后执行代码高亮
+            $element.find('pre code').each(function(i, block) {
+                hljs.highlightBlock(block);
+            });
+        }
+    }
+
+    typeWriter();
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const copyBtn = document.getElementById('copy-btn');
+    const insertBtn = document.getElementById('insert-btn');
+    const wordCounter = document.getElementById('word-counter');
+    const resultContent = document.getElementById('result-content');
+
+    // 更新字数统计
+    function updateWordCount() {
+        const text = resultContent.textContent || '';
+        wordCounter.textContent = text.length;
+    }
+
+    // 复制功能
+    copyBtn.addEventListener('click', async () => {
+        const text = resultContent.textContent || '';
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast('已复制到剪切板', 'success');
+        } catch (err) {
+            showToast('复制失败', 'error');
+        }
+    });
+
+    // 插入功能
+    insertBtn.addEventListener('click', () => {
+        const text = resultContent.textContent || '';
+        Word.run(async (context) => {
+            const range = context.document.getSelection();
+            range.insertText(text, Word.InsertLocation.replace);
+            
+            await context.sync();
+            showToast('已插入到文档', 'success');
+        }).catch(error => {
+            console.error('Error:', error);
+            showToast('插入失败，请重试', 'error');
+        });
+    });
+
+    // 监听内容变化
+    const observer = new MutationObserver(updateWordCount);
+    observer.observe(resultContent, { 
+        childList: true, 
+        characterData: true, 
+        subtree: true 
+    });
+
+    // 初始化字数统计
+    updateWordCount();
+});
+</script>
+{% endblock %} 
