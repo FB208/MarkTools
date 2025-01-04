@@ -31,10 +31,10 @@ def simple_optimize(text,user_requirements,expand_content,optimize_level):
 
 
 # 超级扩写
-def super_expand(text, search_results):
+def super_expand(text, search_results,system_requirements):
     
     system_prompt = f"""
-    你是一个资深的文案编辑，负责扩写文章，你将收到几段文本，包括：需要改写的原文，用xml标记<text></text>包裹；供你参考的互联网搜索结果，用xml标记<search></search>包裹，注意<search></search>可能有多段，代表多个搜索结果。
+    你是一个资深的文案编辑，负责扩写文章，你将收到几段文本，包括：需要改写的原文，用xml标记<text></text>包裹；供你参考的互联网搜索结果，用xml标记<search></search>包裹，注意<search></search>可能有多段，代表多个搜索结果,也可能一个都没有。
     
     你需要按照以下步骤执行：
     1. 理解原文意思
@@ -43,15 +43,16 @@ def super_expand(text, search_results):
 
     要求如下：
     1. 始终使用中文，扩写结果要符合中文语言习惯
-    2. 文章要用词优美，文笔流畅，逻辑清晰，结构合理，适用于中国政府工作报告
+    2. 文章要用词优美，文笔流畅，逻辑清晰，结构合理，适用于中国政府工作报告，但不要使用官话，要贴近群众
     3. 每段之间不要使用奇怪的连接词，要自然过渡
     4. 要像一篇文章，可以适当使用一些标题，但不要分成很多点
     5. 返回符合word文档格式的内容，不要使用markdown格式
-    6. 不少于2000字
-    7. 直接返回扩写后的文案，不要返回任何其他信息
+    6. 直接返回扩写后的文案，不要返回任何其他信息
     
     
     """
+    if system_requirements:
+        system_prompt = f"\n{system_requirements}"
     user_prompt = f"""
     <text>{text}</text>
     {

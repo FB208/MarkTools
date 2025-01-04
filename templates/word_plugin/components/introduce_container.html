@@ -305,23 +305,28 @@
         <div class="setting-item setting-item-vertical">
             <div class="setting-label">系统设定（不建议修改）</div>
             <div class="setting-control" style="width: 100%;">
-                <textarea id="system-requirements" class="custom-textarea" rows="15">你是一个资深文案编辑，正在word文档上编写报告。你需要基于用户提供的简短描述，扩写出一篇完整的文章。
+                <textarea id="system-requirements" class="custom-textarea" rows="19">
+你是一个资深的文案编辑，负责扩写文章，你将收到几段文本，包括：需要改写的原文，用xml标记<text></text>包裹；供你参考的互联网搜索结果，用xml标记<search></search>包裹，注意<search></search>可能有多段，代表多个搜索结果,也可能一个都没有。
+    
+你需要按照以下步骤执行：
+1. 理解原文意思
+2. 分析搜索结果，和原文比对，如果内容有帮助则应用到扩写结果中，如果与原文意思有很大差别，你可以自己觉得是不是使用这段搜索结果
+3. 结合你丰富的经验，扩写文章，使其更加完整
 
-1. 理解用户的核心意图，基于搜索结果补充专业知识和行业信息
-2. 按照用户要求的字数扩写，如无特殊说明，段落数量在4-8个为宜
-3. 行文流畅，逻辑清晰，注意过渡自然
-4. 内容真实可靠，数据准确，适当引用权威来源
-5. 语言要生动活泼，富有感染力，避免使用空洞的官话套话
-6. 符合中文的表达习惯，不要机械翻译
-7. 维护中国的权益，遵守中国法律
-8. 直接返回扩写后的文案，不要返回其他任何信息</textarea>
+要求如下：
+1. 始终使用中文，扩写结果要符合中文语言习惯
+2. 文章要用词优美，文笔流畅，逻辑清晰，结构合理，适用于中国政府工作报告，但不要使用官话，要贴近群众
+3. 每段之间不要使用奇怪的连接词，要自然过渡
+4. 要像一篇文章，可以适当使用一些标题，但不要分成很多点
+5. 返回符合word文档格式的内容，不要使用markdown格式
+6. 直接返回扩写后的文案，不要返回任何其他信息</textarea>
             </div>
         </div>
         <div class="setting-item setting-item-horizontal">
             <div class="setting-label">启用搜索</div>
             <div class="setting-control">
                 <label class="switch">
-                    <input type="checkbox" id="enable-search" checked>
+                    <input type="checkbox" id="enable-search" >
                     <span class="slider"></span>
                 </label>
             </div>
@@ -329,9 +334,7 @@
         <div class="setting-item setting-item-horizontal">
             <div class="setting-label">需求字数</div>
             <div class="setting-control">
-                <div class="select-wrapper">
-                    <input type="number" id="word-count" class="custom-select" value="2000" min="1" step="1">
-                </div>
+                <input type="number" id="word-count" class="number-input" value="2000" min="1" step="1">
             </div>
         </div>
     </div>
@@ -371,6 +374,13 @@ class IntroduceManager {
         this.container = document.getElementById('introduce-container');
         this.setupEventListeners();
         this.hideAllSettings();
+        
+        // 初始化设置面板的状态
+        this.initializeSettings();
+    }
+
+    initializeSettings() {
+
     }
 
     setupEventListeners() {
@@ -398,7 +408,7 @@ class IntroduceManager {
             'super-expand': {
                 icon: 'fa-expand-alt',
                 title: '超级扩写',
-                description: '可以仅提供较少的线索，AI自动学习并扩充成完整的文案',
+                description: '可以仅提供较少的线索，AI自动学习并扩充成完整的文案。<br>启用搜索后，<strong>等待时间较长</strong>，请耐心等待。',
                 settingsId: 'super-expand-settings'
             },
             'inspiration2outline': {
@@ -425,7 +435,7 @@ class IntroduceManager {
         // 更新内容
         this.container.querySelector('.introduce-icon i').className = `fas ${content.icon}`;
         this.container.querySelector('.introduce-title').textContent = content.title;
-        this.container.querySelector('.introduce-description').textContent = content.description;
+        this.container.querySelector('.introduce-description').innerHTML = content.description;
         
         // 隐藏所有设置面板
         this.hideAllSettings();

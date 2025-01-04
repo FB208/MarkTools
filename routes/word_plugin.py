@@ -7,7 +7,6 @@ import json
 from services.google_search_service import extract_search_keywords
 from utils.google_search_util import GoogleSearchUtil
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from utils.embeddings.embedding_v2_util import EmbeddingSearchV2 as EmbeddingSearch
 from utils.embeddings.embedding_openai_faiss_util import OpenAIFaissUtil
 
 
@@ -65,7 +64,7 @@ def simple_optimize_stream():
 @word_plugin_bp.route('/word_plugin/super_expand')
 def super_expand_stream():
     text = request.args.get('text', '')
-    enable_search = request.args.get('enableSearch', 'true').lower() == 'true'
+    enable_search = request.args.get('enableSearch').lower() == 'true'
     word_count = request.args.get('wordCount', '2000')
     system_requirements = request.args.get('systemRequirements', '')
     
@@ -75,52 +74,52 @@ def super_expand_stream():
     def fetch_content(result, google_search_util):
         link = result['link']
         return google_search_util.fetch_page_content(link)
-    def search_keyword(keyword, es):
-        return es.search(keyword, top_k=3)
 
     @stream_with_context
     def generate():
         try:
             yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在思考，请稍后。。。'}, ensure_ascii=False)}\n\n"
             print("获取到扩写内容:", text)  # 调试日志
-            # 提取搜索关键词
-            keywords = extract_search_keywords(text)
-            yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在从互联网搜索'}, ensure_ascii=False)}\n\n"
-            google_search_util = GoogleSearchUtil()
-            search_results = google_search_util.search(query=keywords,num_results=3)
-            yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在处理搜索结果'}, ensure_ascii=False)}\n\n"
-            
-            # 使用线程池并发获取页面内容
-            page_contents = []
-            with ThreadPoolExecutor(max_workers=3) as executor:
-                # 提交所有任务，传入 google_search_util
-                future_to_url = {executor.submit(fetch_content, result, google_search_util): result 
-                               for result in search_results}
-                
-                # 获取完成的任务结果
-                for future in as_completed(future_to_url):
-                    page_result = future.result()
-                    if page_result['status'] == 'success':
-                        page_contents.append(page_result['content'])
-            
-            # 向量化，防止搜索结果过长
-            yield f"data: {json.dumps({'step': 'show_toast', 'content': '二次匹配搜索结果中最相关的内容'}, ensure_ascii=False)}\n\n"
-            faiss_util = OpenAIFaissUtil()
-            search_result_texts = []
-            for content in page_contents:
-                search_result_texts.extend(faiss_util.split_text(content,1000))
-                
             embedding_search_results = []
-            embedding_search_results = faiss_util.search_fast(
-                query=keywords, 
-                texts=search_result_texts, 
-                top_k=3
-            )
-            print("embedding_search_results:", embedding_search_results)
+            if enable_search:
+                # 提取搜索关键词
+                keywords = extract_search_keywords(text)
+                yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在从互联网搜索'}, ensure_ascii=False)}\n\n"
+                google_search_util = GoogleSearchUtil()
+                search_results = google_search_util.search(query=keywords,num_results=3)
+                yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在处理搜索结果'}, ensure_ascii=False)}\n\n"
+                
+                # 使用线程池并发获取页面内容
+                page_contents = []
+                with ThreadPoolExecutor(max_workers=3) as executor:
+                    # 提交所有任务，传入 google_search_util
+                    future_to_url = {executor.submit(fetch_content, result, google_search_util): result 
+                                for result in search_results}
+                    
+                    # 获取完成的任务结果
+                    for future in as_completed(future_to_url):
+                        page_result = future.result()
+                        if page_result['status'] == 'success':
+                            page_contents.append(page_result['content'])
+                
+                # 向量化，防止搜索结果过长
+                yield f"data: {json.dumps({'step': 'show_toast', 'content': '二次匹配搜索结果中最相关的内容'}, ensure_ascii=False)}\n\n"
+                faiss_util = OpenAIFaissUtil()
+                search_result_texts = []
+                for content in page_contents:
+                    search_result_texts.extend(faiss_util.split_text(content,1000))
+                    
+                
+                embedding_search_results = faiss_util.search_fast(
+                    query=keywords, 
+                    texts=search_result_texts, 
+                    top_k=3
+                )
+                print("embedding_search_results:", embedding_search_results)
             yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在润色文案'}, ensure_ascii=False)}\n\n"
             
             
-            expand_content = super_expand(text, embedding_search_results)
+            expand_content = super_expand(text,search_results=embedding_search_results,system_requirements=system_requirements)
             data = json.dumps({'step': 'content', 'message': expand_content}, ensure_ascii=False)
             yield f"data: {data}\n\n"
             # expand_content = super_expand(text)

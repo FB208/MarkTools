@@ -554,7 +554,7 @@
           // 构建查询参数
           const params = new URLSearchParams({
             text: selectedText,
-            enableSearch: settings.enableSearch || true,
+            enableSearch: settings.enableSearch,
             wordCount: settings.wordCount || 2000,
             systemRequirements: settings.systemRequirements || ''
           });
