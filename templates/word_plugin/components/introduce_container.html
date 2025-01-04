@@ -72,17 +72,32 @@
   }
 
   .setting-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
 
-  .setting-item:last-child {
-    margin-bottom: 0;
+  .setting-item-vertical {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .setting-item-vertical .setting-label {
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .setting-item-horizontal {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .setting-item-horizontal .setting-label {
+    flex: 1;
+    margin-bottom: 8px;
+    font-weight: 500;
   }
 
   .setting-label {
-    flex: 1;
     font-size: 14px;
     color: #e2e4fd;
   }
@@ -178,6 +193,56 @@
     background-color: #1e2235;
     color: #e2e4fd;
   }
+
+  /* 添加文本框样式 */
+  .custom-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #e2e4fd;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    line-height: 1.5;
+    transition: all 0.2s ease;
+  }
+
+  .custom-textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+
+  .custom-textarea::placeholder {
+    color: rgba(165, 180, 252, 0.5);
+  }
+
+  /* 添加数字输入框样式 */
+  .number-input {
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 14px;
+    color: #e2e4fd;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 4px;
+    appearance: textfield;
+  }
+
+  .number-input::-webkit-inner-spin-button,
+  .number-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .number-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
 </style>
 {% endblock %}
 
@@ -190,11 +255,30 @@
         <div class="introduce-title">简单优化</div>
     </div>
     <div class="introduce-description">
-        通过AI智能分析，修正错别字和语病，优化文案结构和表达，让您的文章更加专业流畅。
+        通过AI智能分析，修正错别字和语病，优化文案结构和表达。
     </div>
-    <div class="introduce-settings">
-        <div class="setting-item">
-            <div class="setting-label">智能扩充内容</div>
+    
+    <!-- 简单优化的设置 -->
+    <div class="introduce-settings" id="simple-optimize-settings">
+        <div class="setting-item setting-item-vertical">
+            <div class="setting-label">系统设定（不建议修改）</div>
+            <div class="setting-control" style="width: 100%;">
+                <textarea id="user-requirements" class="custom-textarea" rows="15">
+你是一个资深文案编辑，正在word文档上编写报告，你会按照如下要求优化收到的文案：
+
+1. 理解原文意思，根据你的专业经验来补充内容，让文章更加丰满
+2. 为了优化文案，你可以删除个别词语和句子，但原文提到的关键信息都必须保留，禁止删除关键信息
+3. 修正错别字和语病
+4. 整体优化文案，使其更加通顺，符合中国政府工作报告的表达习惯，但不要使用官话，要贴近群众
+5. 不要使用奇怪的连接词，使文章更像人类作家写的，而不是AI生成的，你可以模仿这几个作家："余华、陈忠实、莫言"
+6. 返回符合word文档格式的内容，不要使用markdown
+7. 始终使用中文
+8. 维护中国的权益，遵守中国法律
+9. 直接返回优化后的文案，不要返回任何其他信息</textarea>
+            </div>
+        </div>
+        <div class="setting-item setting-item-horizontal">
+            <div class="setting-label">智能扩充内容（开发中）</div>
             <div class="setting-control">
                 <label class="switch">
                     <input type="checkbox" id="expand-content" checked>
@@ -202,8 +286,8 @@
                 </label>
             </div>
         </div>
-        <div class="setting-item">
-            <div class="setting-label">优化程度</div>
+        <div class="setting-item setting-item-horizontal">
+            <div class="setting-label">优化程度（开发中）</div>
             <div class="setting-control">
                 <div class="select-wrapper">
                     <select class="custom-select" id="optimize-level">
@@ -212,6 +296,67 @@
                         <option value="heavy">深度优化</option>
                     </select>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 超级扩写的设置 -->
+    <div class="introduce-settings" id="super-expand-settings">
+        <div class="setting-item setting-item-vertical">
+            <div class="setting-label">系统设定（不建议修改）</div>
+            <div class="setting-control" style="width: 100%;">
+                <textarea id="system-requirements" class="custom-textarea" rows="15">你是一个资深文案编辑，正在word文档上编写报告。你需要基于用户提供的简短描述，扩写出一篇完整的文章。
+
+1. 理解用户的核心意图，基于搜索结果补充专业知识和行业信息
+2. 按照用户要求的字数扩写，如无特殊说明，段落数量在4-8个为宜
+3. 行文流畅，逻辑清晰，注意过渡自然
+4. 内容真实可靠，数据准确，适当引用权威来源
+5. 语言要生动活泼，富有感染力，避免使用空洞的官话套话
+6. 符合中文的表达习惯，不要机械翻译
+7. 维护中国的权益，遵守中国法律
+8. 直接返回扩写后的文案，不要返回其他任何信息</textarea>
+            </div>
+        </div>
+        <div class="setting-item setting-item-horizontal">
+            <div class="setting-label">启用搜索</div>
+            <div class="setting-control">
+                <label class="switch">
+                    <input type="checkbox" id="enable-search" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="setting-item setting-item-horizontal">
+            <div class="setting-label">需求字数</div>
+            <div class="setting-control">
+                <div class="select-wrapper">
+                    <input type="number" id="word-count" class="custom-select" value="2000" min="1" step="1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 灵感转提纲的设置 -->
+    <div class="introduce-settings" id="inspiration2outline-settings">
+        <div class="setting-item setting-item-horizontal">
+            <div class="setting-label">提纲层级</div>
+            <div class="setting-control">
+                <div class="select-wrapper">
+                    <select class="custom-select" id="outline-level">
+                        <option value="2">二级提纲</option>
+                        <option value="3" selected>三级提纲</option>
+                        <option value="4">四级提纲</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="setting-item setting-item-horizontal">
+            <div class="setting-label">自动编号</div>
+            <div class="setting-control">
+                <label class="switch">
+                    <input type="checkbox" id="auto-numbering" checked>
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
     </div>
@@ -225,14 +370,101 @@ class IntroduceManager {
         this.activeButton = null;
         this.container = document.getElementById('introduce-container');
         this.setupEventListeners();
+        this.hideAllSettings();
     }
 
     setupEventListeners() {
-        // 监听所有可能触发介绍面板的按钮
         const buttons = document.querySelectorAll('[data-introduce]');
         buttons.forEach(button => {
             button.addEventListener('click', (e) => this.handleButtonClick(e));
         });
+    }
+
+    hideAllSettings() {
+        const allSettings = this.container.querySelectorAll('.introduce-settings');
+        allSettings.forEach(setting => {
+            setting.style.display = 'none';
+        });
+    }
+
+    updateIntroduceContent(introduceId) {
+        const contents = {
+            'simple-optimize': {
+                icon: 'fa-magic',
+                title: '简单优化',
+                description: '修正错别字、语病，适当补充内容并优化文案。',
+                settingsId: 'simple-optimize-settings'
+            },
+            'super-expand': {
+                icon: 'fa-expand-alt',
+                title: '超级扩写',
+                description: '可以仅提供较少的线索，AI自动学习并扩充成完整的文案',
+                settingsId: 'super-expand-settings'
+            },
+            'inspiration2outline': {
+                icon: 'fa-lightbulb',
+                title: '灵感转提纲',
+                description: '将您的灵感快速转换为结构化提纲，帮助您理清思路和文章结构。',
+                settingsId: 'inspiration2outline-settings'
+            },
+            'chat': {
+                icon: 'fa-expand',
+                title: '提纲扩充',
+                description: '基于现有提纲，智能扩充完整的文案内容，让您的文章更加丰富。'
+            },
+            'vulnerability': {
+                icon: 'fa-eraser',
+                title: '文案去提纲',
+                description: '一键清理文案中的提纲标记，输出整洁的纯文本容。'
+            }
+        };
+
+        const content = contents[introduceId];
+        if (!content) return;
+
+        // 更新内容
+        this.container.querySelector('.introduce-icon i').className = `fas ${content.icon}`;
+        this.container.querySelector('.introduce-title').textContent = content.title;
+        this.container.querySelector('.introduce-description').textContent = content.description;
+        
+        // 隐藏所有设置面板
+        this.hideAllSettings();
+        
+        // 显示对应功能的设置面板
+        if (content.settingsId) {
+            const settingsPanel = document.getElementById(content.settingsId);
+            if (settingsPanel) {
+                settingsPanel.style.display = 'block';
+            }
+        }
+    }
+
+    getCurrentSettings() {
+        const activeSettingsPanel = this.container.querySelector('.introduce-settings[style*="display: block"]');
+        if (!activeSettingsPanel) return {};
+
+        // 根据不同的设置面板ID返回不同的设置
+        switch (activeSettingsPanel.id) {
+            case 'simple-optimize-settings':
+                return {
+                    userRequirements: document.getElementById('user-requirements').value,
+                    expandContent: document.getElementById('expand-content').checked,
+                    optimizeLevel: document.getElementById('optimize-level').value
+                };
+            case 'super-expand-settings':
+                return {
+                    enableSearch: document.getElementById('enable-search').checked,
+                    wordCount: document.getElementById('word-count').value,
+                    systemRequirements: document.getElementById('system-requirements').value
+                };
+            case 'inspiration2outline-settings':
+                return {
+                    outlineLevel: document.getElementById('outline-level').value,
+                    autoNumbering: document.getElementById('auto-numbering').checked
+                };
+            default:
+                return {};
+        }
     }
 
     handleButtonClick(event) {
@@ -272,57 +504,6 @@ class IntroduceManager {
         }
     }
 
-    updateIntroduceContent(introduceId) {
-        // 根据不同的按钮更新介绍面板的内容
-        const contents = {
-            'simple-optimize': {
-                icon: 'fa-magic',
-                title: '简单优化',
-                description: '修正错别字、语病，适当补充内容并优化文案。',
-                settings: true
-            },
-            'super-expand': {
-                icon: 'fa-expand-alt',
-                title: '超级扩写',
-                description: '自动从google搜索内容来扩种',
-                settings: true
-            },
-            'inspiration2outline': {
-                icon: 'fa-lightbulb',
-                title: '灵感转提纲',
-                description: '将您的灵感快速转换为结构化提纲，帮助您理清思路和文章结构。',
-                settings: false
-            },
-            'chat': {
-                icon: 'fa-expand',
-                title: '提纲扩充',
-                description: '基于现有提纲，智能扩充完整的文案内容，让您的文章更加丰富。',
-                settings: false
-            },
-            'vulnerability': {
-                icon: 'fa-eraser',
-                title: '文案去提纲',
-                description: '一键清理文案中的提纲标记，输出整洁的纯文本容。',
-                settings: false
-            }
-            // 可以继续添加其他按钮的配置
-        };
-
-        const content = contents[introduceId];
-        if (!content) return;
-
-        // 更新内容
-        this.container.querySelector('.introduce-icon i').className = `fas ${content.icon}`;
-        this.container.querySelector('.introduce-title').textContent = content.title;
-        this.container.querySelector('.introduce-description').textContent = content.description;
-        
-        // 根据是否需要显示设置面板来切换设置区域的显示状态
-        const settingsElement = this.container.querySelector('.introduce-settings');
-        if (settingsElement) {
-            settingsElement.style.display = content.settings ? 'block' : 'none';
-        }
-    }
-
     executeButtonAction(button) {
         // 获取当前设置
         const settings = this.getCurrentSettings();
@@ -332,13 +513,6 @@ class IntroduceManager {
         if (originalHandler && window[originalHandler]) {
             window[originalHandler](settings);
         }
-    }
-
-    getCurrentSettings() {
-        return {
-            expandContent: document.getElementById('expand-content').checked,
-            optimizeLevel: document.getElementById('optimize-level').value
-        };
     }
 }
 

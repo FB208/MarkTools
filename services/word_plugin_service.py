@@ -2,14 +2,14 @@ from llm.llm_factory import LLMFactory
 from services.google_search_service import extract_search_keywords
 
 # 简单优化
-def simple_optimize(text):
+def simple_optimize(text,user_requirements,expand_content,optimize_level):
     system_prompt = f"""
     你是一个资深文案编辑，正在word文档上编写报告，你会按照如下要求优化收到的文案：
     
     1. 理解原文意思，根据你的专业经验来补充内容，让文章更加丰满
     2. 为了优化文案，你可以删除个别词语和句子，但原文提到的关键信息都必须保留，禁止删除关键信息
     3. 修正错别字和语病
-    4. 整体优化文案，使其更加通顺，符合中国政府工作报告的表达习惯
+    4. 整体优化文案，使其更加通顺，符合中国政府工作报告的表达习惯，但不要使用官话，要贴近群众
     5. 不要使用奇怪的连接词，使文章更像人类作家写的，而不是AI生成的，你可以模仿这几个作家：“余华、陈忠实、莫言”
     6. 返回符合word文档格式的内容，不要使用markdown
     7. 始终使用中文
@@ -17,6 +17,8 @@ def simple_optimize(text):
     9. 直接返回优化后的文案，不要返回任何其他信息
     
     """
+    if user_requirements:
+        system_prompt = f"\n{user_requirements}"
     user_prompt = f"{text}"
     
     messages = [

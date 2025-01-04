@@ -10,18 +10,21 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/atom-one-dark.min.css">
 <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/highlight.min.js"></script>
 <style>
-    /* 隐藏滚动条但保持可滚动 */
-  html, body {
-    scrollbar-width: none;  /* Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
+  /* 隐藏滚动条但保持可滚动 */
+  html,
+  body {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
   }
-  
+
   /* Webkit browsers (Chrome, Safari) */
-  html::-webkit-scrollbar, 
+  html::-webkit-scrollbar,
   body::-webkit-scrollbar {
     display: none;
   }
-  
+
   /* 确保内容区域也隐藏滚动条 */
   .content-wrapper,
   .result-container,
@@ -29,7 +32,7 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  
+
   .content-wrapper::-webkit-scrollbar,
   .result-container::-webkit-scrollbar,
   .result-content::-webkit-scrollbar {
@@ -40,7 +43,7 @@
     position: relative;
     padding: 0;
     justify-content: flex-start;
-  }   
+  }
 
   .content-wrapper {
     margin-top: 60px;
@@ -142,9 +145,9 @@
     background: linear-gradient(145deg, #1e2235, #2a2d3d);
     padding: 2px;
     border-radius: 8px;
-    box-shadow: 
-        0 4px 15px rgba(0, 0, 0, 0.3),
-        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 4px 15px rgba(0, 0, 0, 0.3),
+      inset 0 1px 2px rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(99, 102, 241, 0.2);
   }
 
@@ -169,19 +172,19 @@
     z-index: 1;
   }
 
-  .button-group-wrapper > .button-group:first-child > .button:first-child {
+  .button-group-wrapper>.button-group:first-child>.button:first-child {
     border-top-left-radius: 6px !important;
   }
 
-  .button-group-wrapper > .button-group:first-child > .button:last-child {
+  .button-group-wrapper>.button-group:first-child>.button:last-child {
     border-top-right-radius: 6px !important;
   }
 
-  .button-group-wrapper > .button-group:last-child > .button:first-child {
+  .button-group-wrapper>.button-group:last-child>.button:first-child {
     border-bottom-left-radius: 6px !important;
   }
 
-  .button-group-wrapper > .button-group:last-child > .button:last-child {
+  .button-group-wrapper>.button-group:last-child>.button:last-child {
     border-bottom-right-radius: 6px !important;
   }
 
@@ -195,7 +198,7 @@
     border-bottom-right-radius: 0;
   }
 
-  .button + .button {
+  .button+.button {
     margin-left: -1px;
   }
 
@@ -215,18 +218,18 @@
   .button:active {
     background: linear-gradient(145deg, #1a1c2d, #2a2d3d);
     transform: translateY(0);
-    box-shadow: 
-        inset 0 2px 4px rgba(0, 0, 0, 0.2),
-        0 1px 2px rgba(255, 255, 255, 0.1);
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.2),
+      0 1px 2px rgba(255, 255, 255, 0.1);
   }
 
   .button.active {
     color: #ffffff;
     background: linear-gradient(135deg, #4f46e5, #6366f1);
     border-color: rgba(99, 102, 241, 0.9);
-    box-shadow: 
-        0 2px 8px rgba(79, 70, 229, 0.3),
-        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    box-shadow:
+      0 2px 8px rgba(79, 70, 229, 0.3),
+      inset 0 1px 2px rgba(255, 255, 255, 0.2);
   }
 
   .button i {
@@ -317,9 +320,17 @@
     line-height: 1.25;
   }
 
-  .markdown-body h1 { font-size: 2em; }
-  .markdown-body h2 { font-size: 1.5em; }
-  .markdown-body h3 { font-size: 1.25em; }
+  .markdown-body h1 {
+    font-size: 2em;
+  }
+
+  .markdown-body h2 {
+    font-size: 1.5em;
+  }
+
+  .markdown-body h3 {
+    font-size: 1.25em;
+  }
 
   .markdown-body ul,
   .markdown-body ol {
@@ -379,134 +390,454 @@
 
 {% block body %}
 <div class="container mx-auto px-2" style="display: flex; flex-direction: column; align-items: center; height: auto;">
-    <div class="content-wrapper">
-        <div class="tab-menu z-10 flex justify-between items-center">
-            <div class="tab-buttons">
-                <button class="tab-button active" data-tab="content">文案助手</button>
-                <button class="tab-button" data-tab="layout">排版助手</button>
-            </div>
-            <div class="logo-container">
-                <img src="https://qiniu.bigdudu.cn/202411210904831.png" alt="logo" class="logo-image">
-            </div>
-        </div>
-
-        <div id="content" class="tab-content active">
-            <div class="button-group-wrapper">
-                <div class="button-group">
-                    <button id="simple_optimize" class="button" data-introduce="simple-optimize" data-original-handler="handleSimpleOptimizeClick">
-                        <i class="fas fa-magic"></i>简单优化
-                    </button>
-                    <button id="super_expand" class="button" data-introduce="super-expand" data-original-handler="handleSuperExpandClick">
-                        <i class="fas fa-expand-alt"></i>超级扩写
-                    </button>
-                </div>
-                <div class="button-group">
-                    <button id="inspiration2outlineButton" class="button" data-introduce="inspiration2outline">
-                        <i class="fas fa-lightbulb"></i>灵感转提纲
-                    </button>
-                    <button id="chatButton" class="button" data-introduce="chat">
-                        <i class="fas fa-expand"></i>提纲扩充
-                    </button>
-                    <button id="vulnerabilityButton" class="button" data-introduce="vulnerability">
-                        <i class="fas fa-eraser"></i>文案去提纲
-                    </button>
-                </div>
-            </div>
-
-            {% include 'word_plugin/components/introduce_container.html' %}
-        </div>
-
-        <div id="layout" class="tab-content">
-            <div class="button-group">
-                <button id="spell-check" class="button">排查错别字</button>
-                <button id="format-check" class="button">格式检查</button>
-            </div>
-        </div>
-
-        {% include 'word_plugin/components/result_container.html' %}
+  <div class="content-wrapper">
+    <div class="tab-menu z-10 flex justify-between items-center">
+      <div class="tab-buttons">
+        <button class="tab-button active" data-tab="content">文案助手</button>
+        <button class="tab-button" data-tab="layout">排版助手</button>
+      </div>
+      <div class="logo-container">
+        <img src="https://qiniu.bigdudu.cn/202411210904831.png" alt="logo" class="logo-image">
+      </div>
     </div>
+
+    <div id="content" class="tab-content active">
+      <div class="button-group-wrapper">
+        <div class="button-group">
+          <button id="simple_optimize" class="button" data-introduce="simple-optimize"
+            data-original-handler="handleSimpleOptimizeClick">
+            <i class="fas fa-magic"></i>简单优化
+          </button>
+          <button id="super_expand" class="button" data-introduce="super-expand"
+            data-original-handler="handleSuperExpandClick">
+            <i class="fas fa-expand-alt"></i>超级扩写
+          </button>
+        </div>
+        <div class="button-group">
+          <button id="inspiration2outlineButton" class="button" data-introduce="inspiration2outline">
+            <i class="fas fa-lightbulb"></i>灵感转提纲
+          </button>
+          <button id="chatButton" class="button" data-introduce="chat">
+            <i class="fas fa-expand"></i>提纲扩充
+          </button>
+          <button id="vulnerabilityButton" class="button" data-introduce="vulnerability">
+            <i class="fas fa-eraser"></i>文案去提纲
+          </button>
+        </div>
+      </div>
+
+      {% include 'word_plugin/components/introduce_container.html' %}
+    </div>
+
+    <div id="layout" class="tab-content">
+      <div class="button-group">
+        <button id="spell-check" class="button">排查错别字</button>
+        <button id="format-check" class="button">格式检查</button>
+      </div>
+    </div>
+
+    {% include 'word_plugin/components/result_container.html' %}
+  </div>
 </div>
 
 <!-- 添加置顶按钮 -->
 <button class="scroll-to-top" id="scrollToTop">
-    <i class="fas fa-arrow-up"></i>
+  <i class="fas fa-arrow-up"></i>
 </button>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-Office.onReady((info) => {
+  Office.onReady((info) => {
     if (info.host === Office.HostType.Word) {
-        // 初始化按钮事件
-        // 注意：不再直接绑定点击事件，现在由IntroduceManager处理
-        window.handleSimpleOptimizeClick = function(settings = {}) {
-            Word.run(async function (context) {
-                const range = context.document.getSelection();
-                range.load('text');
-                await context.sync();
+      // 标签页切换功能
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      tabButtons.forEach(button => {
+          button.addEventListener('click', () => {
+              // 移除所有活动状态
+              tabButtons.forEach(btn => btn.classList.remove('active'));
+              tabContents.forEach(content => {
+                  content.style.display = 'none';
+                  content.classList.remove('active');
+              });
+              
+              // 添加当前选中标签的活动状态
+              button.classList.add('active');
+              const tabId = button.getAttribute('data-tab');
+              const activeContent = document.getElementById(tabId);
+              if (activeContent) {
+                  activeContent.style.display = 'block';
+                  activeContent.classList.add('active');
+              }
+          });
+      });
+
+      // 初始化按钮事件
+      // 注意：不再直接绑定点击事件，现在由IntroduceManager处理
+      window.handleSimpleOptimizeClick = function (settings = {}) {
+        Word.run(async function (context) {
+          const range = context.document.getSelection();
+          range.load('text');
+          await context.sync();
+
+          const selectedText = range.text;
+          if (!selectedText) {
+            showToast('请先选择文本', 'warning');
+            return;
+          }
+
+          // 显示结果区域
+          const resultDiv = $('#result-content');
+
+          // 建立 SSE 连接，添加设置参数
+          const params = new URLSearchParams({
+            text: selectedText,
+            userRequirements: settings.userRequirements || '',
+            expandContent: settings.expandContent || false,
+            optimizeLevel: settings.optimizeLevel || 'medium'
+          });
+
+          const eventSource = new EventSource('{{ url_for("word_plugin.simple_optimize_stream") }}?' +
+            params.toString());
+
+          eventSource.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            console.log('收到SSE消息:', data);
+
+            switch (data.step) {
+              case 'optimize':
+                console.log('收到内容:', data.message);
+                typewriterEffect(resultDiv, data.message);
+                break;
+              case 'show_toast':
+                showToast(data.content, 'info');
+                break;
+              case 'complete':
+                showToast(data.content, 'success');
+                eventSource.close();
+                break;
+            }
+          };
+
+          eventSource.onerror = function (error) {
+            console.error('EventSource failed:', error);
+            showToast('生成提纲时发生错误', 'error');
+            eventSource.close();
+          };
+        }).catch(function (error) {
+          console.log("Error: " + error);
+          if (error instanceof OfficeExtension.Error) {
+            console.log("Debug info: " + JSON.stringify(error.debugInfo));
+          }
+          showToast("操作失败，请重试", 'error');
+        });
+      };
+      //超级扩写
+      window.handleSuperExpandClick = function (settings = {}) {
+        Word.run(async function (context) {
+          // 获取选中的文本
+          const range = context.document.getSelection();
+          range.load('text');
+          await context.sync();
+
+          const selectedText = range.text;
+          if (!selectedText) {
+            showToast('请先选择文本', 'warning');
+            return;
+          }
+
+          // 显示结果区域
+          const resultDiv = $('#result-content');
+
+          // 构建查询参数
+          const params = new URLSearchParams({
+            text: selectedText,
+            enableSearch: settings.enableSearch || true,
+            wordCount: settings.wordCount || 2000,
+            systemRequirements: settings.systemRequirements || ''
+          });
+
+          // 创建 SSE 连接
+          const eventSource = new EventSource('{{ url_for("word_plugin.super_expand_stream") }}?' + params.toString());
+
+          eventSource.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            console.log('收到SSE消息:', data); // 调试日志
+
+            switch (data.step) {
+              case 'content':
+                console.log('收到内容:', data.message); // 调试日志
+                typewriterEffect(resultDiv, data.message);
+                break;
+              case 'show_toast':
+                showToast(data.content, 'info');
+                break;
+              case 'complete':
+                showToast(data.content, 'success');
+                eventSource.close();
+                break;
+            }
+          };
+
+          eventSource.onerror = function (error) {
+            console.error('EventSource failed:', error);
+            showToast(error, 'error');
+            eventSource.close();
+          };
+        }).catch(function (error) {
+          console.log("Error: " + error);
+          if (error instanceof OfficeExtension.Error) {
+            console.log("Debug info: " + JSON.stringify(error.debugInfo));
+          }
+          showToast("操作失败，请重试", 'error');
+        });
+      };
+
+      //灵感转提纲
+      window.inspiration2outlineClick = function(settings = {}) {
+        Word.run(async function (context) {
+            // 获取选中的文本
+            const range = context.document.getSelection();
+            range.load('text');
+            await context.sync();
+            
+            const selectedText = range.text;
+            if (!selectedText) {
+                showToast('请先选择文本', 'warning');
+                return;
+            }
+    
+            // 显示结果区域
+            const resultDiv = document.getElementById('vulnerabilityResult');
+            resultDiv.innerHTML = '正在生成提纲...';
+    
+            // 创建 SSE 连接
+            const eventSource = new EventSource('{{ url_for("word_plugin.inspiration2outline_stream") }}?' + $.param({
+                text: selectedText
+            }));
+    
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                console.log('收到SSE消息:', data);  // 调试日志
                 
-                const selectedText = range.text;
-                if (!selectedText) {
-                    showToast('请先选择文本', 'warning');
-                    return;
+                switch (data.step) {
+                    case 'outline':
+                        console.log('收到提纲内容:', data.message);  // 试日志
+                        typewriterEffect($('#vulnerabilityResult'), data.message);
+                        break;
+                    case 'show_toast':
+                        showToast(data.content, 'info');
+                        break;
+                    case 'complete':
+                        showToast(data.content, 'success');
+                        eventSource.close();
+                        break;
                 }
-
-                // 显示结果区域
-                const resultDiv = $('#result-content');
-
-                // 建立 SSE 连接，添加设置参数
-                const params = new URLSearchParams({
-                    text: selectedText,
-                    expandContent: settings.expandContent || false,
-                    optimizeLevel: settings.optimizeLevel || 'medium'
-                });
-
-                const eventSource = new EventSource('{{ url_for("word_plugin.simple_optimize_stream") }}?' + params.toString());
-
-                eventSource.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    console.log('收到SSE消息:', data);
-                    
-                    switch (data.step) {
-                        case 'optimize':
-                            console.log('收到内容:', data.message);
-                            typewriterEffect(resultDiv, data.message);
-                            break;
-                        case 'show_toast':
-                            showToast(data.content, 'info');
-                            break;
-                        case 'complete':
-                            showToast(data.content, 'success');
-                            eventSource.close();
-                            break;
-                    }
-                };
-
-                eventSource.onerror = function(error) {
-                    console.error('EventSource failed:', error);
-                    showToast('生成提纲时发生错误', 'error');
-                    eventSource.close();
-                };
-            }).catch(function (error) {
-                console.log("Error: " + error);
-                if (error instanceof OfficeExtension.Error) {
-                    console.log("Debug info: " + JSON.stringify(error.debugInfo));
-                }
-                showToast("操作失败，请重试", 'error');
-            });
-        };
-
-        window.handleSuperExpandClick = function(settings = {}) {
-            // 类似地更新超级扩写的处理函数
-            // ... existing code ...
-        };
-        
-        // 其他按钮事件保持不变
-        // ... existing code ...
+            };
+    
+            eventSource.onerror = function(error) {
+                console.error('EventSource failed:', error);
+                showToast('生成提纲时发生错误', 'error');
+                eventSource.close();
+            };
+        }).catch(function (error) {
+            console.log("Error: " + error);
+            if (error instanceof OfficeExtension.Error) {
+                console.log("Debug info: " + JSON.stringify(error.debugInfo));
+            }
+            showToast("操作失败，请重试", 'error');
+        });
     }
-});
+    };
 
-// ... rest of the code ...
+      // 提纲扩充功能
+      window.handleChatButtonClick = function() {
+          Word.run(function (context) {
+              const range = context.document.getSelection();
+              range.load('text');
+              return context.sync().then(function () {
+                  let selectedText = range.text;
+                  if (selectedText) {
+                      fetch('{{ url_for("word_plugin.simple_chat") }}', {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({ text: selectedText })
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                          insertTextToWord(data.message);
+                      })
+                      .catch(error => {
+                          console.error('Error:', error);
+                          showToast('处理失败，请重试', 'error');
+                      });
+                  } else {
+                      showToast('请先选择文本', 'warning');
+                  }
+              });
+          }).catch(function (error) {
+              console.log("Error: " + error);
+              if (error instanceof OfficeExtension.Error) {
+                  console.log("Debug info: " + JSON.stringify(error.debugInfo));
+              }
+              showToast('操作失败，请重试', 'error');
+          });
+      };
+
+      // 文本插入功能
+      window.insertTextToWord = function(text) {
+          Word.run(async function (context) {
+              const range = context.document.getSelection();
+              
+              // 转换 Markdown 为纯文本
+              const md = window.markdownit();
+              let htmlContent = md.render(text);
+              
+              // 简单的 HTML 到 Word 格式的转换
+              let wordContent = htmlContent
+                  .replace(/<h1>(.*?)<\/h1>/g, '$1\n')
+                  .replace(/<h2>(.*?)<\/h2>/g, '$1\n')
+                  .replace(/<h3>(.*?)<\/h3>/g, '$1\n')
+                  .replace(/<ul>/g, '')
+                  .replace(/<\/ul>/g, '\n')
+                  .replace(/<li>(.*?)<\/li>/g, '• $1\n')
+                  .replace(/<strong>(.*?)<\/strong>/g, '$1')
+                  .replace(/<em>(.*?)<\/em>/g, '$1')
+                  .replace(/<code>(.*?)<\/code>/g, '$1')
+                  .replace(/<pre>(.*?)<\/pre>/g, '$1\n')
+                  .replace(/<p>(.*?)<\/p>/g, '$1\n')
+                  .replace(/<br\s*\/?>/g, '\n')
+                  .replace(/<[^>]*>/g, '')
+                  .replace(/&nbsp;/g, ' ')
+                  .replace(/&lt;/g, '<')
+                  .replace(/&gt;/g, '>')
+                  .replace(/&amp;/g, '&')
+                  .replace(/&quot;/g, '"');
+
+              range.insertText(wordContent, Word.InsertLocation.replace);
+              await context.sync();
+              showToast('已插入到文档', 'success');
+          }).catch(function (error) {
+              console.error("Error:", error);
+              if (error instanceof OfficeExtension.Error) {
+                  console.log("Debug info:", JSON.stringify(error.debugInfo));
+              }
+              showToast('插入失败，请重试', 'error');
+          });
+      };
+
+      // 文案去提纲功能
+      window.handleVulnerabilityButtonClick = function() {
+          Word.run(function (context) {
+              // 获取所有段落
+              const paragraphs = context.document.body.paragraphs;
+              paragraphs.load('text');
+              
+              return context.sync().then(function () {
+                  // 将所有段落的文本组合成完整文档
+                  let documentText = '';
+                  for (let i = 0; i < paragraphs.items.length; i++) {
+                      documentText += paragraphs.items[i].text + '\n';
+                  }
+                  
+                  // 显示结果区域
+                  const resultDiv = $('#result-content');
+                  resultDiv.html('正在分析文档...');
+                  
+                  fetch('{{ url_for("word_plugin.logic_vulnerability") }}', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ text: documentText })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      typewriterEffect(resultDiv, data.message);
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      showToast('排查漏洞时出错，请重试', 'error');
+                  });
+              });
+          }).catch(function (error) {
+              console.log("Error: " + error);
+              if (error instanceof OfficeExtension.Error) {
+                  console.log("Debug info: " + JSON.stringify(error.debugInfo));
+              }
+              showToast('操作失败，请重试', 'error');
+          });
+      };
+    }
+  );
+
+// 添加置顶按钮功能
+document.addEventListener('DOMContentLoaded', function() {
+  const scrollToTopBtn = document.getElementById('scrollToTop');
+  
+  // 监听滚动事件
+  window.addEventListener('scroll', function() {
+      if (window.scrollY > 200) {
+          scrollToTopBtn.style.display = 'flex';
+      } else {
+          scrollToTopBtn.style.display = 'none';
+      }
+  });
+  
+  // 点击事件
+  scrollToTopBtn.addEventListener('click', function() {
+      window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+      });
+  });
+});
+// 添加 Markdown 转换函数
+function convertMarkdownToWord(markdownText) {
+  // 初始化 markdown-it
+  const md = window.markdownit();
+  
+  // 转换 Markdown 为 HTML
+  let html = md.render(markdownText);
+  
+  // 替换 HTML 标签为 Word 格式
+  html = html
+      // 处理标题
+      .replace(/<h1>(.*?)<\/h1>/g, '$1\n')
+      .replace(/<h2>(.*?)<\/h2>/g, '$1\n')
+      .replace(/<h3>(.*?)<\/h3>/g, '$1\n')
+      // 处理列表
+      .replace(/<ul>/g, '')
+      .replace(/<\/ul>/g, '\n')
+      .replace(/<li>(.*?)<\/li>/g, '• $1\n')
+      // 处理粗体
+      .replace(/<strong>(.*?)<\/strong>/g, '$1')
+      // 处理斜体
+      .replace(/<em>(.*?)<\/em>/g, '$1')
+      // 处理链接
+      .replace(/<a href="(.*?)">(.*?)<\/a>/g, '$2')
+      // 处理段落
+      .replace(/<p>(.*?)<\/p>/g, '$1\n')
+      // 处理换行
+      .replace(/<br\s*\/?>/g, '\n')
+      // 移除其他 HTML 标签
+      .replace(/<[^>]*>/g, '');
+  
+  // 解码 HTML 实体
+  html = html
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"');
+  
+  return html;
+}
+
 </script>
 
 {% block introduce_container_script %}{% endblock %}

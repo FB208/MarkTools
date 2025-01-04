@@ -23,7 +23,10 @@ def home():
 @word_plugin_bp.route('/word_plugin/simple_optimize')
 def simple_optimize_stream():
     text = request.args.get('text', '')
-    
+    user_requirements = request.args.get('userRequirements', '')
+    expand_content = request.args.get('expandContent', 'false').lower() == 'true'
+    optimize_level = request.args.get('optimizeLevel', 'medium')
+
     if not text:
         return {'error': '请提供文本内容'}, 400
     @stream_with_context
@@ -31,7 +34,10 @@ def simple_optimize_stream():
         try:
             yield f"data: {json.dumps({'step': 'show_toast', 'content': '正在思考，请稍后。。。'}, ensure_ascii=False)}\n\n"
             
-            optimize_content = simple_optimize(text)
+            optimize_content = simple_optimize(text=text,
+                user_requirements=user_requirements,
+                expand_content=expand_content,
+                optimize_level=optimize_level)
             print("获取到优化内容:", optimize_content)  # 调试日志
 
             data = json.dumps({'step': 'optimize', 'message': optimize_content}, ensure_ascii=False)
@@ -59,6 +65,9 @@ def simple_optimize_stream():
 @word_plugin_bp.route('/word_plugin/super_expand')
 def super_expand_stream():
     text = request.args.get('text', '')
+    enable_search = request.args.get('enableSearch', 'true').lower() == 'true'
+    word_count = request.args.get('wordCount', '2000')
+    system_requirements = request.args.get('systemRequirements', '')
     
     if not text:
         return {'error': '请提供文本内容'}, 400

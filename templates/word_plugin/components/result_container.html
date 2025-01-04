@@ -131,7 +131,24 @@
             </button>
         </div>
     </div>
-    <div id="result-content" class="result-content"></div>
+    <div id="result-content" class="result-content">建设现代化消防安全体系，提升应急响应能力
+        在当前社会，消防安全问题日益受到重视，尤其是在重点场所的火灾防控工作中，科技手段的应用显得尤为重要。为了有效提升火灾预警和应急响应能力，我们在围内重点场所建设了一套立体化的消防快速预报警平台，配备了一键报警装置、烟感探测器及视频监控系统。这些设施的引入，不仅提高了消防安全管理的智能化水平，也为火灾事故的迅速处置提供了有力保障。
+        科技引领，构建立体化消防预警体系
+        在这个平台上，一键报警装置的设计尤为关键。它不仅能迅速指挥出警，还能自动上报触发报警的相关信息，确保相关部门能够第一时间获取火灾警报。这种高效的报警机制，极大地缩短了火灾事故的响应时间，为扑灭初起火灾争取了宝贵的时间。
+        同时，我们还在重点场所安装了监控视频系统，并与报警系统实现联动。当火灾发生时，监控视频能够实时调取，为火警处置提供重要的视觉信息支持。这种视频监控不仅可以帮助指挥中心准确判断火灾现场的情况，还能在救援过程中对消防人员进行有效指引，减少救援过程中的盲目性，提升救援效率。
+        信息化管理，确保消防设备高效运转
+        在配套设施的建设中，我们注重信息化管理的应用。通过智慧消防管理系统，我们能够集中管理所有配置信息，减少维护成本和错误发生的概率。系统的设计理念旨在实现对设备的远程管理与控制，并能够记录每一项配置的历史信息，确保信息的透明化和可追溯性。
+        此外，系统还具备强大的数据安全保障措施。通过数据库的自动备份技术，我们能够定期保存重要数据，确保数据安全不丢失。同时，用户数据分级制度使得各个用户都有自己的访问权限，只有授权用户才能访问相应的数据和服务。这种安全机制有效防止了非法登录和黑客攻击，保护了消防管理系统的完整性。
+        智能化设备，提升火灾防控能力
+        在智慧消防系统中，各类智能设备的应用如火灾自动报警数据采集传输单元、无线感烟探测器、无线声光报警器等，均为火灾的早期发现和报警提供了技术支持。这些设备的广泛应用，使得消防安全工作日渐向智能化、数字化发展，为减少火灾隐患、提升火灾防控能力打下了坚实基础。
+        在火灾发生的情况下，系统能够通过智能弹窗功能，实时显示报警信息，包括警情描述、报警时间、报警点位、报警设备所属人及联系方式等详细信息。这一功能的实现，极大地方便了相关人员对火警事件的快速响应，确保了信息的及时传递和处理。
+        可视化管理，增强应急指挥效果
+        为了进一步增强应急指挥的效果，我们在系统中引入了多种可视化管理功能。系统能够显示报警点位图，支持楼层平面图和安全通道疏散图的导入。每当发生火警时，楼层平面图可自动切换为疏散图，相关人员便可迅速找到安全撤离的方向。此外，报警点位的自动标红功能，使得指挥人员在处理火警时能一目了然，提升了处置效率。
+        系统中还具备火警信息处置功能，能够对报警设备的警情进行复核，并手动录入现场警情的详细信息。这一功能的设立，确保了在火灾发生时，指挥人员能够更为准确地掌握火灾现场的真实情况，并采取相应的应对措施。
+        未来展望，持续推动消防安全科技创新
+        展望未来，我们将继续加大对消防安全科技的投入，推动消防管理的数字化、智能化进程。通过不断优化消防安全管理系统，提升设备的智能化水平，确保在火灾发生时能够快速、有效地进行应急响应。我们相信，在科技的助力下，消防安全工作必将迈上一个新的台阶，为保障人民生命财产安全、维护社会和谐稳定作出更大贡献。
+        综上所述，通过建设科技化、信息化的消防安全体系，我们不仅提高了重点场所的火灾预警能力和应急响应效率，也为日常消防安全管理提供了强有力的支持。未来，我们将持续推动科技创新，深化消防安全工作，为构建安全、和谐的社会环境而不懈努力。
+        </div>
 </div>
 {% endblock %}
 
@@ -201,16 +218,49 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 插入功能
-    insertBtn.addEventListener('click', () => {
-        const text = resultContent.textContent || '';
-        Word.run(async (context) => {
+    insertBtn.addEventListener('click', function() {
+        const text = resultContent.textContent;
+        if (!text) {
+            showToast('没有可插入的内容', 'warning');
+            return;
+        }
+
+        Word.run(async function (context) {
             const range = context.document.getSelection();
-            range.insertText(text, Word.InsertLocation.replace);
             
+            // 转换 Markdown 为纯文本
+            const md = window.markdownit();
+            let htmlContent = md.render(text);
+            
+            // 简单的 HTML 到 Word 格式的转换
+            let wordContent = htmlContent
+                .replace(/<h1>(.*?)<\/h1>/g, '$1\n')
+                .replace(/<h2>(.*?)<\/h2>/g, '$1\n')
+                .replace(/<h3>(.*?)<\/h3>/g, '$1\n')
+                .replace(/<ul>/g, '')
+                .replace(/<\/ul>/g, '\n')
+                .replace(/<li>(.*?)<\/li>/g, '• $1\n')
+                .replace(/<strong>(.*?)<\/strong>/g, '$1')
+                .replace(/<em>(.*?)<\/em>/g, '$1')
+                .replace(/<code>(.*?)<\/code>/g, '$1')
+                .replace(/<pre>(.*?)<\/pre>/g, '$1\n')
+                .replace(/<p>(.*?)<\/p>/g, '$1\n')
+                .replace(/<br\s*\/?>/g, '\n')
+                .replace(/<[^>]*>/g, '')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&amp;/g, '&')
+                .replace(/&quot;/g, '"');
+
+            range.insertText(wordContent, Word.InsertLocation.replace);
             await context.sync();
             showToast('已插入到文档', 'success');
-        }).catch(error => {
-            console.error('Error:', error);
+        }).catch(function (error) {
+            console.error("Error:", error);
+            if (error instanceof OfficeExtension.Error) {
+                console.log("Debug info:", JSON.stringify(error.debugInfo));
+            }
             showToast('插入失败，请重试', 'error');
         });
     });
