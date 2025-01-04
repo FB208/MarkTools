@@ -278,12 +278,32 @@ class IntroduceManager {
             'simple-optimize': {
                 icon: 'fa-magic',
                 title: '简单优化',
-                description: '通过AI智能分析，修正错别字和语病，优化文案结构和表达，让您的文章更加专业流畅。'
+                description: '修正错别字、语病，适当补充内容并优化文案。',
+                settings: true
             },
             'super-expand': {
                 icon: 'fa-expand-alt',
                 title: '超级扩写',
-                description: '基于Google搜索结果，智能扩充文章内容，让您的文章更加丰富详实。'
+                description: '自动从google搜索内容来扩种',
+                settings: true
+            },
+            'inspiration2outline': {
+                icon: 'fa-lightbulb',
+                title: '灵感转提纲',
+                description: '将您的灵感快速转换为结构化提纲，帮助您理清思路和文章结构。',
+                settings: false
+            },
+            'chat': {
+                icon: 'fa-expand',
+                title: '提纲扩充',
+                description: '基于现有提纲，智能扩充完整的文案内容，让您的文章更加丰富。',
+                settings: false
+            },
+            'vulnerability': {
+                icon: 'fa-eraser',
+                title: '文案去提纲',
+                description: '一键清理文案中的提纲标记，输出整洁的纯文本容。',
+                settings: false
             }
             // 可以继续添加其他按钮的配置
         };
@@ -295,6 +315,12 @@ class IntroduceManager {
         this.container.querySelector('.introduce-icon i').className = `fas ${content.icon}`;
         this.container.querySelector('.introduce-title').textContent = content.title;
         this.container.querySelector('.introduce-description').textContent = content.description;
+        
+        // 根据是否需要显示设置面板来切换设置区域的显示状态
+        const settingsElement = this.container.querySelector('.introduce-settings');
+        if (settingsElement) {
+            settingsElement.style.display = content.settings ? 'block' : 'none';
+        }
     }
 
     executeButtonAction(button) {

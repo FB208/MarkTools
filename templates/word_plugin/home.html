@@ -244,41 +244,6 @@
     text-shadow: 0 0 8px rgba(165, 180, 252, 0.5);
   }
 
-  .button::after {
-    content: attr(data-tooltip);
-    position: fixed;
-    top: auto;
-    bottom: 50%;
-    left: 50%;
-    transform: translate(-50%, 150%);
-    padding: 10px 16px;
-    background: rgba(15, 23, 42, 0.95);
-    color: #e2e4fd;
-    font-size: 15px;
-    line-height: 1.6;
-    font-weight: normal;
-    border-radius: 6px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease;
-    z-index: 999;
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    width: 200px;
-    max-width: calc(100vw - 32px);
-    text-align: left;
-    pointer-events: none;
-    word-wrap: break-word;
-    white-space: normal;
-    box-sizing: border-box;
-    overflow: hidden;
-  }
-
-  .button:hover::after {
-    opacity: 1;
-    visibility: visible;
-  }
-
   /* 添加置顶按钮样式 */
   .scroll-to-top {
     position: fixed;
@@ -428,21 +393,21 @@
         <div id="content" class="tab-content active">
             <div class="button-group-wrapper">
                 <div class="button-group">
-                    <button id="simple_optimize" class="button" data-tooltip="修正错别字、语病，适当补充内容并优化文案。" data-introduce="simple-optimize" data-original-handler="handleSimpleOptimizeClick">
+                    <button id="simple_optimize" class="button" data-introduce="simple-optimize" data-original-handler="handleSimpleOptimizeClick">
                         <i class="fas fa-magic"></i>简单优化
                     </button>
-                    <button id="super_expand" class="button" data-tooltip="自动从google搜索内容来扩种" data-introduce="super-expand" data-original-handler="handleSuperExpandClick">
+                    <button id="super_expand" class="button" data-introduce="super-expand" data-original-handler="handleSuperExpandClick">
                         <i class="fas fa-expand-alt"></i>超级扩写
                     </button>
                 </div>
                 <div class="button-group">
-                    <button id="inspiration2outlineButton" class="button" data-tooltip="将您的灵感快速转换为结构化提纲，帮助您理清思路和文章结构。">
+                    <button id="inspiration2outlineButton" class="button" data-introduce="inspiration2outline">
                         <i class="fas fa-lightbulb"></i>灵感转提纲
                     </button>
-                    <button id="chatButton" class="button" data-tooltip="基于现有提纲，智能扩充完整的文案内容，让您的文章更加丰富。">
+                    <button id="chatButton" class="button" data-introduce="chat">
                         <i class="fas fa-expand"></i>提纲扩充
                     </button>
-                    <button id="vulnerabilityButton" class="button" data-tooltip="一键清理文案中的提纲标记，输出整洁的纯文本容。">
+                    <button id="vulnerabilityButton" class="button" data-introduce="vulnerability">
                         <i class="fas fa-eraser"></i>文案去提纲
                     </button>
                 </div>
