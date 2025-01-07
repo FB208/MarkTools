@@ -6,6 +6,7 @@ import docx
 from utils.embeddings.embedding_v2_util import EmbeddingSearchV2 as EmbeddingSearch
 from services.test_service import history_chat
 from services.google_tuned import list as google_tuned_list
+from llm.gemini_llm_service import GeminiLLMService
 @test_bp.route('/test')
 def test():
     return render_template('test.html')
@@ -63,3 +64,17 @@ def test_license_activate():
     data = {"ok":True,"code":2000,"message":"license success"}
     
     return data
+
+@test_bp.route('/test/search_chat', methods=['GET'])
+def test_search_chat():
+    messages = [
+        {"role": "system", "content": "你是一个全能助手，善于回答用户提出的问题"},
+        {"role": "user", "content": "今天天津市的天气如何？"}
+    ]
+    print(messages)
+    llm_service = GeminiLLMService()
+    completion = llm_service.get_search_chat_completion(messages)
+    print(completion)
+    for each in completion.candidates[0].content.parts:
+        print(each.text)
+    print(completion.candidates[0].grounding_metadata.search_entry_point.rendered_content)
