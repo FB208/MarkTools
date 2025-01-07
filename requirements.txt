@@ -56,3 +56,5 @@ faiss-cpu==1.8.0.post1
 # chromadb
 
 # faiss-cpu==1.8.0.post1
+
+flask-login==0.6.3

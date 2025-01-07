@@ -3,6 +3,7 @@ import sys
 from flask import Flask
 from flask_cors import CORS
 from flask_session import Session
+from flask_login import LoginManager
 from dotenv import load_dotenv
 from cachelib import FileSystemCache
 
@@ -18,14 +19,26 @@ def create_app():
     app.config.from_object('config.Config')
     app.config['SESSION_TYPE'] = 'filesystem'  # 使用文件系统来存储 session 数据
     app.config['SESSION_CACHE'] = FileSystemCache('./flask_session/', threshold=500, mode=0o600)
-    app.config['SESSION_PERMANENT'] = False  # 如果为 False，则关闭浏览器后 session 失效
+    app.config['SESSION_PERMANENT'] = True  # 设置为 True 使 session 持久化
+    app.config['PERMANENT_SESSION_LIFETIME'] = 31 * 24 * 60 * 60  # 设置 session 有效期为31天
     app.config['SESSION_KEY_PREFIX'] = 'myapp_'  # session 数据前缀
 
     # 初始化 session
     Session(app)
 
+    # 初始化 LoginManager
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'  # 设置登录视图的端点
+    login_manager.login_message = '请先登录'  # 设置登录提示消息
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        from models.user import User
+        return User.get_or_none(User.id == int(user_id))
+
     with app.app_context():
-        from routes import main_bp, translate_bp, md2all_bp, speech2text_bp, article_bp, test_bp, wechat_bp, scheduler_bp, life_bp, word_plugin_bp
+        from routes import main_bp, translate_bp, md2all_bp, speech2text_bp, article_bp, test_bp, wechat_bp, scheduler_bp, life_bp, word_plugin_bp, auth_bp
         app.register_blueprint(main_bp)
         app.register_blueprint(translate_bp)
         app.register_blueprint(md2all_bp)
@@ -36,6 +49,7 @@ def create_app():
         app.register_blueprint(scheduler_bp)
         app.register_blueprint(life_bp)
         app.register_blueprint(word_plugin_bp)
+        app.register_blueprint(auth_bp)  # 注册认证蓝图
         return app
 
 app = create_app()
