@@ -66,22 +66,40 @@ class GeminiLLMService(LLMInterface):
         system_instruction, last_user_message, history = self._process_openai_messages(messages)
         client = genai_new.Client(http_options={'api_version': 'v1alpha'},api_key=app.config['SIMPLE_GOOGLE_API_KEY'])
 
-        # 处理最新的history
-        # chat_history = []
-        # for msg in history:
-        #     chat_history.append(Part.from_text(msg["parts"][0]))
-        
         google_search_tool = Tool(
             google_search = GoogleSearch()
         )
+        
+        # 将 system_instruction 转换为列表格式
+        system_instructions = [system_instruction] if isinstance(system_instruction, str) else system_instruction
+        
+        config = GenerateContentConfig(
+            system_instruction=system_instructions,
+            tools=[google_search_tool],
+            response_modalities=["TEXT"]
+        )
+        
+        # 构建包含历史对话的 contents
+        contents = []
+        
+        # 添加历史对话
+        for msg in history:
+            # Gemini API 使用 "user" 和 "model" 作为角色
+            role = "user" if msg["role"] == "user" else "model"
+            contents.append({
+                "role": role,
+                "parts": [{"text": msg["parts"][0]}]
+            })
+        
+        # 添加最新的用户消息
+        contents.append({
+            "role": "user",
+            "parts": [{"text": last_user_message}]
+        })
+        
         response = client.models.generate_content(
             model=model,
-            contents=last_user_message,
-            config=GenerateContentConfig(
-                #system_instruction=system_instruction,
-                tools=[google_search_tool],
-                response_modalities=["TEXT"]#,
-                #history=chat_history
-            )
+            contents=contents,
+            config=config
         )
         return response

@@ -24,13 +24,19 @@ def test_get_chat_completion():
 def test_get_search_chat_completion():
     with app.app_context():
         messages = [
-            {"role": "system", "content": "你是一个全能助手，善于回答用户提出的问题"},
-            {"role": "user", "content": "今天天津市的天气如何？"}
+            {"role": "system", "content": """你是一个全能助手，善于回答用户提出的问题.
+             要求：
+             1. 始终使用中文
+             2. 像聊天一样回答问题，不要使用markdown等文本格式"""},
+            {"role": "user", "content": "今天天气如何？"},
+            {"role": "assistant", "content": "你在哪个城市呢？"},
+            {"role": "user", "content": "我在杭州"},
         ]
-        print(messages)
+        
+        print("messages:",messages)
         llm_service = GeminiLLMService()
         completion = llm_service.get_search_chat_completion(messages)
-        print(completion)
+        print("completion:",completion)
         for each in completion.candidates[0].content.parts:
-            print(each.text)
-        print(completion.candidates[0].grounding_metadata.search_entry_point.rendered_content)
+            print("each:",each.text)
+        print("grounding_metadata:",completion.candidates[0].grounding_metadata.search_entry_point.rendered_content)
