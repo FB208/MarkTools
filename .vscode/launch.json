@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python 调试程序: Flask",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/app.py",
+            "env": {
+                "FLASK_APP": "app.py",
+                "FLASK_DEBUG": "1"
+            },
+            "args": [
+                "run",
+                "--debug",
+                "--no-reload"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "jinja": true,
+            "autoStartBrowser": false
+        }
+    ]
+}
