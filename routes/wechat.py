@@ -12,11 +12,14 @@ from flask import send_from_directory
 import json
 import services.wechat_def_service as wechat_def_service
 from utils.redis_util import RedisUtil
+from flask_login import login_required
 
 @wechat_bp.route('/wechat/login')
+@login_required
 def wechat_login():
     return render_template('wechat.html')
 @wechat_bp.route('/wechat/login_post', methods=['GET'])
+@login_required
 def wechat_login_post():
     timestamp = request.args.get('timestamp')
     def qrCallback(uuid, status, qrcode):
@@ -115,21 +118,25 @@ def wechat_login_post():
     
 
 @wechat_bp.route('/tempfiles/<path:filename>')
+@login_required
 def serve_qr(filename):
     print(os.path.join(app.config['BASE_PATH'], 'tempfiles'), filename)
     return send_from_directory(os.path.join(app.config['BASE_PATH'], 'tempfiles'), filename)
 
 @wechat_bp.route('/wechat/refresh_cache', methods=['GET'])
+@login_required
 def refresh_cache():
     wechat_def_service.refresh_caches()
     return jsonify({"status": "success", "message": "缓存已刷新"})
 
 # 发送消息
 @wechat_bp.route('/wechat/send_message', methods=['GET'])
+@login_required
 def send_message():
     return render_template('wechat_send_message.html')
 
 @wechat_bp.route('/wechat/send_message', methods=['POST'])
+@login_required
 def send_message_post():
     data = request.json
     message_type = data.get('type')
