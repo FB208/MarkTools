@@ -208,7 +208,7 @@
     <div class="category-section">
       <h2>娱乐</h2>
       <div class="flex flex-wrap justify-start gap-6">
-        <div class="card" data-url="{{ url_for('fun.cyber_king') }}">
+        <div class="card" data-url="{{ url_for('fun.cyber_king') }}" data-target="_blank">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 2h6l1 6h-8z"/>
             <path d="M12 8v6"/>
@@ -280,8 +280,13 @@ $(document).ready(function() {
   $('.card').on('click', function() {
     const url = $(this).data('url');
     const message = $(this).data('message');
+    const target = $(this).data('target');
     if (url) {
-      window.location.href = url;
+      if (target === '_blank') {
+        window.open(url, '_blank');
+      } else {
+        window.location.href = url;
+      }
     } else if (message) {
       showToast(message);
     }

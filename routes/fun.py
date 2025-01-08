@@ -6,6 +6,5 @@ from flask_login import login_required
 @fun_bp.route('/cyber_king')
 def cyber_king():
     """赛博阎王"""
-  
     return render_template('fun/cyber_king.html')
 
