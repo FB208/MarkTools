@@ -3,7 +3,7 @@ import json
 from utils.mem0ai_util import add as mem0ai_add
 from services.wechat_service import simple_reply
 from utils.redis_util import RedisUtil
-
+from models.wechat_user import WechatUser
 
 
 def send_message_to_friend(friend_username, message):
@@ -76,23 +76,23 @@ def text_reply(msg):
     sender_sex = '男' if user['Sex'] == 1 else '女' if user['Sex'] == 2 else '未知'
     sender_signature = user['Signature']
     sender_address = user['Province'] + user['City']
-    
-    mem0_msg = [
-        {
-            'role':'user',
-            'content':f'我叫{sender_nickname},性别{sender_sex},地址{sender_address},个性签名{sender_signature}'
-        },
-        {
-            'role':'assistant',
-            'content':"好的，我记住了"
-        }
-    ]
-    mem0ai_add(mem0_msg,sender_nickname)
+    WechatUser.create_user(nickname=sender_nickname,base_info=f'姓名:{sender_nickname},性别:{sender_sex},地址:{sender_address},个性签名:{sender_signature}。')
+    # mem0_msg = [
+    #     {
+    #         'role':'user',
+    #         'content':f'我叫{sender_nickname},性别{sender_sex},地址{sender_address},个性签名{sender_signature}'
+    #     },
+    #     {
+    #         'role':'assistant',
+    #         'content':"好的，我记住了"
+    #     }
+    # ]
+    # mem0ai_add(mem0_msg,sender_nickname)
     # 获取消息内容
     content = msg['Text']
 
     # 调用simple_reply获取AI反馈
-    ai_response = simple_reply(sender_nickname,content)
+    ai_response = simple_reply('single_user',sender_nickname,sender_nickname,content)
 
     # 发送AI反馈给用户
     itchat.send(ai_response, toUserName=from_user)
@@ -106,10 +106,12 @@ def group_text_reply(msg):
     # 获取消息内容
     content = msg['Content']
     # 检查消息是否以 "@杨九月儿" 或 "九月" 开头
-    if not (content.startswith("@杨九月儿") or content.startswith("九月")):
+    if not (content.startswith("@mark") or content.startswith("mark")):
         return  # 如果不是，直接返回，不做任何处理
     # 去掉开头的@杨九月儿或者九月
-    content = content.lstrip("@杨九月儿").lstrip("九月").strip()
+    content = content.lstrip("@mark").lstrip("mark").strip()
+    # 群名
+    chatroom_nikename = msg['User']['NickName']
     # 获取群聊的用户名
     group_id = msg['FromUserName']
     # 获取发送消息的群成员的用户名
@@ -121,11 +123,11 @@ def group_text_reply(msg):
                         if member['DisplayName'] == sender), 
                        {"NickName": "未知用户", "UserName": ""})
 
-    sender_nickname = sender_info["NickName"]
+    sender_nickname = sender_info["NickName"] if sender_info["NickName"] != "未知用户" else sender
     # sender_username = sender_info["UserName"]
     
     # 调用simple_reply获取AI反馈
-    ai_response = simple_reply(sender_nickname,content)
+    ai_response = simple_reply('chat_room',chatroom_nikename,sender_nickname,content)
     
 
 

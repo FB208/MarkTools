@@ -1,5 +1,5 @@
 import pytest
-from utils.mem0ai_util import list_user
+from utils.mem0ai_util import *
 from app import create_app
 from test_config import TestConfig
 
@@ -25,4 +25,11 @@ def test_list_user():
         # 添加更多具体的断言,根据您的实际需求来验证返回的用户列表
         
         # 注意: 这个断言总是会失败,用于确保您查看了测试输出
+        assert False, "请检查打印的结果并相应地调整测试"
+
+# pytest -s tests/utils/mem0ai_util_test.py::test_query
+def test_query():
+    with app.app_context():
+        result = query("你好啊", "杨惠超")
+        print(result)
         assert False, "请检查打印的结果并相应地调整测试"

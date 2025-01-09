@@ -19,6 +19,18 @@ def add(message, user_id):
     # 修改这里，将 message 和 user_id 作为关键字参数传递
     client.add(message, user_id=user_id)
 
+def update(message,memory_id):
+    client = Mem0AIClientSingleton.get_instance()
+    client.update(memory_id,message)
+
+def add_or_update(message,user_id):
+    client = Mem0AIClientSingleton.get_instance()
+    result = client.query(message,user_id) 
+    if result:
+        update(message,result[0]['id'])
+    else:
+        add(message,user_id)
+
 def query(user_query,user_id):
     client = Mem0AIClientSingleton.get_instance()
     return client.search(user_query,user_id=user_id,output_format="v1.1")
