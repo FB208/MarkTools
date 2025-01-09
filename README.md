@@ -158,3 +158,9 @@ gcloud init
 修改/word-plugin/manifest.xml中的`<bt:Url id="Taskpane.Url"`，指向本地开发环境
 
 修改完manifest.xml，在加载项中刷新并重新添加加载项，然后重启word
+
+### 计划
+后续使用https://apifox.com/apidoc/shared-f647771e-a7dc-41df-9435-1cac2995bb6a?pwd=9hbXQiO6 替代itchat
+
+三方教程：https://wcg.ymette.com/robot/plugin/starbot/starbot
+登录：https://starbot.i1314i.com/index.html#pageid=699
