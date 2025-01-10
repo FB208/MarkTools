@@ -37,13 +37,13 @@ def test_simple_reply_basic():
     with app.app_context():
         #result = simple_reply("single_user","杨惠超", "杨惠超", "你好啊")
         #result = simple_reply("single_user","杨惠超", "杨惠超", "我现在搬到杭州住了")
-        #result = simple_reply("single_user","杨惠超", "杨惠超", "帮我查下明天的天气吧")
+        result = simple_reply("single_user","杨惠超", "杨惠超", "帮我查下明天的天气吧")
         #result = simple_reply("single_user","杨惠超", "杨惠超", "我是说查我现在居住的地方")
         #result = simple_reply("single_user","杨惠超", "杨惠超", "你真的很博学多才啊")
         #result = simple_reply("single_user","杨惠超", "杨惠超", "您谦虚了，我该多向你学习")
         #result = simple_reply("single_user","杨惠超", "杨惠超", "哈哈，我们做好朋友吧")
         #result = simple_reply("single_user","杨惠超", "杨惠超", "那你能介绍一下你自己吗")
-        result = simple_reply("single_user","杨惠超", "杨惠超", "你有名字吗")
+        #result = simple_reply("single_user","杨惠超", "杨惠超", "你有名字吗")
         print(result)
         
         

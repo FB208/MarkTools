@@ -25,4 +25,7 @@ class Config:
   #   VIKA_DATASHEET_ID = os.getenv('VIKA_DATASHEET_ID', 'your_default_vika_datasheet_id')
     REDIS_URL = os.getenv('REDIS_URL', 'your_default_redis_url')
     MYSQL = os.getenv('MYSQL', 'your_default_mysql')
-    # 其他配置变量
+    # starbot
+    STARBOT_TOKEN = os.getenv('STARBOT_TOKEN', 'your_default_starbot_token')
+    STARBOT_API_URL = os.getenv('STARBOT_API_URL', 'your_default_starbot_api_url')
+    STARBOT_MAIN_ROBOT_ID = os.getenv('STARBOT_MAIN_ROBOT_ID', 'your_default_starbot_main_robot_id')
