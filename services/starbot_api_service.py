@@ -1,6 +1,7 @@
 from flask import current_app as app
 import requests
 from utils.redis_util import RedisUtil
+from models.starbot_friend import StarbotFriend
 
 class StarBotAPIService:
     def __init__(self):
@@ -78,6 +79,20 @@ class StarBotAPIService:
             }
             response = requests.post(self.api_url, headers=self.headers, json=data)
             self.redis_util.array_add_or_replace(f'starbot:friend_list:robotId_{account.get("instanceId")}', response.json().get('data'))
+            # 微信好友信息入库
+            for friend in response.json().get('data'):
+                wx_id = friend.get('wxId')
+                db_friend = StarbotFriend.get_by_wx_id(wx_id)
+                if db_friend:
+                    continue
+                else:
+                    base_info =     {
+                        '姓名或昵称': friend.get('nickname'), 
+                        '性别': {0: '未知', 1: '男', 2: '女'}.get(friend.get('Gender'), '未知'), 
+                        '地址': '', 
+                        '简介': ''
+                    }
+                    StarbotFriend.create_friend(wx_id=wx_id, base_info=base_info, personality_summary='')
         return response.json()
 
     def query_friend_or_group_info(self, wxId):
