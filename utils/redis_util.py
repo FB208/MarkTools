@@ -232,3 +232,44 @@ class RedisUtil:
         results = pipeline.execute()
         return results[-1] if processed_values else 0
 
+    def delete_by_pattern_scan(self, pattern):
+        """使用scan命令根据模式删除匹配的所有键（生产环境推荐）
+        
+        Args:
+            pattern: 键名匹配模式，例如 'starbot:robot_info:*'
+            
+        Returns:
+            删除的键的数量
+        """
+        deleted_count = 0
+        cursor = '0'
+        while cursor != 0:
+            cursor, keys = self.client.scan(cursor=cursor, match=pattern, count=100)
+            if keys:
+                deleted_count += self.client.delete(*keys)
+        return deleted_count
+
+    def set_json(self, key, value):
+        """将 Python 对象（如字典）序列化为 JSON 字符串并存储
+        
+        Args:
+            key: 键名
+            value: Python 对象（通常是字典或列表）
+        """
+        json_str = json.dumps(value, ensure_ascii=False)
+        self.client.set(key, json_str)
+
+    def get_json(self, key):
+        """获取并反序列化存储的 JSON 字符串为 Python 对象
+        
+        Args:
+            key: 键名
+            
+        Returns:
+            Python 对象（通常是字典或列表），如果键不存在则返回 None
+        """
+        value = self.client.get(key)
+        if value is None:
+            return None
+        return json.loads(value)
+
