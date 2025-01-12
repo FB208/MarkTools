@@ -29,8 +29,8 @@ def summary_thread(msg_type, wx_id,app):
                 
                 # 获取用户当前的性格摘要
                 user = StarbotFriend.get_by_wx_id(wx_id)
-                if user and user[0]:
-                    current_summary = user[0].personality_summary
+                if user:
+                    current_summary = user.personality_summary
                     
                     system_message = """你是一个擅长总结聊天记录的人，擅长根据聊天记录总结出关键事件、人物关系和性格特点
                     你将收到三组内容：
@@ -42,30 +42,34 @@ def summary_thread(msg_type, wx_id,app):
                     {
                         "摘要": "你新总结的摘要内容",
                         "人物画像": {
-                            "姓名/昵称": "彭于晏",
-                            "性别": "男",
-                            "地址": "天津河东",
-                            "简介": "性格乐观但沉默寡言，经济情况不错，喜欢文学"
+                            "姓名": "张三", 
+                            "性别": "男", 
+                            "祖籍":"陕西省",
+                            "现住址": "北京市",
+                            "生日": "1990-01-01",
+                            "职业": "程序员",
+                            "兴趣爱好": "篮球、读书",
+                            "简介": "性格开朗，喜欢编程和阅读"
                         }
                     } 
                     要求：
                     1. 你将根据这两组内容，生成新的摘要和人物画像。
                     2. 新的摘要应该包含之前总结的摘要和最近的聊天记录。
                     3. 新的摘要应该简洁明了，不需要华丽的修饰，突出重点，不要超过500字。
-                    4. 人物画像要确保准确再更新。
+                    4. 人物画像要确保准确再更新,仔细剖析信息，提取出。
                     5. 直接返回我要求的json对象，不要提供任何解释或文本。
                     
                     """
                     user_prompt = f"""
                     之前总结的摘要：<OLD_SUMMARY>{current_summary}</OLD_SUMMARY>
                     最近的聊天记录：<NEW_CHAT_RECORD>{old_messages}</NEW_CHAT_RECORD>
-                    之前总结的用户画像：<BASE_INFO>{user[0].base_info}</BASE_INFO>
+                    之前总结的用户画像：<BASE_INFO>{user.base_info}</BASE_INFO>
                     """
                     messages = [
                         {"role": "system", "content": f"{system_message}"},
                         {"role": "user", "content": f"{user_prompt}"}
                     ]
-                    llm_service = LLMFactory.get_llm_service("deepseek")
+                    llm_service = LLMFactory.get_llm_service("openai_proxy")
                     completion = llm_service.get_json_completion(messages)
                     json_data = llm_service.get_messages(completion)
                     print("json_data",json_data)
@@ -77,14 +81,14 @@ def summary_thread(msg_type, wx_id,app):
                     personality_summary = json_data.get('摘要')
                     print("base_info",base_info)
                     print("personality_summary",personality_summary)
-                    user[0].base_info = base_info
-                    user[0].personality_summary = personality_summary
-                    user[0].save()
+                    user.base_info = base_info
+                    user.personality_summary = personality_summary
+                    user.save()
         except Exception as e:
             print(f"摘要处理发生错误: {str(e)}")
             # 这里可以添加错误日志记录
         
-def create_summary_thread(msg_type, chat_key):
+def create_summary_thread(msg_type, wx_id):
     """创建并启动摘要处理线程
     
     Args:
@@ -95,7 +99,7 @@ def create_summary_thread(msg_type, chat_key):
     app = current_app._get_current_object()  # 获取真实的应用实例
     thread = threading.Thread(
         target=summary_thread,
-        args=(msg_type, chat_key, app),
+        args=(msg_type, wx_id, app),
         daemon=False  # 设置为非守护线程
     )
     thread.start()
@@ -120,10 +124,9 @@ def single_user_reply(wx_id='',content=''):
         
         回复要求：
         1. 风趣幽默，平易近人
-        2. 不懂的内容从网上搜索，不要乱编
-        3. 从网上搜到的内容要说清楚来源于网络
-        4. 实在无法回答的可以说不知道，不要胡编乱造
-        5. 不要使用markdown格式，将回复内容组织成一段话，就像人类聊天一样
+        2. 可以使用搜索引擎
+        3. 缺少信息可以提问，不要乱编
+        4. 回复内容像正常聊天一样，禁止使用结构化文档
         """
         messages = [
             {"role": "system", "content": system_prompt},
@@ -145,7 +148,7 @@ def single_user_reply(wx_id='',content=''):
                 messages.append(assistant_msg)
         
         # 获取最近的聊天记录
-        recent_messages = redis_util.get_recent_chat_history(type, wx_id)
+        recent_messages = redis_util.get_recent_chat_history('single_user', wx_id)
         if recent_messages:
             for msg_data in recent_messages:
                 messages.extend(msg_data['msg'])
@@ -176,10 +179,10 @@ def single_user_reply(wx_id='',content=''):
                 'content':ai_response
             }
         ]
-        redis_util.save_chat_history(type, wx_id, history_msg)
+        redis_util.save_chat_history('single_user', wx_id, history_msg)
         
         # 异步启动摘要处理（使用非守护线程）
-        create_summary_thread(type, wx_id)
+        create_summary_thread('single_user', wx_id)
         
         return ai_response
     except Exception as e:

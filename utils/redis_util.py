@@ -71,15 +71,17 @@ class RedisUtil:
             最近的count条消息，按时间从旧到新排序
         """
         key = f"starbot:chat_history:{msg_type}:{chat_key}"
-        messages = self.client.zrangebyscore(
+        messages = self.client.zrevrangebyscore(
             key,
-            min=float('-inf'),
             max=float('inf'),
+            min=float('-inf'),
             start=0,
             num=count
         )
         
-        return [json.loads(msg.decode('utf-8')) for msg in messages] if messages else []
+        # 解析消息并反转顺序，使其从旧到新排序
+        history = [json.loads(msg.decode('utf-8')) for msg in messages] if messages else []
+        return list(reversed(history))
 
     def clear_chat_history(self, msg_type, chat_key):
         """清除聊天历史

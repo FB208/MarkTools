@@ -88,9 +88,13 @@ class StarBotAPIService:
                     continue
                 else:
                     base_info =     {
-                        '姓名或昵称': friend.get('nickname'), 
+                        '姓名': friend.get('nickname'), 
                         '性别': {0: '未知', 1: '男', 2: '女'}.get(friend.get('Gender'), '未知'), 
-                        '地址': '', 
+                        '祖籍':'',
+                        '现住址': '',
+                        '生日': '',
+                        '职业': '',
+                        '兴趣爱好': '',
                         '简介': ''
                     }
                     StarbotFriend.create_friend(wx_id=wx_id, base_info=base_info, personality_summary='')
@@ -130,4 +134,5 @@ class StarBotAPIService:
                 }
             }   
         response = requests.post(self.api_url, headers=self.headers, json=data)
+        print(response.json())
         return response.json()
