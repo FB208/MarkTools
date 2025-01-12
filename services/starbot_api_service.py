@@ -77,8 +77,9 @@ class StarBotAPIService:
                     "cache": 0
                 }
             }
+            robot_info = self.redis_util.get_json(f'starbot:robot_info:{account.get("instanceId")}')
             response = requests.post(self.api_url, headers=self.headers, json=data)
-            self.redis_util.array_add_or_replace(f'starbot:friend_list:robotId_{account.get("instanceId")}', response.json().get('data'))
+            self.redis_util.array_add_or_replace(f'starbot:friend_list:robotId_{robot_info.get("robotId")}', response.json().get('data'))
             # 微信好友信息入库
             for friend in response.json().get('data'):
                 wx_id = friend.get('wxId')
@@ -110,4 +111,23 @@ class StarBotAPIService:
             }
             response = requests.post(self.api_url, headers=self.headers, json=data)
             self.redis_util.set_json(f'starbot:friend_or_group_info:{account.get("instanceId")}', response.json().get('data'))
+        return response.json()
+
+    def send_text_message(self, robotId, toWxId, message):
+        '''
+        发送文本消息
+        robotId: 机器人ID(发送方)
+        toWxId: 接收方微信ID,群聊时为groupId
+        message: 发送的消息；
+                 群聊使用如下格式：[@,wxid=\"接收方微信ID\",nick=,isAuto=true] 这是要发送的消息
+        '''
+        data = {
+            "type": "sendTextMessage",
+            "params": {
+                "robotId": robotId,
+                "wxId": toWxId,
+                "message": message
+                }
+            }   
+        response = requests.post(self.api_url, headers=self.headers, json=data)
         return response.json()

@@ -40,3 +40,16 @@ def test_query_friend_or_group_info():
         result = starbot_service.query_friend_or_group_info('yanghuichao19930109')
         print(result)
 
+# pytest -s tests/service/starbot_api_service_test.py::test_send_text_message
+def test_send_text_message():
+    with app.app_context():
+        starbot_service = StarBotAPIService()
+        result = starbot_service.send_text_message('wxid_ct502916lbtq22', 'yanghuichao19930109', '666 666')
+        print(result)
+
+# pytest -s tests/service/starbot_api_service_test.py::test_send_text_message_to_group
+def test_send_text_message_to_group():
+    with app.app_context():
+        starbot_service = StarBotAPIService()
+        result = starbot_service.send_text_message('wxid_ct502916lbtq22', '13887961909@chatroom', '[@,wxid=\"yanghuichao19930109\",nick=,isAuto=true] 666 666 ')
+        print(result)

@@ -2,18 +2,17 @@ import json
 import time
 from llm.llm_factory import LLMFactory
 from utils.mem0ai_util import query as mem0ai_query,add as mem0ai_add
-from models.wechat_user import WechatUser
+from models.starbot_friend import StarbotFriend
 from utils.redis_util import RedisUtil
 import threading
 from flask import current_app
 
-def summary_thread(msg_type, chat_key, sender_nickname, app):
+def summary_thread(msg_type, wx_id,app):
     """异步处理聊天摘要
     
     Args:
         msg_type: 消息类型
-        chat_key: 聊天主键
-        sender_nickname: 发送者昵称
+        wx_id: 微信用户唯一标识
         app: Flask应用实例
     """
     with app.app_context():  # 创建应用上下文
@@ -22,14 +21,14 @@ def summary_thread(msg_type, chat_key, sender_nickname, app):
             redis_util = RedisUtil()
             
             # 获取消息总数
-            msg_count = redis_util.get_chat_history_count(msg_type, chat_key)
+            msg_count = redis_util.get_chat_history_count(msg_type, wx_id)
             
             if msg_count > 5:
                 # 获取并删除旧消息（保留最近3条）
-                old_messages = redis_util.get_chat_history_except_recent(msg_type, chat_key, keep_recent=3)
+                old_messages = redis_util.get_chat_history_except_recent(msg_type, wx_id, keep_recent=3)
                 
                 # 获取用户当前的性格摘要
-                user = WechatUser.get_by_nickname(sender_nickname)
+                user = StarbotFriend.get_by_wx_id(wx_id)
                 if user and user[0]:
                     current_summary = user[0].personality_summary
                     
@@ -46,7 +45,7 @@ def summary_thread(msg_type, chat_key, sender_nickname, app):
                             "姓名/昵称": "彭于晏",
                             "性别": "男",
                             "地址": "天津河东",
-                            "简介": "性格乐观，爱聊天，经济情况不错，喜欢文学"
+                            "简介": "性格乐观但沉默寡言，经济情况不错，喜欢文学"
                         }
                     } 
                     要求：
@@ -85,7 +84,7 @@ def summary_thread(msg_type, chat_key, sender_nickname, app):
             print(f"摘要处理发生错误: {str(e)}")
             # 这里可以添加错误日志记录
         
-def create_summary_thread(msg_type, chat_key, sender_nickname):
+def create_summary_thread(msg_type, chat_key):
     """创建并启动摘要处理线程
     
     Args:
@@ -96,24 +95,24 @@ def create_summary_thread(msg_type, chat_key, sender_nickname):
     app = current_app._get_current_object()  # 获取真实的应用实例
     thread = threading.Thread(
         target=summary_thread,
-        args=(msg_type, chat_key, sender_nickname, app),
+        args=(msg_type, chat_key, app),
         daemon=False  # 设置为非守护线程
     )
     thread.start()
     return thread
 
-def simple_reply(type="single_user",chat_primary_key='',sender_nickname='',content=''):
+def single_user_reply(wx_id='',content=''):
     '''
     type: 聊天类型，single_user: 单聊，chat_room: 群聊
-    chat_primary_key: 聊天主键，单聊时为发送者昵称，群聊时为群名
-    sender_nickname: 发送者昵称
-    content: 发送者发送的内容
+    robot_id: 负责收发消息的机器人rootId
+    wx_id：正在对话的微信用户wxId,私聊时=primary_id
+    content: 收到的内容
     '''
     try:
         # 创建Redis工具类实例
         redis_util = RedisUtil()
         
-        system_prompt = """你叫mark，是一个博学且幽默的人，正在使用wechat聊天工具和人或在群聊中与人聊天，你会像朋友聊天一样回复他。
+        system_prompt = """你叫mark，是一个博学且幽默的人，正在使用wechat聊天工具和人聊天，你会像朋友聊天一样回复他。
         在消息中，你会收到三部分内容（如果你没有收到简介或摘要，则说明你们是初次聊天）：
         1. 聊天对象的简介：有助于你了解聊天对象，不必每次都提及
         2. 之前聊天的摘要：有助于你进一步了解你和聊天对象之间的关系，但也只是参考，不必每次都提及
@@ -131,22 +130,22 @@ def simple_reply(type="single_user",chat_primary_key='',sender_nickname='',conte
         ]
 
         # 获取用户信息
-        user = WechatUser.get_by_nickname(sender_nickname)
+        user = StarbotFriend.get_by_wx_id(wx_id)
         if user:
             assistant_msg = {
                 "role": "assistant",
-                "content": f"聊天对象的简介：{user[0].base_info}"
+                "content": f"聊天对象的简介：{user.base_info}"
             }
             messages.append(assistant_msg)
-            if user[0].personality_summary:
+            if user.personality_summary:
                 assistant_msg = {
                     "role": "assistant",
-                    "content": f"之前聊天的摘要：{user[0].personality_summary}"
+                    "content": f"之前聊天的摘要：{user.personality_summary}"
                 }
                 messages.append(assistant_msg)
         
         # 获取最近的聊天记录
-        recent_messages = redis_util.get_recent_chat_history(type, chat_primary_key)
+        recent_messages = redis_util.get_recent_chat_history(type, wx_id)
         if recent_messages:
             for msg_data in recent_messages:
                 messages.extend(msg_data['msg'])
@@ -177,13 +176,13 @@ def simple_reply(type="single_user",chat_primary_key='',sender_nickname='',conte
                 'content':ai_response
             }
         ]
-        redis_util.save_chat_history(type, chat_primary_key, history_msg)
+        redis_util.save_chat_history(type, wx_id, history_msg)
         
         # 异步启动摘要处理（使用非守护线程）
-        create_summary_thread(type, chat_primary_key, sender_nickname)
+        create_summary_thread(type, wx_id)
         
         return ai_response
     except Exception as e:
-        print(f"simple_reply发生错误: {str(e)}")
+        print(f"single_user_reply发生错误: {str(e)}")
         return "我累了，让我歇一会儿吧"
 
