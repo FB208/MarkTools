@@ -38,20 +38,6 @@ def summary_thread(msg_type, wx_id,app):
                     2. 最近的聊天记录，用<NEW_CHAT_RECORD>标签包裹
                     3. 之前总结的用户画像，用<BASE_INFO>标签包裹
 
-                    你将要输出一个json对象，格式如下：
-                    {
-                        "摘要": "你新总结的摘要内容",
-                        "人物画像": {
-                            "姓名": "张三", 
-                            "性别": "男", 
-                            "祖籍":"陕西省",
-                            "现住址": "北京市",
-                            "生日": "1990-01-01",
-                            "职业": "程序员",
-                            "兴趣爱好": "篮球、读书",
-                            "简介": "性格开朗，喜欢编程和阅读"
-                        }
-                    } 
                     要求：
                     1. 你将根据这两组内容，生成新的摘要和人物画像。
                     2. 新的摘要应该包含之前总结的摘要和最近的聊天记录。
@@ -66,19 +52,67 @@ def summary_thread(msg_type, wx_id,app):
                     之前总结的用户画像：<BASE_INFO>{user.base_info}</BASE_INFO>
                     """
                     messages = [
-                        {"role": "system", "content": f"{system_message}"},
+                        {"role": "developer", "content": f"{system_message}"},
                         {"role": "user", "content": f"{user_prompt}"}
                     ]
+                    response_format = {
+                        "type": "json_schema",
+                        "json_schema": {
+                            "summary":{
+                                "type":"string",
+                                "description":"你新总结的摘要内容"
+                            },
+                            "user_profile":{
+                                "type":"object",
+                                "properties":{
+                                    "姓名":{
+                                        "type":"string",
+                                        "description":"姓名"
+                                    },
+                                    "性别":{
+                                        "type":"string",
+                                        "description":"性别"
+                                    },
+                                    "祖籍":{
+                                        "type":"string",
+                                        "description":"祖籍"
+                                    },
+                                    "现住址":{
+                                        "type":"string",
+                                        "description":"现住址"
+                                    },
+                                    "生日":{
+                                        "type":"string",
+                                        "description":"生日"
+                                    },
+                                    "职业":{
+                                        "type":"string",
+                                        "description":"职业"
+                                    },
+                                    "兴趣爱好":{
+                                        "type":"string",
+                                        "description":"兴趣爱好"
+                                    },
+                                    "简介":{
+                                        "type":"string",
+                                        "description":"简介"
+                                    }
+                                }
+                            },
+                            "additionalProperties": True
+                        },
+                        "additionalProperties": True
+                    }
                     llm_service = LLMFactory.get_llm_service("openai_proxy")
-                    completion = llm_service.get_json_completion(messages)
+                    completion = llm_service.get_json_completion_v2(messages,response_format)
                     json_data = llm_service.get_messages(completion)
                     print("json_data",json_data)
                     # 解析 JSON 字符串为 Python 字典
                     if isinstance(json_data, str):
                         json_data = json.loads(json_data)
                     
-                    base_info = json_data.get('人物画像')
-                    personality_summary = json_data.get('摘要')
+                    base_info = json_data.get('user_profile')
+                    personality_summary = json_data.get('summary')
                     print("base_info",base_info)
                     print("personality_summary",personality_summary)
                     user.base_info = base_info

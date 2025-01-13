@@ -33,6 +33,17 @@ class OpenAIProxyLLMService(LLMInterface):
             }
         )
         return response
+    
+    def get_json_completion_v2(self, messages,response_format):
+        client = self.get_client()
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            response_format=response_format
+        )
+        return response
+        
+    
     def get_chat_completion_o1(self, messages,model:str="o1-preview"):
         client = self.get_client()
         response = client.chat.completions.create(

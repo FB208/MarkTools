@@ -38,6 +38,48 @@ class LLMInterface(ABC):
         pass
     
     @abstractmethod
+    def get_json_completion_v2(self, messages):
+        '''
+        下面代码仅供参考
+        '''
+        client = self.get_client()
+        response = client.chat.completions.create(
+            model="gpt-4o-2024-08-06",
+            messages=[
+                {
+                    "role": "developer", 
+                    "content": "You extract email addresses into JSON data."
+                },
+                {
+                    "role": "user", 
+                    "content": "Feeling stuck? Send a message to help@mycompany.com."
+                }
+            ],
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "email_schema",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "email": {
+                                "description": "The email address that appears in the input",
+                                "type": "string"
+                            },
+                            "additionalProperties": False
+                        }
+                    }
+                }
+            }
+        )
+
+        print(response.choices[0].message.content);
+
+        pass
+        
+        
+        
+    @abstractmethod
     def get_chat_completion(self, messages):
         pass
 

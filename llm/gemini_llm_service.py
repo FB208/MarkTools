@@ -58,6 +58,9 @@ class GeminiLLMService(LLMInterface):
         response = model.generate_content(messages)
         return response
     
+    def get_json_completion_v2(self, messages,response_format):
+        pass
+    
     def get_search_chat_completion(self, messages,model:str="gemini-2.0-flash-exp"):
         '''
         gemini2.0使用最新的google-genai库，和gemini1.5的库不兼容

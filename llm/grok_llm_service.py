@@ -33,3 +33,6 @@ class GrokLLMService(LLMInterface):
             }
         )
         return response
+    
+    def get_json_completion_v2(self, messages,response_format):
+        pass

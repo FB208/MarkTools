@@ -129,7 +129,7 @@ class RedisUtil:
         )
         
         # 删除这些旧消息
-        self.client.zremrangebyrank(key, 0, total - keep_recent - 1)
+        #self.client.zremrangebyrank(key, 0, total - keep_recent - 1)
         
         return [json.loads(msg.decode('utf-8')) for msg in messages] if messages else []
 
