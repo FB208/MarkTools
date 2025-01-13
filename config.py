@@ -29,3 +29,6 @@ class Config:
     STARBOT_TOKEN = os.getenv('STARBOT_TOKEN', 'your_default_starbot_token')
     STARBOT_API_URL = os.getenv('STARBOT_API_URL', 'your_default_starbot_api_url')
     STARBOT_MAIN_ROBOT_ID = os.getenv('STARBOT_MAIN_ROBOT_ID', 'your_default_starbot_main_robot_id')
+    # fas5
+    FAS5_TOKEN = os.getenv('FAS5_TOKEN', 'your_default_fas5_token')
+    FAS5_API_URL = os.getenv('FAS5_API_URL', 'your_default_fas5_api_url')
