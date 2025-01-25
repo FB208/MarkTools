@@ -184,7 +184,7 @@
 </div>
 
 <script>
-const voices = {{ voices|safe }};
+const voicesData = JSON.parse('{{ voices|safe }}');
 
 document.addEventListener('DOMContentLoaded', () => {
   const languageSelect = document.getElementById('languageSelect');
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     voiceSelect.innerHTML = '<option value="">请选择音色</option>';
     
     if (selectedLang) {
-      voices[selectedLang].forEach(voice => {
+      voicesData[selectedLang].forEach(voice => {
         const option = document.createElement('option');
         option.value = voice.name;
         option.textContent = voice.display_name;
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 初始化语言下拉框
-  Object.keys(voices).sort().forEach(lang => {
+  Object.keys(voicesData).sort().forEach(lang => {
     const option = document.createElement('option');
     option.value = lang;
     option.textContent = lang;
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
       audioPlayer.play();
       
       // 更新音色信息
-      const selectedVoice = voices[languageSelect.value].find(v => v.name === voice);
+      const selectedVoice = voicesData[languageSelect.value].find(v => v.name === voice);
       voiceInfoText.textContent = `当前使用音色：${selectedVoice.display_name}`;
     } catch (error) {
       showToast(error.message, 'error');
