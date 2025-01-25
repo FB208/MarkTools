@@ -331,3 +331,51 @@ body {
   color: #fff;
   text-decoration: none;
 }
+
+/* 表单样式 */
+.form-group {
+  margin-bottom: 1.5rem;  /* 增加表单组之间的间距 */
+  
+}
+
+.form-group .form-label {
+  display: block;
+  font-size: 1rem;  /* 稍微增大标签字体 */
+  color: rgb(199, 210, 254); 
+  margin-bottom: 0.5rem;
+}
+
+.form-group .form-select, .form-group .form-input {
+  width: 100%;
+  padding: 1rem;  /* 增加内边距 */
+  background-color: rgba(255, 255, 255, 0.07);  /* 稍微调亮背景 */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.75rem;
+  color: #fff;
+  font-size: 1rem;  /* 增大输入框字体 */
+  transition: all 0.3s ease;
+}
+
+.form-group .form-select:focus, .form-group .form-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.form-group .form-button {
+  width: 100%;
+  padding: 1rem;  /* 增加按钮内边距 */
+  background: linear-gradient(45deg, #4f46e5, #6366f1);
+  color: white;
+  font-size: 1.1rem;  /* 增大按钮字体 */
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-group .form-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+}
