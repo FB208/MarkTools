@@ -14,5 +14,6 @@ life_bp = Blueprint('life', __name__)
 word_plugin_bp = Blueprint('word_plugin', __name__)
 auth_bp = Blueprint('auth', __name__)
 fun_bp = Blueprint('fun', __name__, url_prefix='/fun')
+text2speech_bp = Blueprint('text2speech', __name__)
 
-from . import main, translate, md2all, speech2text, article, test, wechat, scheduler, life, word_plugin, auth, fun, starbot   
+from . import main, translate, md2all, speech2text, article, test, wechat, scheduler, life, word_plugin, auth, fun, starbot, text2speech   

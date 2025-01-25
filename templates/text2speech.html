@@ -1,0 +1,285 @@
+{% extends "_base.html" %}
+
+{% block title %}文字转语音{% endblock %}
+
+{% block head %}
+<style>
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 5px rgba(79, 70, 229, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(79, 70, 229, 0.8);
+    }
+    100% {
+      box-shadow: 0 0 5px rgba(79, 70, 229, 0.4);
+    }
+  }
+
+  .slide-in {
+    animation: slide-in 0.5s ease-out forwards, glow 1.5s alternate;
+  }
+
+  .loader {
+    border-top-color: #6366F1;
+    border-right-color: #A78BFA;
+    border-bottom-color: #C4B5FD;
+    border-left-color: #E0E7FF;
+    animation: spin 1s linear infinite, pulse 1.5s infinite, color-rotate 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  @keyframes color-rotate {
+    0% {
+      border-top-color: #6366F1;
+      border-right-color: #A78BFA;
+      border-bottom-color: #C4B5FD;
+      border-left-color: #E0E7FF;
+    }
+    25% {
+      border-top-color: #A78BFA;
+      border-right-color: #C4B5FD;
+      border-bottom-color: #E0E7FF;
+      border-left-color: #6366F1;
+    }
+    50% {
+      border-top-color: #C4B5FD;
+      border-right-color: #E0E7FF;
+      border-bottom-color: #6366F1;
+      border-left-color: #A78BFA;
+    }
+    75% {
+      border-top-color: #E0E7FF;
+      border-right-color: #6366F1;
+      border-bottom-color: #A78BFA;
+      border-left-color: #C4B5FD;
+    }
+    100% {
+      border-top-color: #6366F1;
+      border-right-color: #A78BFA;
+      border-bottom-color: #C4B5FD;
+      border-left-color: #E0E7FF;
+    }
+  }
+
+  .select-container {
+    position: relative;
+  }
+
+  .select-container::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #A78BFA;
+    pointer-events: none;
+  }
+
+  #audioPlayer {
+    width: 100%;
+    height: 50px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    margin-top: 1rem;
+  }
+
+  .voice-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #A78BFA;
+    font-size: 0.9rem;
+  }
+
+  .voice-info svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <a href="{{ url_for('main.home') }}" class="home-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+  </a>
+  <div class="flex flex-col items-center w-full max-w-4xl bg-white bg-opacity-5 backdrop-blur-md rounded-2xl p-8 shadow-lg">
+    <h1 class="title">文字转语音</h1>
+    <div class="w-full bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-8 shadow-lg flex flex-col transition-all duration-500">
+      <div class="grid grid-cols-2 gap-6 mb-6">
+        <div class="select-container">
+          <label class="block text-indigo-200 mb-2">语言</label>
+          <select id="languageSelect" class="w-full p-3 bg-white bg-opacity-10 border border-indigo-300 rounded-lg text-indigo-200 focus:border-indigo-500 transition-all duration-300">
+            <option value="">请选择语言</option>
+          </select>
+        </div>
+        <div class="select-container">
+          <label class="block text-indigo-200 mb-2">音色</label>
+          <select id="voiceSelect" class="w-full p-3 bg-white bg-opacity-10 border border-indigo-300 rounded-lg text-indigo-200 focus:border-indigo-500 transition-all duration-300" disabled>
+            <option value="">请先选择语言</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-indigo-200 mb-2">文本内容</label>
+        <textarea id="textInput" class="w-full h-40 p-4 bg-white bg-opacity-10 border border-indigo-300 rounded-lg text-indigo-200 focus:border-indigo-500 transition-all duration-300 resize-none" placeholder="请输入要转换的文字..."></textarea>
+      </div>
+
+      <button id="convertBtn" class="button !p-[15px]" disabled>
+        <span>开始朗读</span>
+      </button>
+
+      <div id="loading" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 h-16 w-16"></div>
+      </div>
+    </div>
+
+    <div id="audioContainer" class="w-full bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-8 shadow-lg flex flex-col mt-10 hidden">
+      <h2 class="text-2xl font-semibold mb-4 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">播放控制:</h2>
+      <audio id="audioPlayer" controls></audio>
+      <div class="voice-info">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+        <span id="voiceInfoText"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const voices = {{ voices|safe }};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const languageSelect = document.getElementById('languageSelect');
+  const voiceSelect = document.getElementById('voiceSelect');
+  const textInput = document.getElementById('textInput');
+  const convertBtn = document.getElementById('convertBtn');
+  const audioPlayer = document.getElementById('audioPlayer');
+  const audioContainer = document.getElementById('audioContainer');
+  const voiceInfoText = document.getElementById('voiceInfoText');
+  const loading = document.getElementById('loading');
+
+  // 语言选择变化时更新音色下拉框
+  languageSelect.addEventListener('change', () => {
+    const selectedLang = languageSelect.value;
+    voiceSelect.innerHTML = '<option value="">请选择音色</option>';
+    
+    if (selectedLang) {
+      voices[selectedLang].forEach(voice => {
+        const option = document.createElement('option');
+        option.value = voice.name;
+        option.textContent = voice.display_name;
+        if (selectedLang === 'zh-CN' && voice.name === 'zh-CN-YunxiNeural') {
+          option.selected = true;
+        }
+        voiceSelect.appendChild(option);
+      });
+      voiceSelect.disabled = false;
+    } else {
+      voiceSelect.disabled = true;
+    }
+    
+    updateConvertButton();
+  });
+
+  // 初始化语言下拉框
+  Object.keys(voices).sort().forEach(lang => {
+    const option = document.createElement('option');
+    option.value = lang;
+    option.textContent = lang;
+    if (lang === 'zh-CN') {
+      option.selected = true;
+    }
+    languageSelect.appendChild(option);
+  });
+
+  // 手动触发change事件以初始化音色下拉框
+  const event = new Event('change');
+  languageSelect.dispatchEvent(event);
+
+  // 监听输入变化以更新按钮状态
+  [voiceSelect, textInput].forEach(el => {
+    el.addEventListener('input', updateConvertButton);
+  });
+
+  function updateConvertButton() {
+    convertBtn.disabled = !voiceSelect.value || !textInput.value.trim();
+  }
+
+  // 转换按钮点击事件
+  convertBtn.addEventListener('click', async () => {
+    const text = textInput.value.trim();
+    const voice = voiceSelect.value;
+    
+    if (!text || !voice) return;
+    
+    try {
+      loading.classList.remove('hidden');
+      convertBtn.disabled = true;
+      
+      const response = await fetch('{{ url_for("text2speech.convert_text2speech") }}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text, voice }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('转换失败');
+      }
+      
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      audioPlayer.src = audioUrl;
+      audioContainer.classList.remove('hidden');
+      audioContainer.classList.add('flex', 'slide-in');
+      audioPlayer.play();
+      
+      // 更新音色信息
+      const selectedVoice = voices[languageSelect.value].find(v => v.name === voice);
+      voiceInfoText.textContent = `当前使用音色：${selectedVoice.display_name}`;
+    } catch (error) {
+      showToast(error.message, 'error');
+    } finally {
+      loading.classList.add('hidden');
+      convertBtn.disabled = false;
+    }
+  });
+});
+</script>
+{% endblock %}
