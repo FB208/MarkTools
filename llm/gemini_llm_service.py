@@ -39,7 +39,7 @@ class GeminiLLMService(LLMInterface):
         
         return system_instruction, last_user_message, history
 
-    def get_chat_completion(self, messages,model:str="gemini-1.5-flash"):
+    def get_chat_completion(self, messages,model:str="gemini-2.0-flash-exp"):
         self.get_client()
         
         system_instruction, last_user_message, history = self._process_openai_messages(messages)
@@ -52,7 +52,7 @@ class GeminiLLMService(LLMInterface):
 
         return chat.send_message(last_user_message)  # 发送最后一条用户消息
 
-    def get_json_completion(self, messages,model:str="gemini-1.5-flash"):
+    def get_json_completion(self, messages,model:str="gemini-2.0-flash-exp"):
         self.get_client()
         model = genai.GenerativeModel(model_name=model,generative_config={"response_mime_type": "application/json"})
         response = model.generate_content(messages)
