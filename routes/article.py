@@ -35,8 +35,9 @@ def do_rewrite_stream():
     master = data.get('master', False)
     '''
     {
-        "advanced setting": {
-            "commentBias": "锐评偏向性"
+        "advanced_setting": {
+            "commentBias": "锐评偏向性",
+            "commentStyle": "锐评风格"
         }
     }
     '''
@@ -59,8 +60,9 @@ def do_rewrite_stream():
             # 步骤1：锐评
             yield "data: " + json.dumps({"step": "show_toast", "content": "正在生成锐评"}) + "\n\n"
             with ctx:
-                comment_content = comment(clear_content,advanced_settings.get('commentBias',''))
-                # comment_content = simulate_human(comment_content)
+                comment_style = advanced_settings.get('commentStyle', '彩虹屁')  # 默认使用彩虹屁风格
+                comment_bias = advanced_settings.get('commentBias', '')
+                comment_content = comment(clear_content, comment_bias, comment_style)
             yield "data: " + json.dumps({"step": "comment", "content": comment_content}) + "\n\n"
             
             

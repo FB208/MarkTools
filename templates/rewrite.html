@@ -265,7 +265,7 @@
                   <input type="checkbox"
                     class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out bg-gray-700 border-indigo-300"
                     id="master-checkbox">
-                  <span class="ml-2">文案大师</span>
+                  <span class="ml-2">文案大师(去抄袭)</span>
                 </label>
               </div>
             </div>
@@ -316,7 +316,37 @@
     <span class="close">&times;</span>
     <h2 class="modal-title">高级设置</h2>
     <div class="mt-2">
-      <label for="comment-bias" class="block text-sm font-medium text-indigo-300 text-left mb-2">锐评偏向性（你会有一定的主观偏向性，XXX）</label>
+      <label for="comment-style" class="block text-sm font-medium text-indigo-300 text-left mb-2">锐评风格</label>
+      <div class="relative inline-block text-left w-full">
+        <div>
+          <button type="button"
+            class="options-btn inline-flex justify-between items-center w-full rounded-md border border-indigo-400 shadow-sm px-4 py-2 bg-indigo-900 bg-opacity-40 text-sm font-medium text-indigo-300 hover:bg-opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-all duration-300"
+            id="comment-style-menu" aria-haspopup="true" aria-expanded="true">
+            <span id="selected-style">彩虹屁</span>
+            <svg class="w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+        <div
+          class="origin-top-right absolute right-0 mt-2 w-full rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 divide-y divide-gray-700 focus:outline-none hidden transform transition-all duration-300 scale-95 opacity-0"
+          role="menu" aria-orientation="vertical" aria-labelledby="comment-style-menu" id="comment-style-dropdown">
+          <div class="py-1" role="none">
+            <a href="#"
+              class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200"
+              role="menuitem" data-value="彩虹屁">彩虹屁</a>
+            <a href="#"
+              class="option-item block px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-600 hover:bg-opacity-20 cursor-pointer transition-all duration-200"
+              role="menuitem" data-value="小喷子">小喷子</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-2">
+      <label for="comment-bias" class="block text-sm font-medium text-indigo-300 text-left mb-2">锐评偏向性（你认为XX是最X的）</label>
       <textarea id="comment-bias" rows="3"
         class="w-full resize-none bg-opacity-5 bg-white text-gray-300 border border-opacity-10 border-white rounded-lg p-4 focus:outline-none focus:border-indigo-500 transition duration-300"></textarea>
     </div>
@@ -355,12 +385,16 @@
     // 从localStorage加载保存的高级设置
     var savedSettings = JSON.parse(localStorage.getItem('advancedSettings')) || {};
     var savedCommentBias = savedSettings.commentBias || '';
+    var savedCommentStyle = savedSettings.commentStyle || '小喷子';
     $('#comment-bias').val(savedCommentBias);
+    $('#selected-style').text(savedCommentStyle);
   }
   function saveAdvSettings() {
     var commentBias = $('#comment-bias').val();
+    var commentStyle = $('#selected-style').text();
     var advancedSettings = {
-      commentBias: commentBias
+      commentBias: commentBias,
+      commentStyle: commentStyle
     };
     localStorage.setItem('advancedSettings', JSON.stringify(advancedSettings));
   } 
@@ -511,6 +545,45 @@
     if (event.target == $('#advanced-settings-modal')[0]) {
       $('#advanced-settings-modal').css('display', 'none');
     }
+  });
+
+  // 高级设置相关
+  $(document).ready(function() {
+    // 锐评风格下拉框控制
+    $('#comment-style-menu').on('click', function() {
+      $('#comment-style-dropdown').toggleClass('hidden scale-95 opacity-0');
+      setTimeout(() => {
+        $('#comment-style-dropdown').toggleClass('scale-100 opacity-100');
+      }, 10);
+      $(this).find('svg').toggleClass('rotate-180');
+    });
+
+    // 点击下拉选项时
+    $('#comment-style-dropdown a').on('click', function(e) {
+      e.preventDefault();
+      const selectedValue = $(this).data('value');
+      $('#selected-style').text(selectedValue);
+      $('#comment-style-dropdown').addClass('scale-95 opacity-0');
+      setTimeout(() => {
+        $('#comment-style-dropdown').addClass('hidden');
+      }, 300);
+      $('#comment-style-menu').find('svg').removeClass('rotate-180');
+      saveAdvSettings();
+    });
+
+    // 点击其他地方关闭下拉框
+    $(document).on('click', function(event) {
+      if (!$(event.target).closest('.relative').length) {
+        $('#comment-style-dropdown').addClass('scale-95 opacity-0');
+        setTimeout(() => {
+          $('#comment-style-dropdown').addClass('hidden');
+        }, 300);
+        $('#comment-style-menu').find('svg').removeClass('rotate-180');
+      }
+    });
+
+    // 加载保存的设置
+    loadAdvSettings();
   });
 </script>
 {% endblock %}

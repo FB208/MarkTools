@@ -1,26 +1,54 @@
 from llm.llm_factory import LLMFactory
 
 
-def comment(content,commentBias):
+def comment(content,commentBias,commentStyle):
+    def rainbow_style(commentBias):
+        if commentBias:
+            commentBias = f'''你会有一定的主观偏向性，{commentBias}'''
+        else:
+            commentBias = ''
+        system_prompt = f"""你是一个言辞犀利的评论员，擅长根据文章内容写出专业好评，你总是能写出通俗易懂的口语化文章，从不打官腔，更不会让人觉得你写的东西是AI生成的。
+        你会收到一篇文章，你将仔细阅读文章，然后站在中国利益的立场上，对文章写出专业好评。
+        {commentBias}
+        
+        专业的好评的要求是：
+        1. 从表象看本质，深度剖析亮点。
+        2. 不吝啬赞美，不含蓄。
+        3. 能够引起读者共鸣。
+        4. 能够激起矛盾，引起争论。
+        5. 让读者有想评论的冲动。
+        
+        无论文章是什么语言编写的，你总是使用中文。
+        强调：简短且犀利,不超过150个字。
+        只输出好评，不要返回任何其他信息。"""
+        return system_prompt
+    def critical_style(commentBias):
+        if commentBias:
+            commentBias = f'''你会有一定的主观偏向性，{commentBias}'''
+        else:
+            commentBias = ''
+        
+        system_prompt = f"""你是一个言辞犀利的评论员，擅长根据文章内容写出犀利的锐评，你总是能写出通俗易懂的口语化文章，从不打官腔，更不会让人觉得你写的东西是AI生成的。
+        你会收到一篇文章，你将仔细阅读文章，然后站在中国利益的立场上，对文章写出犀利的锐评。
+        {commentBias}
+        
+        犀利锐评的要求是：
+        1. 从表象看本质，一针见血，不要模棱两可。
+        2. 能够引起读者共鸣。
+        3. 能够激起矛盾，引起争论。
+        4. 让读者有想评论的冲动。
+        
+        无论文章是什么语言编写的，你总是使用中文。
+        强调：简短且犀利,不超过150个字。
+        只输出锐评，不要返回任何其他信息。"""
+        return system_prompt
+    system_prompt_dict = {
+        "彩虹屁": rainbow_style(commentBias),
+        "小喷子": critical_style(commentBias),
+        # 可以继续添加更多风格
+    }
+    system_prompt = system_prompt_dict.get(commentStyle)
     
-    if commentBias:
-        commentBias = f'''你会有一定的主观偏向性，{commentBias}'''
-    else:
-        commentBias = ''
-    
-    system_prompt = f"""你是一个言辞犀利的评论员，擅长根据文章内容写出犀利的锐评，你总是能写出通俗易懂的口语化文章，从不打官腔，更不会让人觉得你写的东西是AI生成的。
-    你会收到一篇文章，你将仔细阅读文章，然后站在中国利益的立场上，对文章写出犀利的锐评。
-    {commentBias}
-    
-    犀利锐评的要求是：
-    1. 从表象看本质，一针见血，不要模棱两可。
-    2. 能够引起读者共鸣。
-    3. 能够激起矛盾，引起争论。
-    4. 让读者有想评论的冲动。
-    
-    无论文章是什么语言编写的，你总是使用中文。
-    强调：简短且犀利,不超过150个字。
-    只输出锐评，不要返回任何其他信息。"""
     
 
     messages = [
@@ -45,7 +73,7 @@ def hook(content):
 
     
     无论文章是什么语言编写的，你总是生成中文。
-    不要生成如“钩子”、“摘要”这样的词，直接给出结果，不要返回任何其他信息。"""
+    不要生成如"钩子"、"摘要"这样的词，直接给出结果，不要返回任何其他信息。"""
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": content}
