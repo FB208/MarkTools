@@ -1,135 +1,551 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>报警消息分布</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网监控中心值守情况</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e3e3e3;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
             margin: 0;
-            position: relative;
-        }
-        #main {
-            width: 80%;
-            height: 500px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
             padding: 20px;
+            background-color: #f8f9fa;
         }
-        #downloadBtn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #4f46e5;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .chart {
+            height: 500px;
+            width: 100%;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .btn-container {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        .download-btn {
+            background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 8px 16px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
+            transition: background-color 0.3s;
         }
-        #downloadBtn:hover {
-            background: #6366f1;
+        .download-btn:hover {
+            background-color: #45a049;
         }
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            text-align: center;
+            min-width: 200px;
+            margin: 10px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .stat-card.primary { border-top: 4px solid #1890ff; }
+        .stat-card.success { border-top: 4px solid #52c41a; }
+        .stat-card.warning { border-top: 4px solid #faad14; }
+        .stat-card.danger { border-top: 4px solid #f5222d; }
     </style>
 </head>
 <body>
-    <div id="main"></div>
-    <button id="downloadBtn">下载图表</button>
+    <div class="container">
+        <h1>物联网监控中心值守情况</h1>
+        
+        <div class="summary-stats">
+            <div class="stat-card primary">
+                <div class="stat-label">平均5分钟内完成比例</div>
+                <div class="stat-value" id="avg-completion"></div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">最高5分钟内完成比例</div>
+                <div class="stat-value" id="max-completion"></div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">最低5分钟内完成比例</div>
+                <div class="stat-value" id="min-completion"></div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-label">总告警数量</div>
+                <div class="stat-value" id="total-alerts"></div>
+            </div>
+        </div>
+
+        <!-- 堆叠柱状图 -->
+        <div class="chart-container">
+            <div class="btn-container">
+                <button class="download-btn" onclick="downloadChart('stacked-chart', '物联网监控中心值守情况-堆叠柱状图')">下载图表</button>
+            </div>
+            <h2>各月份告警处理时间分布</h2>
+            <div id="stacked-chart" class="chart"></div>
+        </div>
+
+        <!-- 折线图 -->
+        <div class="chart-container">
+            <div class="btn-container">
+                <button class="download-btn" onclick="downloadChart('line-chart', '物联网监控中心值守情况-完成比例趋势')">下载图表</button>
+            </div>
+            <h2>5分钟内完成比例趋势</h2>
+            <div id="line-chart" class="chart"></div>
+        </div>
+
+        <!-- 饼图 -->
+        <div class="chart-container">
+            <div class="btn-container">
+                <button class="download-btn" onclick="downloadChart('pie-chart', '物联网监控中心值守情况-总体分布')">下载图表</button>
+            </div>
+            <h2>告警处理时间总体分布</h2>
+            <div id="pie-chart" class="chart"></div>
+        </div>
+
+        <!-- 雷达图 -->
+        <div class="chart-container">
+            <div class="btn-container">
+                <button class="download-btn" onclick="downloadChart('radar-chart', '物联网监控中心值守情况-雷达图')">下载图表</button>
+            </div>
+            <h2>最近6个月告警处理情况雷达图</h2>
+            <div id="radar-chart" class="chart"></div>
+        </div>
+
+        <!-- 热力图 -->
+        <div class="chart-container">
+            <div class="btn-container">
+                <button class="download-btn" onclick="downloadChart('heatmap-chart', '物联网监控中心值守情况-热力图')">下载图表</button>
+            </div>
+            <h2>告警处理时间分布热力图</h2>
+            <div id="heatmap-chart" class="chart"></div>
+        </div>
+    </div>
+
     <script>
-        var chartDom = document.getElementById('main');
-        var myChart = echarts.init(chartDom);
-        var option;
+        // 数据
+        const data = [
+            { month: '202401', '1分钟内': 6597, '1-5分钟': 3920, '5-30分钟': 674, '30分钟以上': 2, '5分钟内完成比例': 93.96 },
+            { month: '202402', '1分钟内': 4984, '1-5分钟': 1896, '5-30分钟': 520, '30分钟以上': 31, '5分钟内完成比例': 92.59 },
+            { month: '202403', '1分钟内': 8964, '1-5分钟': 3105, '5-30分钟': 661, '30分钟以上': 10, '5分钟内完成比例': 94.73 },
+            { month: '202404', '1分钟内': 6069, '1-5分钟': 2945, '5-30分钟': 486, '30分钟以上': 33, '5分钟内完成比例': 94.56 },
+            { month: '202405', '1分钟内': 6038, '1-5分钟': 2797, '5-30分钟': 474, '30分钟以上': 6, '5分钟内完成比例': 94.85 },
+            { month: '202406', '1分钟内': 8168, '1-5分钟': 3065, '5-30分钟': 481, '30分钟以上': 1, '5分钟内完成比例': 95.89 },
+            { month: '202407', '1分钟内': 8462, '1-5分钟': 2857, '5-30分钟': 722, '30分钟以上': 35, '5分钟内完成比例': 93.73 },
+            { month: '202408', '1分钟内': 10317, '1-5分钟': 4337, '5-30分钟': 972, '30分钟以上': 255, '5分钟内完成比例': 92.27 },
+            { month: '202409', '1分钟内': 8508, '1-5分钟': 3304, '5-30分钟': 674, '30分钟以上': 114, '5分钟内完成比例': 93.75 },
+            { month: '202410', '1分钟内': 5381, '1-5分钟': 4482, '5-30分钟': 1008, '30分钟以上': 317, '5分钟内完成比例': 88.16 },
+            { month: '202411', '1分钟内': 6290, '1-5分钟': 5529, '5-30分钟': 927, '30分钟以上': 131, '5分钟内完成比例': 91.78 },
+            { month: '202412', '1分钟内': 10116, '1-5分钟': 3913, '5-30分钟': 1088, '30分钟以上': 143, '5分钟内完成比例': 91.93 },
+            { month: '202501', '1分钟内': 7900, '1-5分钟': 2132, '5-30分钟': 644, '30分钟以上': 68, '5分钟内完成比例': 93.37 },
+            { month: '202502', '1分钟内': 7783, '1-5分钟': 2340, '5-30分钟': 782, '30分钟以上': 58, '5分钟内完成比例': 92.34 }
+        ];
 
-        option = {
-            title: {
-                text: '隐患筛查漏斗',
-                left: 'center',
-                textStyle: {
-                    color: '#a5b4fc',
-                    fontSize: 24
-                }
-            },
-            tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b} : {c}%'
-            },
-            legend: {
-                data: ['火灾自动报警系统', '值守离睡岗', '巡检漏查', '自动喷水灭火系统', '设施故障/异常'],
-                bottom: '0%',
-                left: 'center',
-                textStyle: {
-                    color: '#a5b4fc'
-                }
-            },
-            series: [
-                {
-                    name: '隐患筛查漏斗',
-                    type: 'funnel',
-                    left: '10%',
-                    top: 60,
-                    bottom: 60,
-                    width: '80%',
-                    min: 0,
-                    max: 100,
-                    minSize: '0%',
-                    maxSize: '100%',
-                    sort: 'descending',
-                    gap: 2,
-                    label: {
-                        show: true,
-                        position: 'inside',
-                        color: '#fff'
-                    },
-                    labelLine: {
-                        length: 10,
-                        lineStyle: {
-                            width: 1,
-                            type: 'solid'
-                        }
-                    },
-                    itemStyle: {
-                        borderColor: '#fff',
-                        borderWidth: 1,
-                        borderRadius: 8 // 圆润的边角
-                    },
-                    emphasis: {
-                        label: {
-                            fontSize: 20
-                        }
-                    },
-                    data: [
-                        { value: 60, name: '火灾自动报警系统' },
-                        { value: 50, name: '值守离睡岗' },
-                        { value: 40, name: '巡检漏查' },
-                        { value: 30, name: '自动喷水灭火系统' },
-                        { value: 20, name: '设施故障/异常' }
-                    ]
-                }
-            ],
-            backgroundColor: 'rgba(255, 255, 255, 0.05)'
-        };
+        // 格式化月份显示
+        function formatMonth(month) {
+            const year = month.substring(0, 4);
+            const m = month.substring(4, 6);
+            return `${year}年${parseInt(m)}月`;
+        }
 
-        option && myChart.setOption(option);
-
-        document.getElementById('downloadBtn').addEventListener('click', function () {
-            var url = myChart.getDataURL({
-                type: 'png',
-                pixelRatio: 2,
-                backgroundColor: '#2c343c'
+        // 计算统计数据
+        function calculateStats() {
+            let totalAlerts = 0;
+            const completionRates = data.map(item => item['5分钟内完成比例']);
+            const avgCompletion = completionRates.reduce((a, b) => a + b, 0) / completionRates.length;
+            const maxCompletion = Math.max(...completionRates);
+            const minCompletion = Math.min(...completionRates);
+            
+            data.forEach(item => {
+                totalAlerts += item['1分钟内'] + item['1-5分钟'] + item['5-30分钟'] + item['30分钟以上'];
             });
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'chart.png';
-            a.click();
+            
+            document.getElementById('avg-completion').textContent = avgCompletion.toFixed(2) + '%';
+            document.getElementById('max-completion').textContent = maxCompletion.toFixed(2) + '%';
+            document.getElementById('min-completion').textContent = minCompletion.toFixed(2) + '%';
+            document.getElementById('total-alerts').textContent = totalAlerts.toLocaleString();
+        }
+
+        // 初始化图表
+        function initCharts() {
+            // 堆叠柱状图
+            const stackedChart = echarts.init(document.getElementById('stacked-chart'));
+            const stackedOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['1分钟内', '1-5分钟', '5-30分钟', '30分钟以上'],
+                    top: 'bottom'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.map(item => formatMonth(item.month))
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '告警数量'
+                },
+                series: [
+                    {
+                        name: '1分钟内',
+                        type: 'bar',
+                        stack: 'total',
+                        emphasis: {
+                            focus: 'series'
+                        },
+                        data: data.map(item => item['1分钟内']),
+                        itemStyle: {
+                            color: '#91cc75'
+                        }
+                    },
+                    {
+                        name: '1-5分钟',
+                        type: 'bar',
+                        stack: 'total',
+                        emphasis: {
+                            focus: 'series'
+                        },
+                        data: data.map(item => item['1-5分钟']),
+                        itemStyle: {
+                            color: '#5470c6'
+                        }
+                    },
+                    {
+                        name: '5-30分钟',
+                        type: 'bar',
+                        stack: 'total',
+                        emphasis: {
+                            focus: 'series'
+                        },
+                        data: data.map(item => item['5-30分钟']),
+                        itemStyle: {
+                            color: '#fac858'
+                        }
+                    },
+                    {
+                        name: '30分钟以上',
+                        type: 'bar',
+                        stack: 'total',
+                        emphasis: {
+                            focus: 'series'
+                        },
+                        data: data.map(item => item['30分钟以上']),
+                        itemStyle: {
+                            color: '#ee6666'
+                        }
+                    }
+                ]
+            };
+            stackedChart.setOption(stackedOption);
+
+            // 折线图
+            const lineChart = echarts.init(document.getElementById('line-chart'));
+            const lineOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}<br/>{a}: {c}%'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.map(item => formatMonth(item.month)),
+                    axisLabel: {
+                        rotate: 45
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '完成比例(%)',
+                    min: 85,
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                },
+                series: [
+                    {
+                        name: '5分钟内完成比例',
+                        type: 'line',
+                        data: data.map(item => item['5分钟内完成比例']),
+                        markPoint: {
+                            data: [
+                                { type: 'max', name: '最大值' },
+                                { type: 'min', name: '最小值' }
+                            ]
+                        },
+                        markLine: {
+                            data: [
+                                { type: 'average', name: '平均值' }
+                            ]
+                        },
+                        lineStyle: {
+                            width: 4
+                        },
+                        itemStyle: {
+                            color: '#1890ff'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(24, 144, 255, 0.5)' },
+                                { offset: 1, color: 'rgba(24, 144, 255, 0.1)' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            lineChart.setOption(lineOption);
+
+            // 饼图
+            const pieChart = echarts.init(document.getElementById('pie-chart'));
+            // 计算总数
+            let total1min = 0, total1to5 = 0, total5to30 = 0, total30plus = 0;
+            data.forEach(item => {
+                total1min += item['1分钟内'];
+                total1to5 += item['1-5分钟'];
+                total5to30 += item['5-30分钟'];
+                total30plus += item['30分钟以上'];
+            });
+            
+            const pieOption = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 'bottom',
+                    data: ['1分钟内', '1-5分钟', '5-30分钟', '30分钟以上']
+                },
+                series: [
+                    {
+                        name: '告警处理时间',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: true,
+                            formatter: '{b}: {c} ({d}%)'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '18',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: true
+                        },
+                        data: [
+                            { value: total1min, name: '1分钟内', itemStyle: { color: '#91cc75' } },
+                            { value: total1to5, name: '1-5分钟', itemStyle: { color: '#5470c6' } },
+                            { value: total5to30, name: '5-30分钟', itemStyle: { color: '#fac858' } },
+                            { value: total30plus, name: '30分钟以上', itemStyle: { color: '#ee6666' } }
+                        ]
+                    }
+                ]
+            };
+            pieChart.setOption(pieOption);
+
+            // 雷达图
+            const radarChart = echarts.init(document.getElementById('radar-chart'));
+            // 获取最近6个月数据
+            const recentMonths = data.slice(-6);
+            
+            const radarOption = {
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    data: recentMonths.map(item => formatMonth(item.month)),
+                    bottom: 'bottom'
+                },
+                radar: {
+                    indicator: [
+                        { name: '1分钟内响应率', max: 100 },
+                        { name: '5分钟内完成比例', max: 100 },
+                        { name: '告警处理总量', max: Math.max(...recentMonths.map(item => 
+                            item['1分钟内'] + item['1-5分钟'] + item['5-30分钟'] + item['30分钟以上']
+                        )) * 1.2 },
+                        { name: '30分钟以上占比', max: 5 },
+                        { name: '1分钟内占比', max: 100 }
+                    ],
+                    radius: '65%'
+                },
+                series: [
+                    {
+                        type: 'radar',
+                        data: recentMonths.map(item => {
+                            const total = item['1分钟内'] + item['1-5分钟'] + item['5-30分钟'] + item['30分钟以上'];
+                            return {
+                                name: formatMonth(item.month),
+                                value: [
+                                    (item['1分钟内'] / total * 100).toFixed(2),
+                                    item['5分钟内完成比例'],
+                                    total,
+                                    (item['30分钟以上'] / total * 100).toFixed(2),
+                                    (item['1分钟内'] / total * 100).toFixed(2)
+                                ]
+                            };
+                        })
+                    }
+                ]
+            };
+            radarChart.setOption(radarOption);
+
+            // 热力图
+            const heatmapChart = echarts.init(document.getElementById('heatmap-chart'));
+            const categories = ['1分钟内', '1-5分钟', '5-30分钟', '30分钟以上'];
+            const months = data.map(item => formatMonth(item.month));
+            
+            // 准备热力图数据
+            const heatmapData = [];
+            data.forEach((item, monthIndex) => {
+                categories.forEach((category, categoryIndex) => {
+                    heatmapData.push([
+                        monthIndex,
+                        categoryIndex,
+                        item[category]
+                    ]);
+                });
+            });
+            
+            const heatmapOption = {
+                tooltip: {
+                    position: 'top',
+                    formatter: function (params) {
+                        return `${months[params.value[0]]}<br>${categories[params.value[1]]}: ${params.value[2]}`;
+                    }
+                },
+                grid: {
+                    height: '70%',
+                    top: '10%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: months,
+                    splitArea: {
+                        show: true
+                    },
+                    axisLabel: {
+                        rotate: 45
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: categories,
+                    splitArea: {
+                        show: true
+                    }
+                },
+                visualMap: {
+                    min: 0,
+                    max: Math.max(...heatmapData.map(item => item[2])),
+                    calculable: true,
+                    orient: 'horizontal',
+                    left: 'center',
+                    bottom: '5%',
+                    inRange: {
+                        color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127']
+                    }
+                },
+                series: [
+                    {
+                        name: '告警数量',
+                        type: 'heatmap',
+                        data: heatmapData,
+                        label: {
+                            show: true
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            heatmapChart.setOption(heatmapOption);
+
+            // 窗口大小变化时重新调整图表大小
+            window.addEventListener('resize', function() {
+                stackedChart.resize();
+                lineChart.resize();
+                pieChart.resize();
+                radarChart.resize();
+                heatmapChart.resize();
+            });
+        }
+
+        // 下载图表为图片
+        function downloadChart(chartId, fileName) {
+            const chartElement = document.getElementById(chartId);
+            
+            html2canvas(chartElement).then(canvas => {
+                const link = document.createElement('a');
+                link.download = fileName + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateStats();
+            initCharts();
         });
     </script>
 </body>
