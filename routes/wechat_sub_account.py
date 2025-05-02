@@ -10,7 +10,7 @@ import threading
 import hashlib
 
 # 设置与微信公众平台配置一致的Token
-TOKEN = "你设置的token"  # 替换为你在微信公众平台设置的Token
+TOKEN = "7XQdKYMdHvu5"  # 替换为你在微信公众平台设置的Token
 
 @wechat_sub_account_bp.route('/wsa/msg', methods=['GET', 'POST'])
 def msg():

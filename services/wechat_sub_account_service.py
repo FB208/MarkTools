@@ -11,10 +11,8 @@ def process_text_content(from_user, content):
         # 以k/K开头的处理逻辑
         shard_resource = SharedResource.get_by_id(content)
         if shard_resource:
-            return_content = f"""
-            **{shard_resource.r_name}**
-            {shard_resource.r_value}
-            """
+            return_content = f"""资源：{shard_resource.r_name}
+{shard_resource.r_value}"""
             return return_content
         else:
             return "没有找到相关记录"
