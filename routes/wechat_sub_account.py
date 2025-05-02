@@ -71,8 +71,12 @@ def msg():
                 event = root.find('Event').text
                 logging.info(f"用户 {from_user} 触发事件: {event}")
                 if event == "subscribe":
+                    def create_user_thread():
+                        sub_user = WechatUser.get_by_open_id(from_user)
+                        if not sub_user:
+                            WechatUser.create_user(open_id=from_user, subscribe=1)
                     threading.Thread(
-                        target=lambda: WechatUser.create_user(open_id=from_user, subscribe=1),
+                        target=lambda: create_user_thread,
                         daemon=True
                     ).start()
                     return_content = """感谢关注生产力Mark~
