@@ -83,7 +83,8 @@ def msg():
                 elif event == "unsubscribe":
                     def delete_user_thread():
                         unsub_user = WechatUser.get_by_open_id(from_user)
-                        unsub_user.update_info(subscribe=0)
+                        if unsub_user:
+                            unsub_user[0].update_info(subscribe=0)
                     threading.Thread(
                         target=lambda: delete_user_thread,
                         daemon=True
