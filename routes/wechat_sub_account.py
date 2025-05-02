@@ -3,8 +3,10 @@ from flask import render_template, request, jsonify
 from . import wechat_sub_account_bp
 from services.wechat_sub_account_service import process_text_content
 import xml.etree.ElementTree as ET
+from models.wechat_user import WechatUser
 import time
 import logging
+import threading
 import hashlib
 
 # 设置与微信公众平台配置一致的Token
@@ -68,7 +70,26 @@ def msg():
             elif msg_type == 'event':
                 event = root.find('Event').text
                 print(f"用户 {from_user} 触发事件: {event}")
-                return_content = "暂不支持事件消息"
+                if event == "subscribe":
+                    threading.Thread(
+                        target=lambda: WechatUser.create_user(open_id=from_user, subscribe=1),
+                        daemon=True
+                    ).start()
+                    return_content = """感谢关注生产力Mark~
+1. AI前沿资讯
+2. 各种绿色版软件，有额外需求可以私信，我会为你单独做一期
+3. 私信除了能找资源外，还是个非常好用的对话式AI（基于GLM-4调优）
+4. 限时免费：https://tools.agnet.top"""
+                elif event == "unsubscribe":
+                    def delete_user_thread():
+                        unsub_user = WechatUser.get_by_open_id(from_user)
+                        unsub_user.update_info(subscribe=0)
+                    threading.Thread(
+                        target=lambda: delete_user_thread,
+                        daemon=True
+                    ).start()
+                    return_content = "取关后不支持重新关注，你再也找不到回复几个数字就能免费获取资源的方法了，江湖再见，后会无期~"
+                    
             # 返回空字符串或简单的回复消息
             reply = f"""
             <xml>

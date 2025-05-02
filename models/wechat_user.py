@@ -7,17 +7,21 @@ class WechatUser(BaseModel):
     nickname = CharField(max_length=100, null=True, help_text='昵称')
     base_info = CharField(max_length=500, null=True, help_text='基础信息')
     personality_summary = TextField(null=True, help_text='个性摘要')
+    open_id = CharField(max_length=255, null=True, help_text='生产力Mark公众号的OpenID')
+    subscribe = IntegerField(default=0, help_text='是否关注')
 
     class Meta:
         table_name = 'wechat_user'
 
     @classmethod
-    def create_user(cls, nickname=None, base_info=None, personality_summary=None):
+    def create_user(cls, nickname=None, base_info=None, personality_summary=None, open_id=None, subscribe=0):
         """创建用户"""
         return cls.create(
             nickname=nickname,
             base_info=base_info,
-            personality_summary=personality_summary
+            personality_summary=personality_summary,
+            open_id=open_id,
+            subscribe=subscribe
         )
 
     @classmethod
@@ -36,6 +40,18 @@ class WechatUser(BaseModel):
             返回查询到的用户列表，如果没有找到返回空列表
         """
         return list(cls.select().where(cls.nickname == nickname))
+
+    @classmethod
+    def get_by_open_id(cls, open_id):
+        """根据OpenID查询用户
+        
+        Args:
+            open_id: 用户的OpenID
+            
+        Returns:
+            返回查询到的用户列表，如果没有找到返回空列表
+        """
+        return list(cls.select().where(cls.open_id == open_id))
 
     @classmethod
     def create_or_update_by_nickname(cls, nickname, **kwargs):
@@ -60,6 +76,10 @@ class WechatUser(BaseModel):
                 user.base_info = kwargs['base_info']
             if kwargs.get('personality_summary') is not None:
                 user.personality_summary = kwargs['personality_summary']
+            if kwargs.get('open_id') is not None:
+                user.open_id = kwargs['open_id']
+            if kwargs.get('subscribe') is not None:
+                user.subscribe = kwargs['subscribe']
             user.save()
             return user, False
         else:

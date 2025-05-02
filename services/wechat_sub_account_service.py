@@ -3,7 +3,6 @@ from models.shared_resource import SharedResource
 from prompts.general_system_prompt import get_general_system_prompt
 from utils.redis_util import RedisUtil
 import time
-import asyncio
 import threading
 from flask import current_app
 
