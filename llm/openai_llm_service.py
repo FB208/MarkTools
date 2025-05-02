@@ -22,7 +22,10 @@ class OpenAILLMService(LLMInterface):
             messages=messages
         )
         return response
-
+    def get_chat_completion_async(self, messages):
+        pass
+    def get_chat_completion_async_result(self, task_id):
+        pass
     def get_json_completion(self, messages,model:str="gpt-4o-mini"):
         client = self.get_client()
         response = client.chat.completions.create(

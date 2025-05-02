@@ -56,7 +56,7 @@ pytest tests/translate_test.py::test_translate_text
 docker login
 
 # 打包镜像
-docker build -f docker/Dockerfile -t fb208/marktools:0.6.0 .
+docker build -f docker/Dockerfile -t docker.agnet.top/fb208/marktools:0.6.1 .
 
 # 推送镜像到Docker Hub
 docker push fb208/marktools:0.6.0

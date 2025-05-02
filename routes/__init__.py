@@ -15,6 +15,6 @@ word_plugin_bp = Blueprint('word_plugin', __name__)
 auth_bp = Blueprint('auth', __name__)
 fun_bp = Blueprint('fun', __name__, url_prefix='/fun')
 text2speech_bp = Blueprint('text2speech', __name__)
-wechatSubAccount_bp = Blueprint('wechatSubAccount', __name__)
+wechat_sub_account_bp = Blueprint('wechat_sub_account', __name__)
 
-from . import main, translate, md2all, speech2text, article, test, wechat, scheduler, life, word_plugin, auth, fun, starbot, text2speech, wechatSubAccount   
+from . import main, translate, md2all, speech2text, article, test, wechat, scheduler, life, wechat_sub_account, word_plugin, auth, fun, starbot, text2speech   

@@ -18,15 +18,20 @@ class GrokLLMService(LLMInterface):
     def get_chat_completion(self, messages):
         client = self.get_client()
         response = client.chat.completions.create(
-            model="grok-3-mini-beta",
+            model="grok-3-mini-fast-beta",
             messages=messages
         )
         return response
 
+    def get_chat_completion_async(self, messages):
+        pass
+    def get_chat_completion_async_result(self, task_id):
+        pass
+    
     def get_json_completion(self, messages):
         client = self.get_client()
         response = client.chat.completions.create(
-            model="grok-3-mini-beta",
+            model="grok-3-mini-fast-beta",
             messages=messages,
             response_format={
                 'type': 'json_object'

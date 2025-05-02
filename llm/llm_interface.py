@@ -82,6 +82,22 @@ class LLMInterface(ABC):
     @abstractmethod
     def get_chat_completion(self, messages):
         pass
+        
+    @abstractmethod
+    async def get_chat_completion_async(self, messages):
+        """
+        异步聊天完成功能
+        与同步版本get_chat_completion功能相同，但是使用异步方式实现
+        返回结构：id='123456789' request_id='654321' model='glm-4-plus' task_status='PROCESSING'
+        """
+        pass
+
+    @abstractmethod
+    def get_chat_completion_async_result(self, task_id):
+        '''
+        查询异步任务结果
+        '''
+        pass
 
     def get_search_chat_completion(self, messages):
         """

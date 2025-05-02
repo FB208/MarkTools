@@ -51,6 +51,11 @@ class GeminiLLMService(LLMInterface):
         chat = model.start_chat(history=history)
 
         return chat.send_message(last_user_message)  # 发送最后一条用户消息
+    
+    def get_chat_completion_async(self, messages):
+        pass
+    def get_chat_completion_async_result(self, task_id):
+        pass
 
     def get_json_completion(self, messages,model:str="gemini-2.0-flash-exp"):
         self.get_client()

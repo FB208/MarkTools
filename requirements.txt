@@ -19,6 +19,7 @@ langchain-text-splitters==0.2.4
 mem0ai==0.1.15
 numpy==1.26.4
 openai==1.40.6
+zhipuai
 pillow==10.4.0
 PyQRCode==1.2.1
 pytest==7.4.3

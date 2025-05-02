@@ -1,6 +1,6 @@
 from flask import current_app as app
 from flask import render_template, request, jsonify
-from . import wechatSubAccount_bp
+from . import wechat_sub_account_bp
 from services.wechat_sub_account_service import process_text_content
 import xml.etree.ElementTree as ET
 import time
@@ -10,8 +10,8 @@ import hashlib
 # 设置与微信公众平台配置一致的Token
 TOKEN = "你设置的token"  # 替换为你在微信公众平台设置的Token
 
-@wechatSubAccount_bp.route('/wsa/msg', methods=['GET', 'POST'])
-def wechatSubAccount():
+@wechat_sub_account_bp.route('/wsa/msg', methods=['GET', 'POST'])
+def msg():
     if request.method == 'GET':
         # 处理微信服务器的验证请求
         signature = request.args.get('signature', '')
@@ -52,21 +52,23 @@ def wechatSubAccount():
             # 根据消息类型打印不同的信息
             if msg_type == 'text':
                 content = root.find('Content').text
-                response = process_text_content(content)
+                response = process_text_content(from_user,content)
                 print(f"用户 {from_user} 发送文本消息: {content}")
                 return_content= response
             elif msg_type == 'image':
                 pic_url = root.find('PicUrl').text
                 media_id = root.find('MediaId').text
                 print(f"用户 {from_user} 发送图片消息: {pic_url}")
+                return_content = "暂不支持图片消息"
             elif msg_type == 'voice':
                 media_id = root.find('MediaId').text
                 format = root.find('Format').text
                 print(f"用户 {from_user} 发送语音消息，格式: {format}")
+                return_content = "暂不支持语音消息"
             elif msg_type == 'event':
                 event = root.find('Event').text
                 print(f"用户 {from_user} 触发事件: {event}")
-            
+                return_content = "暂不支持事件消息"
             # 返回空字符串或简单的回复消息
             reply = f"""
             <xml>
@@ -74,7 +76,7 @@ def wechatSubAccount():
                 <FromUserName><![CDATA[{to_user}]]></FromUserName>
                 <CreateTime>{int(time.time())}</CreateTime>
                 <MsgType><![CDATA[text]]></MsgType>
-                <Content><![CDATA[${return_content}]]></Content>
+                <Content><![CDATA[{return_content}]]></Content>
             </xml>
             """
             return reply

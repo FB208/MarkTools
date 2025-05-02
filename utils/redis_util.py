@@ -13,6 +13,16 @@ class RedisUtil:
         """设置键值对"""
         self.client.set(key, value)
 
+    def set_value_with_expiry(self, key, value, expiry_seconds):
+        """设置键值对并设置过期时间
+        
+        Args:
+            key: 键名
+            value: 值
+            expiry_seconds: 过期时间(秒)
+        """
+        self.client.set(key, value, ex=expiry_seconds)
+
     def get_value(self, key):
         """获取键的值"""
         return self.client.get(key)
