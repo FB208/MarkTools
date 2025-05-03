@@ -1,5 +1,14 @@
 import os
 import sys
+import logging  # 添加logging导入
+
+# 配置日志输出到标准输出，这样Docker可以捕获日志
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+
 from flask import Flask
 from flask_cors import CORS
 from flask_session import Session

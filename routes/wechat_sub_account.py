@@ -71,26 +71,27 @@ def msg():
                 event = root.find('Event').text
                 logging.info(f"用户 {from_user} 触发事件: {event}")
                 if event == "subscribe":
-                    def create_user_thread():
+                    def create_user_thread(from_user):
                         sub_user = WechatUser.get_by_open_id(from_user)
                         if not sub_user:
                             WechatUser.create_user(open_id=from_user, subscribe=1)
                     threading.Thread(
-                        target=lambda: create_user_thread,
+                        target=lambda: create_user_thread(from_user),
                         daemon=True
                     ).start()
+                    #create_user_thread()
                     return_content = """感谢关注生产力Mark~
 1. AI前沿资讯
 2. 各种绿色版软件，有额外需求可以私信，我会为你单独做一期
 3. 私信除了能找资源外，还是个非常好用的对话式AI（基于GLM-4调优）
 4. 限时免费：https://tools.agnet.top"""
                 elif event == "unsubscribe":
-                    def delete_user_thread():
+                    def delete_user_thread(from_user):
                         unsub_user = WechatUser.get_by_open_id(from_user)
                         if unsub_user:
                             unsub_user[0].update_info(subscribe=0)
                     threading.Thread(
-                        target=lambda: delete_user_thread,
+                        target=lambda: delete_user_thread(from_user),
                         daemon=True
                     ).start()
                     return_content = "取关后不支持重新关注，你再也找不到回复几个数字就能免费获取资源的方法了，江湖再见，后会无期~"
