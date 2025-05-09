@@ -16,6 +16,9 @@ def process_text_content(from_user, content):
             return return_content
         else:
             return "没有找到相关记录"
+    elif content and (content.find('易标') != -1 or content.find('兑换码') != -1):
+        return """易标AI：https://yibiao.pro/
+兑换码：46BHB1"""
     elif content and content=="继续":
         redis_util = RedisUtil()
         for _ in range(4):

@@ -82,7 +82,8 @@ class LLMInterface(ABC):
     @abstractmethod
     def get_chat_completion(self, messages):
         pass
-        
+    def get_chat_completion(self,model, messages):
+        pass  
     @abstractmethod
     async def get_chat_completion_async(self, messages):
         """

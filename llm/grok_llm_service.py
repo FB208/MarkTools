@@ -14,7 +14,9 @@ class GrokLLMService(LLMInterface):
     
     def get_messages(self, response):
         return response.choices[0].message.content
+    
 
+        
     def get_chat_completion(self, messages):
         client = self.get_client()
         response = client.chat.completions.create(
@@ -22,7 +24,13 @@ class GrokLLMService(LLMInterface):
             messages=messages
         )
         return response
-
+    def get_chat_completion(self, model, messages):
+        client = self.get_client()
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages
+        )
+        return response
     def get_chat_completion_async(self, messages):
         pass
     def get_chat_completion_async_result(self, task_id):
@@ -41,3 +49,17 @@ class GrokLLMService(LLMInterface):
     
     def get_json_completion_v2(self, messages,response_format):
         pass
+        
+    def get_streaming_chat_completion(self, model, messages):
+        client = self.get_client()
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            stream=True
+        )
+        return response
+    
+    def get_streaming_content(self, chunk):
+        if hasattr(chunk.choices[0].delta, 'content'):
+            return chunk.choices[0].delta.content
+        return None

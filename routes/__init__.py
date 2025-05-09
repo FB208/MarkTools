@@ -16,5 +16,6 @@ auth_bp = Blueprint('auth', __name__)
 fun_bp = Blueprint('fun', __name__, url_prefix='/fun')
 text2speech_bp = Blueprint('text2speech', __name__)
 wechat_sub_account_bp = Blueprint('wechat_sub_account', __name__)
+lighthouse_bp = Blueprint('lighthouse', __name__, url_prefix='/lh')
 
-from . import main, translate, md2all, speech2text, article, test, wechat, scheduler, life, wechat_sub_account, word_plugin, auth, fun, starbot, text2speech   
+from . import main, translate, md2all, speech2text, article, test, wechat, scheduler, life, wechat_sub_account, word_plugin, auth, fun, starbot, text2speech, lighthouse   
