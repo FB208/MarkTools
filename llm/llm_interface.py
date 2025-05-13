@@ -37,6 +37,9 @@ class LLMInterface(ABC):
         '''
         pass
     
+    def get_json_completion(self,model, messages):
+        pass    
+    
     @abstractmethod
     def get_json_completion_v2(self, messages):
         '''
@@ -73,11 +76,11 @@ class LLMInterface(ABC):
             }
         )
 
-        print(response.choices[0].message.content);
+        print(response.choices[0].message.content)
 
         pass
         
-        
+
         
     @abstractmethod
     def get_chat_completion(self, messages):

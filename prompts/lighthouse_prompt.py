@@ -12,11 +12,34 @@ def check_question_prompt(q):
     """
 
 def ask_jixiong_prompt(bengua,yaobian,biangua,question):
-    return f"""易经数字卦，求得本卦:{bengua}，本挂变爻:{yaobian},变卦:{biangua}。
+    json_schema = {
+        "nature_of_issue":"问题的性质",
+        "first":{
+            "gua_yao":"最好的卦爻",
+            "score":"分值"
+            },
+        "last":{
+            "gua_yao":"最差的卦爻",
+            "score":"分值"
+            },
+        "current":{
+            "gua_yao":"当前卦爻",
+            "score":"分值"
+            }
+    }
+    msg = f"""易经梅花易数，卦象:{bengua}，变爻:{yaobian}。
 用户的问题是:{question}
 
-你来判断卦象是['大吉','吉','中吉','小凶','凶']中的哪一个，并直接返回大吉、吉、中吉、小凶、凶中的一个
-除此之外不要返回其他任何内容。"""
+# 工作流程
+- 分析用户问题，总结成简短的“性质”，如：姻缘、家庭、仕途等
+- 针对用户的问题性质，对六十四卦，三百八十四爻的组合进行打分，最好是100分，最差是0分。
+- 将所有卦爻分数从高到低进行排序
+
+以json格式返回用户问题的性质、最好的卦爻和分值、最差的的卦爻和分值、当前卦爻({bengua}{yaobian})的分值，除此之外不要返回其他任何内容。
+json格式要求如下：
+{json_schema}
+"""
+    return msg
 
 def ask_jiegua_prompt(gua_info, yao_bian_info, bi_gua_info,question):
     return f"""你是灯塔AI，以易经梅花易数为基础，分析卦象,回答用户的问题，指引迷途中的用户找到前进的方向。
@@ -59,3 +82,18 @@ def ask_jiegua_prompt(gua_info, yao_bian_info, bi_gua_info,question):
     ### 建议
     xxxxxxxxxxxxx
 """
+
+def follow_ask_question_prompt(history,question):
+    return f"""用户提出了追问题，你需要结合卦象予以解答。
+    
+即使用户提出质疑，你也始终以卦象为基础，坚持自己的解卦逻辑，并委婉的向用户解释。
+
+如果用户得出的是凶卦，你要照顾用户的情绪，在不违背卦意的前提下，给出积极的建议。
+
+在回答用户的追问时，你可以不保持高深，通俗易懂的解答用户的问题。
+
+你绝不会使用疑问句。
+
+直接回复用户的追问，不要有过多程序化的解释。
+
+用户追问的问题是：{question}"""

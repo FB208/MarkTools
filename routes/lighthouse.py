@@ -9,6 +9,7 @@ from services import lighthouse_service
 from models.zy_gy import ZyGy
 import threading
 import queue
+from models.zy_history import ZyHistory
 
 @lighthouse_bp.route('/check_question', methods=['POST'])
 def check_question():
@@ -24,8 +25,9 @@ def check_question():
         {"role": "user", "content": lighthouse_prompt.check_question_prompt(data.get('question', ''))}
     ]
     llm_service = LLMFactory.get_llm_service('grok')
-    completion = llm_service.get_chat_completion('grok-3-mini-fast-beta', messages)
+    completion = llm_service.get_chat_completion(model='grok-3-mini-fast-beta', messages=messages)
     result = llm_service.get_messages(completion)
+    ZyHistory.insert_record(uuid, 0, "user", data.get('question', ''))
     return jsonify({"success": True, "data": result, "message": "解析完成"})
 
 
@@ -49,10 +51,12 @@ def ask_question():
             yao_bian_info = ZyGy.get_by_id(yid)
             bi_gua_info = ZyGy.get_by_id(bgid)
             
-            content_base = f"""【{attribute}{gua_info.gy_name}({lighthouse_service.get_64gua_ico(gua_info.gy_sort)})】{gua_info.gy_content}
-            【{yao_bian_info.gy_name}爻】{yao_bian_info.gy_content}
-            【变{bi_gua_info.gy_name}({lighthouse_service.get_64gua_ico(bi_gua_info.gy_sort)})】{bi_gua_info.gy_content}"""
+            all_messages = ''
             
+            content_base = f"""【{attribute}{gua_info.gy_name}({lighthouse_service.get_64gua_ico(gua_info.gy_sort)})】{gua_info.gy_content}
+【{yao_bian_info.gy_name}爻】{yao_bian_info.gy_content}
+【变{bi_gua_info.gy_name}({lighthouse_service.get_64gua_ico(bi_gua_info.gy_sort)})】{bi_gua_info.gy_content}"""
+            all_messages += content_base+"\n\n"
             # 发送基础卦辞信息
             yield f"data: {json.dumps({'type': 'base', 'status': 'success', 'content': content_base})}\n\n"
             
@@ -66,10 +70,15 @@ def ask_question():
                             {"role": "user", "content": lighthouse_prompt.ask_jixiong_prompt(bengua, yaobian, biangua, question)}
                         ]
                         llm_service = LLMFactory.get_llm_service('grok')
-                        completion = llm_service.get_chat_completion('grok-3-mini-fast-beta', messages)
-                        jixiong = llm_service.get_messages(completion)
+                        completion = llm_service.get_json_completion(model='grok-3-fast-beta', messages=messages)
+                        json_str = llm_service.get_messages(completion)
+                        json_result = json.loads(json_str)
+                        score = json_result['current']['score']+5
+                        jixiong_levels = ["凶", "小凶", "中吉", "吉", "大吉"]
+                        jixiong = jixiong_levels[min(int(score // 20), 4)]
                         # 将结果放入队列
                         result_queue.put({"type": "jixiong", "status": "success", "content": jixiong})
+                        all_messages += "吉凶分析："+jixiong+"\n\n"
                 except Exception as e:
                     result_queue.put({"type": "jixiong", "status": "error", "content": str(e)})
             
@@ -83,9 +92,10 @@ def ask_question():
                             {"role": "user", "content": lighthouse_prompt.ask_jiegua_prompt(gua_info, yao_bian_info, bi_gua_info, question)}
                         ]
                         llm_service = LLMFactory.get_llm_service('grok')
-                        completion = llm_service.get_chat_completion('grok-3-fast-beta', messages)
+                        completion = llm_service.get_chat_completion(model='grok-3-fast-beta', messages=messages)
                         jiegua = llm_service.get_messages(completion)
                         result_queue.put({"type": "jiegua", "status": "success", "content": jiegua})
+                        all_messages += "解卦分析："+jiegua+"\n\n"
                 except Exception as e:
                     result_queue.put({"type": "jiegua", "status": "error", "content": str(e)})
             
@@ -141,7 +151,7 @@ def ask_question():
                 thread_suan_ji_xiong.join(timeout=1.0)
             if thread_jie_gua.is_alive():
                 thread_jie_gua.join(timeout=1.0)
-           
+            ZyHistory.insert_record(uuid, 0, "assistant", all_messages)
             # 发送完成信号
             yield f"data: {json.dumps({'type': 'done', 'status': 'success', 'content': '解析完成'})}\n\n"
             
@@ -154,4 +164,12 @@ def ask_question():
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 
+    
+@lighthouse_bp.route('/follow_ask_question', methods=['POST'])
+def follow_ask_question():
+    data = request.get_json()
+    uuid = data.get('uuid', '')
+    question = data.get('question', '')
+    numbers = data.get('numbers', [])
+    
     
