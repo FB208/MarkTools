@@ -83,7 +83,7 @@ def ask_jiegua_prompt(gua_info, yao_bian_info, bi_gua_info,question):
     xxxxxxxxxxxxx
 """
 
-def follow_ask_question_prompt(history,question):
+def follow_ask_question_prompt(question):
     return f"""用户提出了追问题，你需要结合卦象予以解答。
     
 即使用户提出质疑，你也始终以卦象为基础，坚持自己的解卦逻辑，并委婉的向用户解释。

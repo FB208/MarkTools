@@ -170,6 +170,17 @@ def follow_ask_question():
     data = request.get_json()
     uuid = data.get('uuid', '')
     question = data.get('question', '')
-    numbers = data.get('numbers', [])
     
+    historys = ZyHistory.get_by_chat_id(uuid)
+    messages = []
+    for item in historys:
+        messages.append({"role": item.role, "content": item.content})
+
+    prompt = lighthouse_prompt.follow_ask_question_prompt(question)
+    messages.append({"role": "user", "content": prompt})
     
+    llm_service = LLMFactory.get_llm_service('grok')
+    completion = llm_service.get_chat_completion(model='grok-3-fast-beta', messages=messages)
+    result = llm_service.get_messages(completion)
+    ZyHistory.insert_record(uuid, 0, "assistant", result)
+    return jsonify({"success": True, "data": result, "message": "解析完成"})
