@@ -11,13 +11,13 @@ import threading
 import queue
 from models.zy_history import ZyHistory
 
-# platform = 'grok'
-# text_model = 'grok-3-mini-fast-beta'
-# infer_model = 'grok-3-fast-beta'
+platform = 'grok'
+text_model = 'grok-3-mini-fast-beta'
+infer_model = 'grok-3-fast-beta'
 
-platform = 'glm'
-text_model = 'glm-4-air'
-infer_model = 'glm-4'
+# platform = 'glm'
+# text_model = 'glm-4-air'
+# infer_model = 'glm-4'
 
 @lighthouse_bp.route('/check_question', methods=['POST'])
 def check_question():
