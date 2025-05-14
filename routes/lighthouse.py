@@ -11,6 +11,14 @@ import threading
 import queue
 from models.zy_history import ZyHistory
 
+# platform = 'grok'
+# text_model = 'grok-3-mini-fast-beta'
+# infer_model = 'grok-3-fast-beta'
+
+platform = 'glm'
+text_model = 'glm-4-air'
+infer_model = 'glm-4'
+
 @lighthouse_bp.route('/check_question', methods=['POST'])
 def check_question():
     data = request.get_json()
@@ -24,8 +32,8 @@ def check_question():
     messages = [
         {"role": "user", "content": lighthouse_prompt.check_question_prompt(data.get('question', ''))}
     ]
-    llm_service = LLMFactory.get_llm_service('grok')
-    completion = llm_service.get_chat_completion(model='grok-3-mini-fast-beta', messages=messages)
+    llm_service = LLMFactory.get_llm_service(platform)
+    completion = llm_service.get_chat_completion(model=text_model, messages=messages)
     result = llm_service.get_messages(completion)
     ZyHistory.insert_record(uuid, 0, "user", data.get('question', ''))
     return jsonify({"success": True, "data": result, "message": "解析完成"})
@@ -70,8 +78,8 @@ def ask_question():
                         messages = [
                             {"role": "user", "content": lighthouse_prompt.ask_jixiong_prompt(bengua, yaobian, biangua, question)}
                         ]
-                        llm_service = LLMFactory.get_llm_service('grok')
-                        completion = llm_service.get_json_completion(model='grok-3-fast-beta', messages=messages)
+                        llm_service = LLMFactory.get_llm_service(platform)
+                        completion = llm_service.get_json_completion(model=infer_model, messages=messages)
                         json_str = llm_service.get_messages(completion)
                         json_result = json.loads(json_str)
                         score = int(json_result['current']['score'])+5
@@ -93,8 +101,8 @@ def ask_question():
                         messages = [
                             {"role": "user", "content": lighthouse_prompt.ask_jiegua_prompt(gua_info, yao_bian_info, bi_gua_info, question)}
                         ]
-                        llm_service = LLMFactory.get_llm_service('grok')
-                        completion = llm_service.get_chat_completion(model='grok-3-fast-beta', messages=messages)
+                        llm_service = LLMFactory.get_llm_service(platform)
+                        completion = llm_service.get_chat_completion(model=infer_model, messages=messages)
                         jiegua = llm_service.get_messages(completion)
                         result_queue.put({"type": "jiegua", "status": "success", "content": jiegua})
                         all_messages += "解卦分析："+jiegua+"\n\n"
@@ -183,8 +191,8 @@ def follow_ask_question():
     prompt = lighthouse_prompt.follow_ask_question_prompt(question)
     messages.append({"role": "user", "content": prompt})
     
-    llm_service = LLMFactory.get_llm_service('grok')
-    completion = llm_service.get_chat_completion(model='grok-3-fast-beta', messages=messages)
+    llm_service = LLMFactory.get_llm_service(platform)
+    completion = llm_service.get_chat_completion(model=infer_model, messages=messages)
     result = llm_service.get_messages(completion)
     ZyHistory.insert_record(uuid, 0, "assistant", result)
     return jsonify({"success": True, "data": result, "message": "解析完成"})

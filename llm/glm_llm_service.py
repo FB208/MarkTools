@@ -18,6 +18,13 @@ class GLMLLMService(LLMInterface):
             messages=messages
         )
         return response
+    def get_chat_completion(self,model, messages):
+        client = self.get_client()
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages
+        )
+        return response
     async def get_chat_completion_async(self, messages):
         client = self.get_client()
         response = await client.chat.asyncCompletions.create(
@@ -40,6 +47,15 @@ class GLMLLMService(LLMInterface):
             }
         )
         return response
-    
+    def get_json_completion(self, model, messages):
+        client = self.get_client()
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            response_format={
+                'type': 'json_object'
+            }
+        )
+        return response
     def get_json_completion_v2(self, messages,response_format):
         pass
