@@ -3,7 +3,7 @@ from .base_model import BaseModel
 
 class ZyHistory(BaseModel):
     """占卜历史记录表"""
-    id = BigIntegerField(primary_key=True, auto_increment=True)
+    id = AutoField(primary_key=True)
     chat_id = CharField(max_length=255, null=True, help_text='会话ID')
     user_id = IntegerField(null=True, help_text='用户ID')
     role = CharField(max_length=50, null=True, help_text='角色')

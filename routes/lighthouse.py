@@ -53,9 +53,9 @@ def ask_question():
             
             all_messages = ''
             
-            content_base = f"""【{attribute}{gua_info.gy_name}({lighthouse_service.get_64gua_ico(gua_info.gy_sort)})】{gua_info.gy_content}
+            content_base = f"""【{attribute}{gua_info.gy_name}({lighthouse_service.get_64gua_ico(gua_info.gy_sort-1)})】{gua_info.gy_content}
 【{yao_bian_info.gy_name}爻】{yao_bian_info.gy_content}
-【变{bi_gua_info.gy_name}({lighthouse_service.get_64gua_ico(bi_gua_info.gy_sort)})】{bi_gua_info.gy_content}"""
+【变{bi_gua_info.gy_name}({lighthouse_service.get_64gua_ico(bi_gua_info.gy_sort-1)})】{bi_gua_info.gy_content}"""
             all_messages += content_base+"\n\n"
             # 发送基础卦辞信息
             yield f"data: {json.dumps({'type': 'base', 'status': 'success', 'content': content_base})}\n\n"
@@ -63,6 +63,7 @@ def ask_question():
             # 使用copy_current_request_context装饰器保持请求上下文
             @copy_current_request_context
             def suan_ji_xiong(bengua, yaobian, biangua, question, result_queue):
+                nonlocal all_messages
                 try:
                     # 使用应用上下文
                     with app.app_context():
@@ -73,7 +74,7 @@ def ask_question():
                         completion = llm_service.get_json_completion(model='grok-3-fast-beta', messages=messages)
                         json_str = llm_service.get_messages(completion)
                         json_result = json.loads(json_str)
-                        score = json_result['current']['score']+5
+                        score = int(json_result['current']['score'])+5
                         jixiong_levels = ["凶", "小凶", "中吉", "吉", "大吉"]
                         jixiong = jixiong_levels[min(int(score // 20), 4)]
                         # 将结果放入队列
@@ -85,6 +86,7 @@ def ask_question():
             # 使用copy_current_request_context装饰器保持请求上下文
             @copy_current_request_context
             def jie_gua(gua_info, yao_bian_info, bi_gua_info, question, result_queue):
+                nonlocal all_messages
                 try:
                     # 使用应用上下文
                     with app.app_context():
@@ -172,6 +174,8 @@ def follow_ask_question():
     question = data.get('question', '')
     
     historys = ZyHistory.get_by_chat_id(uuid)
+    if historys.count() >=12:
+        return jsonify({"success": False, "data": "", "message": "已超过5次追问，请点击“重新开始”，换个角度重新提问"})
     messages = []
     for item in historys:
         messages.append({"role": item.role, "content": item.content})
