@@ -82,7 +82,7 @@ def ask_question():
                         completion = llm_service.get_json_completion(model=infer_model, messages=messages)
                         json_str = llm_service.get_messages(completion)
                         json_result = json.loads(json_str)
-                        score = int(json_result['current']['score'])+5
+                        score = int(json_result['current']['score'])
                         jixiong_levels = ["凶", "小凶", "中吉", "吉", "大吉"]
                         jixiong = jixiong_levels[min(int(score // 20), 4)]
                         # 将结果放入队列
@@ -183,7 +183,7 @@ def follow_ask_question():
     
     historys = ZyHistory.get_by_chat_id(uuid)
     if historys.count() >=12:
-        return jsonify({"success": False, "data": "", "message": "已超过5次追问，请点击“重新开始”，换个角度重新提问"})
+        return jsonify({"success": True, "data": "已超过5次追问，请点击“重新开始”，换个角度重新提问", "message": "已超过5次追问，请点击“重新开始”，换个角度重新提问"})
     messages = []
     for item in historys:
         messages.append({"role": item.role, "content": item.content})
@@ -194,5 +194,6 @@ def follow_ask_question():
     llm_service = LLMFactory.get_llm_service(platform)
     completion = llm_service.get_chat_completion(model=infer_model, messages=messages)
     result = llm_service.get_messages(completion)
+    ZyHistory.insert_record(uuid, 0, "user", question)
     ZyHistory.insert_record(uuid, 0, "assistant", result)
     return jsonify({"success": True, "data": result, "message": "解析完成"})
