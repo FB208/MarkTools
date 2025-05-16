@@ -8,7 +8,8 @@ class LLMInterface(ABC):
     @abstractmethod
     def get_messages(self, response):
         pass
-    
+    def clear_thinking_msg(self, response):
+        pass
     @abstractmethod
     def get_json_completion(self, messages):
         '''

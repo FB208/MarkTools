@@ -5,6 +5,7 @@ from .deepseek_llm_service import DeepSeekLLMService
 from .grok_llm_service import GrokLLMService
 from .openai_proxy_llm_service import OpenAIProxyLLMService
 from .glm_llm_service import GLMLLMService
+from .hsfz_llm_service import HSFZLLMService
 from flask import current_app as app
 
 class LLMFactory:
@@ -18,5 +19,6 @@ class LLMFactory:
             'deepseek': DeepSeekLLMService(),
             'grok': GrokLLMService(),
             'openai_proxy': OpenAIProxyLLMService(),
-            'glm': GLMLLMService()
+            'glm': GLMLLMService(),
+            'hsfz': HSFZLLMService()
         }.get(service_type, DeepSeekLLMService())

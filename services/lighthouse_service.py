@@ -14,7 +14,7 @@ def analyze_numbers(numbers):
     gid = ids[down_number-1]+ids[up_number-1]  # 索引从0开始所以要减1
     yid = f'{gid}_{move_number}'
     bgid = gid[:move_number-1] + ('0' if gid[move_number-1] == '1' else '1') + gid[move_number:]
-    attribute = gua_attribute[down_number-1]+gua_attribute[up_number-1]
+    attribute = gua_attribute[up_number-1]+gua_attribute[down_number-1]
     return gid,yid,bgid,attribute
 
 def get_64gua_ico(index):
