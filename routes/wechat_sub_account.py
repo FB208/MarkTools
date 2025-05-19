@@ -4,6 +4,7 @@ from . import wechat_sub_account_bp
 from services.wechat_sub_account_service import process_text_content
 import xml.etree.ElementTree as ET
 from models.wechat_user import WechatUser
+from models.s_keyword import SKeyword
 import time
 import logging
 import threading
@@ -79,12 +80,8 @@ def msg():
                         target=lambda: create_user_thread(from_user),
                         daemon=True
                     ).start()
+                    return_content = SKeyword.get_by_type_code("sys_setting", "wechat_subscribe_msg")
                     #create_user_thread()
-                    return_content = """感谢关注生产力Mark~
-1. AI前沿资讯
-2. 各种绿色版软件，有额外需求可以私信，我会为你单独做一期
-3. 私信除了能找资源外，还是个非常好用的对话式AI（基于GLM-4调优）
-4. 限时免费：https://tools.agnet.top"""
                 elif event == "unsubscribe":
                     def delete_user_thread(from_user):
                         unsub_user = WechatUser.get_by_open_id(from_user)
