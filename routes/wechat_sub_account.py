@@ -80,7 +80,8 @@ def msg():
                         target=lambda: create_user_thread(from_user),
                         daemon=True
                     ).start()
-                    return_content = SKeyword.get_by_type_code("sys_setting", "wechat_subscribe_msg")
+                    subscribe_msg = SKeyword.get_by_type_code("sys_setting", "wechat_subscribe_msg")
+                    return_content = subscribe_msg.key_content
                     #create_user_thread()
                 elif event == "unsubscribe":
                     def delete_user_thread(from_user):

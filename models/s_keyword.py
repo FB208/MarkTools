@@ -6,7 +6,7 @@ class SKeyword(BaseModel):
     id = AutoField(primary_key=True)
     key_type = CharField(max_length=50, null=True, help_text='组类型、名称')
     key_code = CharField(max_length=100, null=True, help_text='key')
-    key_content = CharField(max_length=500, null=True, help_text='value')
+    key_content = TextField(null=True, help_text='value')
     sort = FloatField(null=True, help_text='排序')
     enable = IntegerField(null=True, help_text='启用状态')
     memo = CharField(max_length=255, null=True, help_text='说明')
