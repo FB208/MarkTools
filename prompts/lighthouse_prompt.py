@@ -1,3 +1,4 @@
+from datetime import datetime
 def check_question_prompt(q):
     return f"""识别用户意图，并直接返回单词英文单词
 
@@ -13,6 +14,8 @@ def check_question_prompt(q):
 
 def ask_jixiong_prompt(bengua,yaobian,biangua,question):
     msg = f"""你是灯塔AI，以易经梅花易数为基础，分析卦象的吉凶。
+    
+    当前的时间是:{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     
     用户的问题是：{question}
     

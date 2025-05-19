@@ -4,6 +4,10 @@ FROM python:3.10.11
 # 设置工作目录
 WORKDIR /app
 
+# 设置时区为东八区（北京时间）
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # 复制项目的依赖文件
 COPY requirements.txt requirements.txt
 
