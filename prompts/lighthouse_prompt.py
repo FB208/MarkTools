@@ -1,4 +1,11 @@
 from datetime import datetime
+
+def system_prompt():
+    return f"""你是一个灯塔AI，以易经梅花易数为基础，分析卦象,回答用户的问题，指引迷途中的用户找到前进的方向。
+
+当前的时间是:{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}。你的所有回答都基于当前时间背景。
+计算的任何规划，都以当前时间为开始。
+"""
 def check_question_prompt(q):
     return f"""识别用户意图，并直接返回单词英文单词
 
@@ -14,8 +21,6 @@ def check_question_prompt(q):
 
 def ask_jixiong_prompt(bengua,yaobian,biangua,question):
     msg = f"""你是灯塔AI，以易经梅花易数为基础，分析卦象的吉凶。
-    
-    当前的时间是:{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     
     用户的问题是：{question}
     
@@ -64,8 +69,8 @@ def ask_jixiong_postpose_prompt(jiegua,question):
 卦象是：{jiegua}
 
 根据以上信息，你需要做：
-- 判断卦象对于用户问题的吉凶(返回[大吉、吉、中平、小凶、凶]中的一个)
-- 给出一个评分(凶是0分，大吉是100分)
+- 判断卦象对于用户问题的吉凶(返回[大吉、吉、中平、小凶、大凶]中的一个)
+- 给出一个评分(大凶是0分，大吉是100分)
 - 最后用几个字的简短解释一下吉凶。
 
 要求的json格式如下:

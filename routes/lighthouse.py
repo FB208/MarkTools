@@ -10,6 +10,7 @@ from models.zy_gy import ZyGy
 import threading
 import queue
 from models.zy_history import ZyHistory
+from utils.log_util import log
 
 # platform = 'grok'
 # text_model = 'grok-3-mini-fast-beta'
@@ -30,19 +31,31 @@ def check_question():
     uuid = data.get('uuid', '')
     session[uuid] = data
     question = data.get('question', '')
-    # print(f"接收到的内容: {content}")
-    # print(f"是否需要翻译: {translate}")
-
+    # 为当前请求设置一个UUID
+    log.set_request_id(uuid)
+    log.info(f"收到问题检查请求: {question}")
+    
     # 这里可以添加处理逻辑，例如保存到数据库或开始后台任务
     messages = [
         {"role": "user", "content": lighthouse_prompt.check_question_prompt(question)}
     ]
     llm_service = LLMFactory.get_llm_service(platform)
-    completion = llm_service.get_chat_completion(model=text_model, messages=messages)
-    result = llm_service.get_messages(completion)
-    ZyHistory.insert_record(uuid, 0, "user", question)
-    # return jsonify({"success": True, "data": "OTHER", "message": "解析完成"})
-    return jsonify({"success": True, "data": result, "message": "解析完成"})
+    
+    try:
+        log.info(f"调用LLM服务 - 模型: {text_model}")
+        completion = llm_service.get_chat_completion(model=text_model, messages=messages)
+        result = llm_service.get_messages(completion)
+        
+        # 记录LLM调用结果
+        log.info(f"LLM响应结果: {result}")
+        
+        ZyHistory.insert_record(uuid, 0, "user", question)
+        # return jsonify({"success": True, "data": "OTHER", "message": "解析完成"})
+        return jsonify({"success": True, "data": result, "message": "解析完成"})
+    except Exception as e:
+        # 记录错误信息
+        log.error(f"LLM调用失败: {str(e)}")
+        return jsonify({"success": False, "data": None, "message": f"解析失败: {str(e)}"})
 
 
 @lighthouse_bp.route('/ask_question', methods=['POST'])
@@ -52,6 +65,10 @@ def ask_question():
     question = data.get('question', '')
     numbers = data.get('numbers', [])
     
+    # 为当前请求设置一个UUID
+    log.set_request_id(uuid)
+    log.info(f"收到问题分析请求: {question}, 数字: {numbers}")
+    
     # 创建一个队列用于线程间通信
     result_queue = queue.Queue()
     
@@ -59,6 +76,8 @@ def ask_question():
         try:
             # 计算基础卦辞
             gid, yid, bgid, attribute = lighthouse_service.analyze_numbers(numbers)
+            log.info(f"传入数字数组: {str(numbers)} (长度: {len(numbers)})")
+            log.info(f"计算卦象结果: 卦ID={gid}, 爻ID={yid}, 变卦ID={bgid}, 属性={attribute}")
             
             # 在主线程中获取数据库数据
             gua_info = ZyGy.get_by_id(gid)
@@ -103,30 +122,37 @@ def ask_question():
                 nonlocal all_messages
                 # 使用应用上下文
                 with app.app_context():
-                    messages = [
-                        {"role": "user", "content": lighthouse_prompt.ask_jixiong_postpose_prompt(jiegua, question)}
-                    ]
-                    llm_service = LLMFactory.get_llm_service(platform)
-                    completion = llm_service.get_json_completion(model=think_model, messages=messages)
-                    json_str = llm_service.get_messages(completion)
-                    json_result = json.loads(json_str)
-                    score = int(json_result['score'])
-                    jixiong = json_result['jixiong']
-                    explanation = json_result['explanation']
-                    jixiong_mapping = {
-                        "大吉": "大吉",
-                        "吉": "吉", 
-                        "中平": "中吉",
-                        "小凶": "小凶",
-                        "大凶": "凶"
-                    }
-                    jixiong = jixiong_mapping.get(jixiong,"")
-                    content = {
-                        "jixiong": jixiong,
-                        "content": f"""【{jixiong}】 卦象{score}分，{explanation}"""
-                    }
-                    all_messages += "吉凶分析："+jixiong+"\n\n"
-                    return content
+                    try:
+                        messages = [
+                            {"role": "user", "content": lighthouse_prompt.ask_jixiong_postpose_prompt(jiegua, question)}
+                        ]
+                        log.info(f"提示词: {messages}")
+                        llm_service = LLMFactory.get_llm_service(platform)
+                        completion = llm_service.get_json_completion(model=think_model, messages=messages)
+                        json_str = llm_service.get_messages(completion)
+                        log.info(f"吉凶分析结果: {json_str}")
+                        json_result = json.loads(json_str)
+                        score = int(json_result['score'])
+                        jixiong = json_result['jixiong']
+                        explanation = json_result['explanation']
+                        jixiong_mapping = {
+                            "大吉": "大吉",
+                            "吉": "吉", 
+                            "中平": "中吉",
+                            "小凶": "小凶",
+                            "大凶": "凶"
+                        }
+                        jixiong = jixiong_mapping.get(jixiong,"")
+                        content = {
+                            "jixiong": jixiong,
+                            "content": f"""【{jixiong}】 卦象{score}分，{explanation}"""
+                        }
+                        all_messages += "吉凶分析："+jixiong+"\n\n"
+                        
+                        return content
+                    except Exception as e:
+                        log.error(f"吉凶分析失败: {str(e)}")
+                        return ""
             
             # 使用copy_current_request_context装饰器保持请求上下文
             @copy_current_request_context
@@ -151,12 +177,15 @@ def ask_question():
                 # 使用应用上下文
                 with app.app_context():
                     messages = [
+                        {"role": "system", "content": lighthouse_prompt.system_prompt()},
                         {"role": "user", "content": lighthouse_prompt.ask_jiegua_prompt(gua_info, yao_bian_info, bi_gua_info, question)}
                     ]
+                    log.info(f"前置解卦提示词: {messages}")
                     llm_service = LLMFactory.get_llm_service(platform)
                     completion = llm_service.get_chat_completion(model=think_model, messages=messages)
                     jiegua = llm_service.clear_thinking_msg(completion)
                     all_messages += "解卦分析："+jiegua+"\n\n"
+                    log.info(f"前置解卦结果: {jiegua}")
                     return jiegua
             try:
                 result_jiegua = jie_gua_front(gua_info, yao_bian_info, bi_gua_info, question)
@@ -226,6 +255,7 @@ def ask_question():
             yield f"data: {json.dumps({'type': 'done', 'status': 'success', 'content': '解析完成'})}\n\n"
             
         except Exception as e:
+            log.error(f"处理过程中出现异常: {str(e)}")
             yield f"data: {json.dumps({'type': 'error', 'status': 'error', 'content': str(e)})}\n\n"
             # 确保在异常情况下也发送完成信号
             yield f"data: {json.dumps({'type': 'done', 'status': 'success', 'content': '解析完成'})}\n\n"
@@ -237,6 +267,7 @@ def ask_question():
     
 @lighthouse_bp.route('/follow_ask_question', methods=['POST'])
 def follow_ask_question():
+    # 获取请求数据
     data = request.get_json()
     uuid = data.get('uuid', '')
     question = data.get('question', '')
@@ -244,16 +275,20 @@ def follow_ask_question():
     historys = ZyHistory.get_by_chat_id(uuid)
     if historys.count() >=12:
         return jsonify({"success": True, "data": "已超过5次追问，请点击“重新开始”，换个角度重新提问", "message": "已超过5次追问，请点击“重新开始”，换个角度重新提问"})
-    messages = []
+    messages = [
+        {"role": "system", "content": lighthouse_prompt.system_prompt()}
+    ]
     for item in historys:
         messages.append({"role": item.role, "content": item.content})
 
     prompt = lighthouse_prompt.follow_ask_question_prompt(question)
     messages.append({"role": "user", "content": prompt})
-    
+    log.info(f"追问提示词: {messages}")
     llm_service = LLMFactory.get_llm_service(platform)
     completion = llm_service.get_chat_completion(model=think_model, messages=messages)
     result = llm_service.clear_thinking_msg(completion)
     ZyHistory.insert_record(uuid, 0, "user", question)
     ZyHistory.insert_record(uuid, 0, "assistant", result)
+    
+    log.info(f"追问结果: {result}")
     return jsonify({"success": True, "data": result, "message": "解析完成"})
