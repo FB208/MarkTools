@@ -9,12 +9,23 @@ from services import lighthouse_service
 from models.zy_gy import ZyGy
 import threading
 import queue
+from models.s_keyword import SKeyword
 from models.zy_history import ZyHistory
 from utils.log_util import log
-
+from datetime import datetime
+from utils.text_util import convert_to_string
 # platform = 'grok'
 # text_model = 'grok-3-mini-fast-beta'
 # infer_model = 'grok-3-fast-beta'
+
+wenan_platform = 'gemini'
+wenan_model = 'gemini-2.5-flash-preview-05-20'
+chaifen_platform = 'gemini'
+chaifen_model = 'gemini-2.5-flash-preview-05-20'
+kapian_platform = 'gemini'
+kapian_model = 'gemini-2.5-flash-preview-05-20'
+# kapian_platform = 'glm'
+# kapian_model = 'glm-4-air'
 
 platform = 'glm'
 text_model = 'glm-4-air'
@@ -35,7 +46,7 @@ def check_question():
     log.set_request_id(uuid)
     log.info(f"收到问题检查请求: {question}")
     
-    # 这里可以添加处理逻辑，例如保存到数据库或开始后台任务
+    # 这里可以添加处理逻辑,例如保存到数据库或开始后台任务
     messages = [
         {"role": "user", "content": lighthouse_prompt.check_question_prompt(question)}
     ]
@@ -113,7 +124,7 @@ def ask_question():
                         jixiong = llm_service.clear_thinking_msg(completion)
                         # 将结果放入队列
                         result_queue.put({"type": "jixiong", "status": "success", "content": jixiong})
-                        all_messages += "吉凶分析："+jixiong+"\n\n"
+                        all_messages += "吉凶分析:"+jixiong+"\n\n"
                 except Exception as e:
                     result_queue.put({"type": "jixiong", "status": "error", "content": str(e)})
             
@@ -145,9 +156,9 @@ def ask_question():
                         jixiong = jixiong_mapping.get(jixiong,"")
                         content = {
                             "jixiong": jixiong,
-                            "content": f"""【{jixiong}】 卦象{score}分，{explanation}"""
+                            "content": f"""【{jixiong}】 卦象{score}分,{explanation}"""
                         }
-                        all_messages += "吉凶分析："+jixiong+"\n\n"
+                        all_messages += "吉凶分析:"+jixiong+"\n\n"
                         
                         return content
                     except Exception as e:
@@ -168,7 +179,7 @@ def ask_question():
                         completion = llm_service.get_chat_completion(model=think_model, messages=messages)
                         jiegua = llm_service.clear_thinking_msg(completion)
                         result_queue.put({"type": "jiegua", "status": "success", "content": jiegua})
-                        all_messages += "解卦分析："+jiegua+"\n\n"
+                        all_messages += "解卦分析:"+jiegua+"\n\n"
                 except Exception as e:
                     result_queue.put({"type": "jiegua", "status": "error", "content": str(e)})
             @copy_current_request_context
@@ -184,7 +195,7 @@ def ask_question():
                     llm_service = LLMFactory.get_llm_service(platform)
                     completion = llm_service.get_chat_completion(model=think_model, messages=messages)
                     jiegua = llm_service.clear_thinking_msg(completion)
-                    all_messages += "解卦分析："+jiegua+"\n\n"
+                    all_messages += "解卦分析:"+jiegua+"\n\n"
                     log.info(f"前置解卦结果: {jiegua}")
                     return jiegua
             try:
@@ -225,7 +236,7 @@ def ask_question():
             # # 等待两个线程完成并发送结果
             # while not (tasks_status["jixiong"] and tasks_status["jiegua"]):
             #     try:
-            #         # 使用非阻塞方式从队列获取结果，设置超时时间为0.5秒
+            #         # 使用非阻塞方式从队列获取结果,设置超时时间为0.5秒
             #         result = result_queue.get(timeout=0.5)
             #         result_type = result.get("type")
             #         status = result.get("status")
@@ -239,7 +250,7 @@ def ask_question():
             #         yield f"data: {json.dumps({'type': result_type, 'status': status, 'content': content})}\n\n"
                     
             #     except queue.Empty:
-            #         # 队列为空时，继续等待
+            #         # 队列为空时,继续等待
             #         continue
             #     except Exception as e:
             #         # 处理其他异常
@@ -274,7 +285,7 @@ def follow_ask_question():
     
     historys = ZyHistory.get_by_chat_id(uuid)
     if historys.count() >=12:
-        return jsonify({"success": True, "data": "已超过5次追问，请点击“重新开始”，换个角度重新提问", "message": "已超过5次追问，请点击“重新开始”，换个角度重新提问"})
+        return jsonify({"success": True, "data": "已超过5次追问,请点击【重新开始】,换个角度重新提问", "message": "已超过5次追问,请点击“重新开始”,换个角度重新提问"})
     messages = [
         {"role": "system", "content": lighthouse_prompt.system_prompt()}
     ]
@@ -292,3 +303,142 @@ def follow_ask_question():
     
     log.info(f"追问结果: {result}")
     return jsonify({"success": True, "data": result, "message": "解析完成"})
+
+@lighthouse_bp.route('/generate_redbook', methods=['POST'])
+def generate_redbook():
+    data = request.get_json()
+    uuid = data.get('uuid', '')
+    
+    def get_chat_history(uuid):
+        historys = ZyHistory.get_by_chat_id(uuid)
+        messages = []
+        for item in historys:
+            messages.append({"role": item.role, "content": item.content})
+        return messages
+    
+    def get_wen_an(chat_history):
+        system_prompt = """
+你是一个小红书文案专家，擅长用创造性的天赋生成小红书文案。
+
+用户发来的数据是基于易经算卦解卦的对话数据，你需要结合对话数据，生成一篇小红书文案（内容精简、易读的格式、吸引力的标题、善用emoji）。
+标题处要体现易经，如：“易经如何看待俄乌停火谈判？”、“用易经解读2025年运势”等。
+文案长度要适中，有较好的阅读体验。
+
+
+
+仅返回生成的文案，不要包含任何其他内容。
+"""
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": json.dumps(chat_history)}
+        ]
+        llm_service = LLMFactory.get_llm_service(wenan_platform)
+        completion = llm_service.get_chat_completion(model=wenan_model, messages=messages)
+        wenan = llm_service.clear_thinking_msg(completion)
+        return wenan
+    
+    def chaifen_wenan(wenan):
+        from pydantic import BaseModel
+        json_schema = {
+            "data":[]
+        }
+        class Schema(BaseModel):
+            data: list[str]
+        system_prompt = f"""
+你是一个小红书运营达人，也非常懂得人工智能的使用。
+
+用户需要用AI来生成卡片形式的图片，以用于小红书文案的配图，不需要带井号标签。。
+
+你的任务是基于用户发来对话内容，总结并拆分成4段内容，包括一个首页卡片，和3个内容卡片。
+
+如果有和日期相关的内容，你要清楚当前时间是{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}。
+
+以文本介绍的形式体现。
+
+将4段文本介绍拼接成json对象，参考格式如下：
+{json_schema}
+直接返回json对象，不要包含任何其他内容。
+"""
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": wenan}
+        ]
+        llm_service = LLMFactory.get_llm_service(chaifen_platform)
+        completion = llm_service.get_json_completion(model=chaifen_model, messages=messages)
+        chaifen = llm_service.get_messages(completion)
+        json_result = json.loads(chaifen)
+        return json_result['data']
+
+    def generate():
+        chat_history = get_chat_history(uuid)
+        wenan = get_wen_an(chat_history)
+        yield f"data: {json.dumps({'type': 'text', 'status': 'success', 'content': wenan})}\n\n"
+        chaifen = chaifen_wenan(wenan)
+        
+        # for index,chaifen_content in enumerate(chaifen):
+        #     kapian_html = generate_kapian(index,chaifen_content,chat_history)
+        #     yield f"data: {json.dumps({'type': f'pic', 'status': 'success', 'content': kapian_html})}\n\n"
+        result_queue = queue.Queue()
+        @copy_current_request_context
+        def generate_kapian(index,chaifen_content,chat_history,result_queue):
+            with app.app_context():
+                system_prompt = f"""
+                根据用户提供的内容生成适合小红书发布的图片，内容的尺寸固定位宽600px,高800px。
+
+                你可以使用html+css+svg+canvas来实现类似图片的效果，固定宽高比3:4。
+
+                注意图片要非常美观，乐观向上的主题配色，给人舒适和高端的感觉，吸引人阅读，适合用于小红书文案的配图。
+
+                内容包含渐变色、小图标和丰富的背景元素。
+
+                你生成的内容最终会以图片的形式展示，所以不需要js和动画效果，也不要出现滚动条和任何指引交互的内容，你可以适当调整文案以确保内容高度控制在800px以内。
+                
+                {index == 0 and "你正在生成的是小红书封面图，标题一定要用较大的字(为防止字体设置不生效，要加上!important属性)，总文字数量要少，你可以忽略你认为不重要的内容，生成的卡片要有让人阅读的欲望"}
+
+                不要使用markdown，直接返回div，使用行内css，不需要外层的html。
+                """
+                #                 整篇小红书的内容是基于以下对话生成的，你要做的是生成其中的一张配图，本张图片的内容用户会发给你。
+                # {json.dumps(chat_history)}
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": chaifen_content}
+                ]
+                llm_service = LLMFactory.get_llm_service(kapian_platform)
+                completion = llm_service.get_chat_completion(model=kapian_model, messages=messages)
+                kapian = llm_service.clear_thinking_msg(completion)
+                kapian_html = kapian.replace('```html', '').replace('```', '').strip()
+                kapian_html = convert_to_string(kapian_html)
+                log.info(f"生成卡片: {kapian_html}")
+                result_queue.put(kapian_html)
+                # return kapian_html
+        # 创建线程列表
+        threads = []
+        for index,chaifen_content in enumerate(chaifen):
+            thread_kapian = threading.Thread(
+                target=generate_kapian,
+                args=(index, chaifen_content,chat_history,result_queue),
+                daemon=True
+            )
+            threads.append(thread_kapian)
+            
+        # 启动所有线程
+        for thread in threads:
+            thread.start()
+
+        # 等待并返回所有卡片结果
+        received = 0
+        while received < len(chaifen):
+            try:
+                result = result_queue.get(timeout=1)  # 设置超时防止无限等待
+                log.info(f"生成卡片结果: {result}")
+                # return_content = result.get("content")
+                yield f"data: {json.dumps({'type': f'pic', 'status': 'success', 'content': result})}\n\n"
+                received += 1
+            except queue.Empty:
+                continue
+        # 等待所有线程完成
+        for thread in threads:
+            thread.join()
+        yield f"data: {json.dumps({'type': 'done', 'status': 'success', 'content': '生成完成'})}\n\n"
+
+    return Response(stream_with_context(generate()), mimetype='text/event-stream')

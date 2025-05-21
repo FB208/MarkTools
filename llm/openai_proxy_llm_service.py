@@ -1,6 +1,7 @@
 from openai import OpenAI
 from flask import current_app as app
 from .llm_interface import LLMInterface
+import re
 
 class OpenAIProxyLLMService(LLMInterface):
     def get_client(self):
@@ -11,7 +12,10 @@ class OpenAIProxyLLMService(LLMInterface):
             api_key=api_key
         )
         return client
-    
+    def clear_thinking_msg(self, response):
+        msg = response.choices[0].message.content
+        clear_msg = re.sub(r'<think>[\s\S]*?</think>', '', msg)
+        return clear_msg
     def get_messages(self, response):
         return response.choices[0].message.content
 

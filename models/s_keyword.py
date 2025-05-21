@@ -27,6 +27,6 @@ class SKeyword(BaseModel):
             查询到的关键字记录，如果未找到则返回None
         """
         try:
-            return cls.get((cls.key_type == key_type) & (cls.key_code == key_code))
+            return cls.get((cls.key_type == key_type) & (cls.key_code == key_code) & (cls.enable == 1))
         except cls.DoesNotExist:
             return None
