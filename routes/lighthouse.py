@@ -14,6 +14,7 @@ from models.zy_history import ZyHistory
 from utils.log_util import log
 from datetime import datetime
 from utils.text_util import convert_to_string
+from flask_cors import CORS
 # platform = 'grok'
 # text_model = 'grok-3-mini-fast-beta'
 # infer_model = 'grok-3-fast-beta'
@@ -24,6 +25,10 @@ chaifen_platform = 'gemini'
 chaifen_model = 'gemini-2.5-flash-preview-05-20'
 kapian_platform = 'gemini'
 kapian_model = 'gemini-2.5-flash-preview-05-20'
+# wenan_platform = 'glm'
+# wenan_model = 'glm-4-air'
+# chaifen_platform = 'glm'
+# chaifen_model = 'glm-4-air'
 # kapian_platform = 'glm'
 # kapian_model = 'glm-4-air'
 
@@ -35,6 +40,8 @@ think_model = 'glm-z1-airx'
 # platform = 'hsfz'
 # text_model = 'deepseek-v3-250324'
 # infer_model = 'deepseek-v3-250324'
+
+CORS(app, resources={r"/lh/*": {"origins": "*"}}, max_age=3600)
 
 @lighthouse_bp.route('/check_question', methods=['POST'])
 def check_question():
@@ -370,6 +377,9 @@ def generate_redbook():
         return json_result['data']
 
     def generate():
+        # 立即发送一个心跳数据，保持连接活跃
+        yield f"data: {json.dumps({'type': 'heartbeat', 'status': 'success', 'content': '连接已建立'})}\n\n"
+        
         chat_history = get_chat_history(uuid)
         wenan = get_wen_an(chat_history)
         yield f"data: {json.dumps({'type': 'text', 'status': 'success', 'content': wenan})}\n\n"
