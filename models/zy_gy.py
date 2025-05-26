@@ -11,7 +11,7 @@ class ZyGy(BaseModel):
     fate = CharField(max_length=500, null=True, help_text='时运')
     wealth = CharField(max_length=500, null=True, help_text='财运')
     family = CharField(max_length=500, null=True, help_text='家宅')
-    healty = CharField(max_length=500, null=True, help_text='身体')
+    health = CharField(max_length=500, null=True, help_text='身体')
     gy_sort = IntegerField(null=True, help_text='卦序或爻序')
     
     class Meta:

@@ -3,7 +3,7 @@ from flask import render_template, request, jsonify, Response, session
 import json
 import time
 from . import lighthouse_bp
-from prompts import lighthouse_prompt
+from prompts import lighthouse_prompt, lighthouse_redbook_prompt
 from llm.llm_factory import LLMFactory
 from services import lighthouse_service
 from models.zy_gy import ZyGy
@@ -15,9 +15,8 @@ from utils.log_util import log
 from datetime import datetime
 from utils.text_util import convert_to_string
 from flask_cors import CORS
-# platform = 'grok'
-# text_model = 'grok-3-mini-fast-beta'
-# infer_model = 'grok-3-fast-beta'
+from utils.json_util import check_json
+
 
 wenan_platform = 'gemini'
 wenan_model = 'gemini-2.5-flash-preview-05-20'
@@ -31,15 +30,26 @@ kapian_model = 'gemini-2.5-flash-preview-05-20'
 # chaifen_model = 'glm-4-air'
 # kapian_platform = 'glm'
 # kapian_model = 'glm-4-air'
+# wenan_platform = 'openai_proxy'
+# wenan_model = 'claude-4-sonnet'
+# chaifen_platform = 'openai_proxy'
+# chaifen_model = 'claude-4-sonnet'
+# kapian_platform = 'openai_proxy'
+# kapian_model = 'claude-4-sonnet'
 
-platform = 'glm'
-text_model = 'glm-4-air'
-infer_model = 'glm-4-plus'
-think_model = 'glm-z1-airx'
 
-# platform = 'hsfz'
-# text_model = 'deepseek-v3-250324'
-# infer_model = 'deepseek-v3-250324'
+
+
+
+check_platform = 'glm'
+check_model = 'glm-4-air'
+
+main_platform = 'glm'
+main_model = 'glm-z1-airx'
+
+jixiong_platform = 'glm'
+jixiong_model = 'glm-z1-airx'
+
 
 CORS(app, resources={r"/lh/*": {"origins": "*"}}, max_age=3600)
 
@@ -57,11 +67,10 @@ def check_question():
     messages = [
         {"role": "user", "content": lighthouse_prompt.check_question_prompt(question)}
     ]
-    llm_service = LLMFactory.get_llm_service(platform)
+    llm_service = LLMFactory.get_llm_service(check_platform)
     
     try:
-        log.info(f"调用LLM服务 - 模型: {text_model}")
-        completion = llm_service.get_chat_completion(model=text_model, messages=messages)
+        completion = llm_service.get_chat_completion(model=check_model, messages=messages)
         result = llm_service.get_messages(completion)
         
         # 记录LLM调用结果
@@ -121,8 +130,8 @@ def ask_question():
                         messages = [
                             {"role": "user", "content": lighthouse_prompt.ask_jixiong_prompt(bengua, yaobian, biangua, question)}
                         ]
-                        llm_service = LLMFactory.get_llm_service(platform)
-                        completion = llm_service.get_chat_completion(model=think_model, messages=messages)
+                        llm_service = LLMFactory.get_llm_service(main_platform)
+                        completion = llm_service.get_chat_completion(model=main_model, messages=messages)
                         # json_str = llm_service.clear_thinking_msg(completion)
                         # json_result = json.loads(json_str)
                         # score = int(json_result['current']['score'])
@@ -137,18 +146,30 @@ def ask_question():
             
             @copy_current_request_context
             def suan_ji_xiong_postpose(jiegua, question):
-                nonlocal all_messages
                 # 使用应用上下文
                 with app.app_context():
                     try:
+                        json_schema = {
+                            "jixiong": "大吉",
+                            "score": 100,
+                            "explanation": "吉凶解释"
+                        }
                         messages = [
-                            {"role": "user", "content": lighthouse_prompt.ask_jixiong_postpose_prompt(jiegua, question)}
+                            {"role": "user", "content": lighthouse_prompt.ask_jixiong_postpose_prompt(jiegua, question, json_schema)}
                         ]
                         log.info(f"提示词: {messages}")
-                        llm_service = LLMFactory.get_llm_service(platform)
-                        completion = llm_service.get_json_completion(model=think_model, messages=messages)
-                        json_str = llm_service.get_messages(completion)
-                        log.info(f"吉凶分析结果: {json_str}")
+                        
+                        max_retries = 3
+                        retry_count = 0
+                        while retry_count <= max_retries:
+                            llm_service = LLMFactory.get_llm_service(jixiong_platform)
+                            completion = llm_service.get_json_completion(model=jixiong_model, messages=messages)
+                            json_str = llm_service.get_messages(completion)
+                            log.info(f"吉凶分析结果: {json_str}")
+                            is_valid, error = check_json(json_str, json_schema)
+                            if is_valid:
+                                break
+                            retry_count += 1
                         json_result = json.loads(json_str)
                         score = int(json_result['score'])
                         jixiong = json_result['jixiong']
@@ -165,8 +186,6 @@ def ask_question():
                             "jixiong": jixiong,
                             "content": f"""【{jixiong}】 卦象{score}分,{explanation}"""
                         }
-                        all_messages += "吉凶分析:"+jixiong+"\n\n"
-                        
                         return content
                     except Exception as e:
                         log.error(f"吉凶分析失败: {str(e)}")
@@ -182,8 +201,8 @@ def ask_question():
                         messages = [
                             {"role": "user", "content": lighthouse_prompt.ask_jiegua_prompt(gua_info, yao_bian_info, bi_gua_info, question)}
                         ]
-                        llm_service = LLMFactory.get_llm_service(platform)
-                        completion = llm_service.get_chat_completion(model=think_model, messages=messages)
+                        llm_service = LLMFactory.get_llm_service(main_platform)
+                        completion = llm_service.get_chat_completion(model=main_model, messages=messages)
                         jiegua = llm_service.clear_thinking_msg(completion)
                         result_queue.put({"type": "jiegua", "status": "success", "content": jiegua})
                         all_messages += "解卦分析:"+jiegua+"\n\n"
@@ -191,18 +210,17 @@ def ask_question():
                     result_queue.put({"type": "jiegua", "status": "error", "content": str(e)})
             @copy_current_request_context
             def jie_gua_front(gua_info, yao_bian_info, bi_gua_info, question):
-                nonlocal all_messages
                 # 使用应用上下文
                 with app.app_context():
                     messages = [
-                        {"role": "system", "content": lighthouse_prompt.system_prompt()},
+                        {"role": "system", "content": lighthouse_prompt.ask_system_prompt()},
                         {"role": "user", "content": lighthouse_prompt.ask_jiegua_prompt(gua_info, yao_bian_info, bi_gua_info, question)}
                     ]
                     log.info(f"前置解卦提示词: {messages}")
-                    llm_service = LLMFactory.get_llm_service(platform)
-                    completion = llm_service.get_chat_completion(model=think_model, messages=messages)
+                    llm_service = LLMFactory.get_llm_service(main_platform)
+                    completion = llm_service.get_chat_completion(model=main_model, messages=messages)
                     jiegua = llm_service.clear_thinking_msg(completion)
-                    all_messages += "解卦分析:"+jiegua+"\n\n"
+                    
                     log.info(f"前置解卦结果: {jiegua}")
                     return jiegua
             try:
@@ -268,6 +286,8 @@ def ask_question():
             #     thread_suan_ji_xiong.join(timeout=1.0)
             # if thread_jie_gua.is_alive():
             #     thread_jie_gua.join(timeout=1.0)
+            all_messages += "吉凶分析:"+result_jixiong["content"]+"\n\n"
+            all_messages += "解卦分析:"+result_jiegua+"\n\n"
             ZyHistory.insert_record(uuid, 0, "assistant", all_messages)
             # 发送完成信号
             yield f"data: {json.dumps({'type': 'done', 'status': 'success', 'content': '解析完成'})}\n\n"
@@ -294,7 +314,7 @@ def follow_ask_question():
     if historys.count() >=12:
         return jsonify({"success": True, "data": "已超过5次追问,请点击【重新开始】,换个角度重新提问", "message": "已超过5次追问,请点击“重新开始”,换个角度重新提问"})
     messages = [
-        {"role": "system", "content": lighthouse_prompt.system_prompt()}
+        {"role": "system", "content": lighthouse_prompt.ask_system_prompt()}
     ]
     for item in historys:
         messages.append({"role": item.role, "content": item.content})
@@ -302,8 +322,8 @@ def follow_ask_question():
     prompt = lighthouse_prompt.follow_ask_question_prompt(question)
     messages.append({"role": "user", "content": prompt})
     log.info(f"追问提示词: {messages}")
-    llm_service = LLMFactory.get_llm_service(platform)
-    completion = llm_service.get_chat_completion(model=think_model, messages=messages)
+    llm_service = LLMFactory.get_llm_service(main_platform)
+    completion = llm_service.get_chat_completion(model=main_model, messages=messages)
     result = llm_service.clear_thinking_msg(completion)
     ZyHistory.insert_record(uuid, 0, "user", question)
     ZyHistory.insert_record(uuid, 0, "assistant", result)
@@ -324,19 +344,8 @@ def generate_redbook():
         return messages
     
     def get_wen_an(chat_history):
-        system_prompt = """
-你是一个小红书文案专家,擅长用创造性的天赋生成小红书文案。
-
-用户发来的数据是基于易经算卦解卦的对话数据,你需要结合对话数据,生成一篇小红书文案（内容精简、易读的格式、吸引力的标题、善用emoji）。
-标题处要体现易经,如：“易经如何看待俄乌停火谈判？”、“用易经解读2025年运势”等。
-文案长度要适中,有较好的阅读体验。
-
-
-
-仅返回生成的文案,不要包含任何其他内容。
-"""
         messages = [
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": lighthouse_redbook_prompt.wenan_system_prompt()},
             {"role": "user", "content": json.dumps(chat_history)}
         ]
         llm_service = LLMFactory.get_llm_service(wenan_platform)
@@ -345,37 +354,54 @@ def generate_redbook():
         return wenan
     
     def chaifen_wenan(wenan):
-        from pydantic import BaseModel
         json_schema = {
             "data":[]
         }
-        class Schema(BaseModel):
-            data: list[str]
-        system_prompt = f"""
-你是一个小红书运营达人,也非常懂得人工智能的使用。
-
-用户需要用AI来生成卡片形式的图片,以用于小红书文案的配图,不需要带井号标签。。
-
-你的任务是基于用户发来对话内容,总结并拆分成4段内容,包括一个首页卡片,和3个内容卡片。
-
-如果有和日期相关的内容,你要清楚当前时间是{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}。
-
-以文本介绍的形式体现。
-
-将4段文本介绍拼接成json对象,参考格式如下：
-{json_schema}
-直接返回json对象,不要包含任何其他内容。
-"""
         messages = [
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": lighthouse_redbook_prompt.chaifen_system_prompt(json_schema)},
             {"role": "user", "content": wenan}
         ]
-        llm_service = LLMFactory.get_llm_service(chaifen_platform)
-        completion = llm_service.get_json_completion(model=chaifen_model, messages=messages)
-        chaifen = llm_service.get_messages(completion)
-        json_result = json.loads(chaifen)
-        return json_result['data']
+        
+        max_retries = 3
+        retry_count = 0
+        while retry_count <= max_retries:
+            llm_service = LLMFactory.get_llm_service(chaifen_platform)
+            completion = llm_service.get_json_completion(model=chaifen_model, messages=messages)
+            chaifen = llm_service.get_messages(completion)
+            is_valid, error = check_json(chaifen, json_schema)
+            if is_valid:
+                return json.loads(chaifen)['data']
+            retry_count += 1
 
+    result_queue = queue.Queue()
+    @copy_current_request_context
+    def generate_kapian_async(index,chaifen_content,chat_history,result_queue):
+        with app.app_context():
+            messages = [
+                {"role": "system", "content": lighthouse_redbook_prompt.kapian_system_prompt(index)},
+                {"role": "user", "content": convert_to_string(chaifen_content)}
+            ]
+            llm_service = LLMFactory.get_llm_service(kapian_platform)
+            completion = llm_service.get_chat_completion(model=kapian_model, messages=messages)
+            kapian = llm_service.clear_thinking_msg(completion)
+            kapian_html = kapian.replace('```html', '').replace('```', '').strip()
+            kapian_html = convert_to_string(kapian_html)
+            log.info(f"生成卡片: {kapian_html}")
+            result_queue.put(kapian_html)
+            # return kapian_html
+    
+    def generate_kapian(index,chaifen_content,wenan):
+        messages = [
+            {"role": "system", "content": lighthouse_redbook_prompt.kapian_system_prompt(index)},
+            {"role": "user", "content": lighthouse_redbook_prompt.kapian_user_prompt(wenan,convert_to_string(chaifen_content))}
+        ]
+        llm_service = LLMFactory.get_llm_service(kapian_platform)
+        completion = llm_service.get_chat_completion(model=kapian_model, messages=messages)
+        kapian = llm_service.clear_thinking_msg(completion)
+        kapian_html = kapian.replace('```html', '').replace('```', '').strip()
+        kapian_html = convert_to_string(kapian_html)
+        log.info(f"生成卡片: {kapian_html}")
+        return kapian_html
     def generate():
         # 立即发送一个心跳数据,保持连接活跃
         yield f"data: {json.dumps({'type': 'heartbeat', 'status': 'success', 'content': '连接已建立'})}\n\n"
@@ -385,53 +411,16 @@ def generate_redbook():
         yield f"data: {json.dumps({'type': 'text', 'status': 'success', 'content': wenan})}\n\n"
         chaifen = chaifen_wenan(wenan)
         
-        # for index,chaifen_content in enumerate(chaifen):
-        #     kapian_html = generate_kapian(index,chaifen_content,chat_history)
-        #     yield f"data: {json.dumps({'type': f'pic', 'status': 'success', 'content': kapian_html})}\n\n"
-        result_queue = queue.Queue()
-        @copy_current_request_context
-        def generate_kapian(index,chaifen_content,chat_history,result_queue):
-            with app.app_context():
-                first_kapian_prompt = f"""你正在生成的是小红书封面图,标题一定要用较大的字(为防止字体设置不生效,要加上!important属性),标题居中显示,标题字数多存在换行的情况,你需要在合适的位置增加换行符,而不是让它超过宽度自动换行。
-                
-                封面总文字数量要少,你可以忽略你认为不重要的内容。
-                
-                生成的卡片要有让人阅读的欲望
-                """
-                system_prompt = f"""
-                根据用户提供的内容生成适合小红书发布的图片,内容的尺寸固定位宽600px,高800px。
 
-                你可以使用html+css+svg+canvas来实现类似图片的效果,固定宽高比3:4。
-
-                注意图片要非常美观,乐观向上的主题配色,给人舒适和高端的感觉,吸引人阅读,适合用于小红书文案的配图。
-
-                内容包含渐变色、小图标和丰富的背景元素。
-
-                你生成的内容最终会以图片的形式展示,所以不需要js和动画效果,也不要出现滚动条和任何指引交互的内容,你可以适当调整文案以确保内容高度控制在800px以内。
-                
-                {index == 0 and first_kapian_prompt or ""}
-
-                不要使用markdown,直接返回div,使用行内css,不需要外层的html。
-                """
-                #                 整篇小红书的内容是基于以下对话生成的,你要做的是生成其中的一张配图,本张图片的内容用户会发给你。
-                # {json.dumps(chat_history)}
-                messages = [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": chaifen_content}
-                ]
-                llm_service = LLMFactory.get_llm_service(kapian_platform)
-                completion = llm_service.get_chat_completion(model=kapian_model, messages=messages)
-                kapian = llm_service.clear_thinking_msg(completion)
-                kapian_html = kapian.replace('```html', '').replace('```', '').strip()
-                kapian_html = convert_to_string(kapian_html)
-                log.info(f"生成卡片: {kapian_html}")
-                result_queue.put(kapian_html)
-                # return kapian_html
+        for index,chaifen_content in enumerate(chaifen):
+            kapian_html = generate_kapian(index,chaifen_content,wenan)
+            yield f"data: {json.dumps({'type': f'pic', 'status': 'success', 'content': kapian_html})}\n\n"
+        '''
         # 创建线程列表
         threads = []
         for index,chaifen_content in enumerate(chaifen):
             thread_kapian = threading.Thread(
-                target=generate_kapian,
+                target=generate_kapian_async,
                 args=(index, chaifen_content,chat_history,result_queue),
                 daemon=True
             )
@@ -455,6 +444,7 @@ def generate_redbook():
         # 等待所有线程完成
         for thread in threads:
             thread.join()
+        '''
         yield f"data: {json.dumps({'type': 'done', 'status': 'success', 'content': '生成完成'})}\n\n"
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
