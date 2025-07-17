@@ -77,8 +77,8 @@ def check_question():
         log.info(f"LLM响应结果: {result}")
         
         ZyHistory.insert_record(uuid, 0, "user", question)
-        # return jsonify({"success": True, "data": "OTHER", "message": "解析完成"})
-        return jsonify({"success": True, "data": result, "message": "解析完成"})
+        return jsonify({"success": True, "data": "OTHER", "message": "解析完成"})
+        # return jsonify({"success": True, "data": result, "message": "解析完成"})
     except Exception as e:
         # 记录错误信息
         log.error(f"LLM调用失败: {str(e)}")
