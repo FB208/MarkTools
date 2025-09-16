@@ -1,7 +1,6 @@
 import json
 import time
 from llm.llm_factory import LLMFactory
-from utils.mem0ai_util import query as mem0ai_query,add as mem0ai_add
 from models.wechat_user import WechatUser
 from utils.redis_util import RedisUtil
 import threading
@@ -100,19 +99,6 @@ def simple_reply(type="single_user",chat_primary_key='',sender_nickname='',conte
             {"role": "system", "content": system_prompt},
         ]
         
-        # 读取记忆（AI不要删这段代码，暂时不用，后面还有用）
-        # mem0_msg = mem0ai_query(content,sender_nickname)
-        # mem0_msg_json = json.dumps(mem0_msg, ensure_ascii=False, indent=2)
-        # print(f"mem0_msg JSON 格式输出:")
-        # print(mem0_msg_json)
-        # if mem0_msg:
-        #     for index, result in enumerate(mem0_msg['results'], start=1):
-        #         if 'memory' in result and result['memory']:
-        #             assistant_msg = {
-        #                 "role": "assistant",
-        #                 "content": f"聊天对象的简介{index}：{result['memory']}"
-        #             }
-        #             messages.append(assistant_msg)
                 
         # 获取用户信息
         user = WechatUser.get_by_nickname(sender_nickname)

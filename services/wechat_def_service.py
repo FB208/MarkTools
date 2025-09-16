@@ -1,6 +1,5 @@
 from lib import itchat
 import json
-from utils.mem0ai_util import add as mem0ai_add
 from services.wechat_service import simple_reply
 from utils.redis_util import RedisUtil
 from models.wechat_user import WechatUser
@@ -77,17 +76,6 @@ def text_reply(msg):
     sender_signature = user['Signature']
     sender_address = user['Province'] + user['City']
     WechatUser.create_user(nickname=sender_nickname,base_info=f'姓名:{sender_nickname},性别:{sender_sex},地址:{sender_address},个性签名:{sender_signature}。')
-    # mem0_msg = [
-    #     {
-    #         'role':'user',
-    #         'content':f'我叫{sender_nickname},性别{sender_sex},地址{sender_address},个性签名{sender_signature}'
-    #     },
-    #     {
-    #         'role':'assistant',
-    #         'content':"好的，我记住了"
-    #     }
-    # ]
-    # mem0ai_add(mem0_msg,sender_nickname)
     # 获取消息内容
     content = msg['Text']
 
