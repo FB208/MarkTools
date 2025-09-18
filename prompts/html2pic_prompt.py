@@ -56,25 +56,17 @@ def kapian_system_prompt(index:int):
 
 你可以使用html+css+svg+canvas来实现类似图片的效果,固定宽高比3:4。
 
-注意图片要非常美观,乐观向上的主题配色,给人舒适和高端的感觉,吸引人阅读,适合用于小红书文案的配图。
+注意图片要美观,乐观向上的主题配色,给人舒适和高端的感觉,吸引人阅读,适合用于小红书文案的配图。
 
-内容包含渐变色、小图标和丰富的背景元素。
+内容包含渐变色、小图标，但不要过于杂乱。
 
 你生成的内容最终会以图片的形式展示,所以不需要js和动画效果,也不要出现滚动条和任何指引交互的内容,你可以适当调整文案以确保内容高度控制在800px以内。
 
 不要使用-webkit-text-fill-color来设置文字颜色，这回导致emoji显示异常。
+
 注意设计合理的边距以确保美观。
 
 {index == 0 and first_kapian_prompt or ""}
 
 不要使用markdown,直接返回div,使用行内css,不需要外层的html。
-"""
-
-def kapian_user_prompt(wenan,chaifen_content):
-    return f"""
-完整的小红书文案如下，你可以参考以补充内容：
-{wenan}
-
-你要生成的是其中一部分内容的卡片，具体内容如下：
-{chaifen_content}
 """

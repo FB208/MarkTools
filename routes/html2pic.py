@@ -66,8 +66,8 @@ def generate_redbook():
                 {"role": "system", "content": html2pic_prompt.kapian_system_prompt(index)},
                 {"role": "user", "content": convert_to_string(chaifen_content)}
             ]
-            llm_service = LLMFactory.get_llm_service("or")
-            completion = llm_service.get_chat_completion(model="openrouter/sonoma-sky-alpha",messages=messages)
+            llm_service = LLMFactory.get_llm_service("gb")
+            completion = llm_service.get_chat_completion(model="gemini-2.5-pro",messages=messages)
             kapian = llm_service.get_messages(completion)
             kapian_html = kapian.replace('```html', '').replace('```', '').strip()
             kapian_html = convert_to_string(kapian_html)

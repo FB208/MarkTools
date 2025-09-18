@@ -3,18 +3,22 @@
 {% block title %}小红书图片文案生成{% endblock %}
 
 {% block head %}
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <style>
   .redbook-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 1400px;
+    max-width: 1600px;
+    height: calc(100vh - 120px);
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 30px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    overflow: hidden;
   }
 
   .redbook-area {
@@ -22,26 +26,34 @@
     justify-content: center;
     align-items: flex-start;
     width: 100%;
+    height: calc(100% - 80px);
     gap: 30px;
+    overflow: hidden;
   }
 
   .input-container {
     flex: 1;
-    max-width: 400px;
+    max-width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .input-textarea {
     width: 100%;
-    min-height: 300px;
+    flex: 1;
+    min-height: 200px;
     border: 1px solid rgba(255, 255, 255, 0.18);
     background-color: rgba(255, 255, 255, 0.05);
     color: #e3e3e3;
     border-radius: 12px;
     padding: 16px;
     font-size: 16px;
-    resize: vertical;
+    resize: none;
     transition: all 0.3s ease;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-y: auto;
   }
 
   .input-textarea:focus {
@@ -50,11 +62,13 @@
   }
 
   .output-container {
-    flex: 2;
-    max-width: 800px;
+    flex: 1;
+    max-width: 50%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    overflow-y: auto;
+    padding-right: 5px;
   }
 
   .generated-text {
@@ -68,6 +82,7 @@
     white-space: pre-wrap;
     min-height: 120px;
     display: none;
+    flex-shrink: 0;
   }
 
   .generated-pics {
@@ -82,6 +97,29 @@
     border-radius: 12px;
     padding: 20px;
     overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pic-item > div {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    /* 固定图片显示比例为3:4 */
+    width: 450px;
+    max-width: calc(100vw - 120px);
+    aspect-ratio: 3/4;
+  }
+
+  /* 确保生成的图片内容适应容器 */
+  .pic-item > div > * {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
   }
 
   .generate-btn {
@@ -94,8 +132,11 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 15px;
-    min-width: 120px;
+    width: 100%;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .generate-btn:hover {
@@ -133,34 +174,180 @@
     text-shadow: 0 0 3px #a5b4fc;
   }
 
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 68px;
+  }
+
+  .action-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 48px;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+
+  .action-btn:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .action-btn.download-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+
+  .action-btn.download-btn:hover {
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  }
+
   .status-text {
     color: #10b981;
     font-size: 14px;
-    margin-top: 10px;
+    margin: 0;
     display: none;
+    text-align: center;
+    padding: 8px 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    font-weight: 500;
+  }
+
+  /* 滚动条样式 */
+  .input-textarea::-webkit-scrollbar,
+  .output-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .input-textarea::-webkit-scrollbar-track,
+  .output-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  .input-textarea::-webkit-scrollbar-thumb,
+  .output-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+  }
+
+  .input-textarea::-webkit-scrollbar-thumb:hover,
+  .output-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
   }
 
   /* 响应式设计 */
+  @media (max-width: 1200px) {
+    .redbook-content {
+      max-width: 100%;
+      height: calc(100vh - 80px);
+    }
+
+    .pic-item > div {
+      width: 360px;
+    }
+  }
+
   @media (max-width: 1024px) {
+    .redbook-content {
+      height: calc(100vh - 80px);
+    }
+
     .redbook-area {
       flex-direction: column;
       gap: 20px;
+      height: calc(100% - 60px);
     }
 
-    .input-container,
-    .output-container {
+    .input-container {
+      flex: none;
       max-width: 100%;
       width: 100%;
+      height: auto;
+      min-height: 250px;
+    }
+
+    .output-container {
+      flex: 1;
+      max-width: 100%;
+      width: 100%;
+      min-height: 400px;
+    }
+
+    .pic-item > div {
+      width: min(450px, calc(100vw - 80px));
     }
   }
 
   @media (max-width: 768px) {
     .redbook-content {
       padding: 20px;
+      height: calc(100vh - 60px);
+    }
+
+    .redbook-area {
+      height: calc(100% - 40px);
+      gap: 15px;
     }
 
     .input-textarea {
-      min-height: 200px;
+      min-height: 150px;
+    }
+
+    .action-buttons {
+      flex-direction: column !important;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .action-btn {
+      flex: none;
+    }
+
+    .status-text {
+      text-align: center;
+      margin: 8px 0;
+    }
+
+    .pic-item > div {
+      width: min(350px, calc(100vw - 60px));
+    }
+
+    .pic-item {
+      padding: 15px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .pic-item > div {
+      width: min(280px, calc(100vw - 40px));
+    }
+
+    .redbook-content {
+      padding: 15px;
+    }
+
+    .pic-item {
+      padding: 10px;
     }
   }
 </style>
@@ -181,20 +368,43 @@
     <div class="redbook-area">
       <!-- 左侧输入区域 -->
       <div class="input-container">
+        <!-- 生成按钮 -->
+        <div class="action-buttons">
+          <button id="generateBtn" class="generate-btn" onclick="generateRedbook()">
+            生成
+          </button>
+          <div id="statusText" class="status-text"></div>
+        </div>
+        
         <label for="textInput">输入文案内容</label>
         <textarea
           id="textInput"
           class="input-textarea"
           placeholder="请输入你想要生成小红书内容的原始文案..."
         ></textarea>
-        <button id="generateBtn" class="generate-btn" onclick="generateRedbook()">
-          生成
-        </button>
-        <div id="statusText" class="status-text"></div>
       </div>
 
       <!-- 右侧输出区域 -->
       <div class="output-container">
+        <!-- 功能按钮 -->
+        <div id="actionButtons" class="action-buttons" style="display: none; flex-direction: row; min-height: 68px;">
+          <button class="action-btn" onclick="copyText()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            复制文案
+          </button>
+          <button class="action-btn download-btn" onclick="downloadAllImages()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            下载图片
+          </button>
+        </div>
+
         <!-- 生成的文案 -->
         <div>
           <label>生成的文案</label>
@@ -202,7 +412,7 @@
         </div>
 
         <!-- 生成的图片 -->
-        <div>
+        <div style="margin-top: 10px;">
           <label>生成的图片</label>
           <div id="generatedPics" class="generated-pics">
             <!-- 动态生成的图片内容会插入到这里 -->
@@ -216,17 +426,6 @@
 
 {% block extra_scripts %}
 <script>
-
-// 自动调整textarea高度
-function autoResize(textarea) {
-  textarea.style.height = 'auto';
-  textarea.style.height = (textarea.scrollHeight) + 'px';
-}
-
-// 为输入框添加自动调整高度功能
-document.getElementById('textInput').addEventListener('input', function() {
-  autoResize(this);
-});
 
 // 为输入框添加回车快捷键
 document.getElementById('textInput').addEventListener('keydown', function(e) {
@@ -254,6 +453,7 @@ function generateRedbook() {
   generatedText.style.display = 'none';
   generatedText.textContent = '';
   generatedPics.innerHTML = '';
+  document.getElementById('actionButtons').style.display = 'none';
 
   // 更新按钮状态
   generateBtn.disabled = true;
@@ -309,6 +509,9 @@ function generateRedbook() {
                   // 显示生成的文案
                   generatedText.textContent = data.content;
                   generatedText.style.display = 'block';
+                  document.getElementById('actionButtons').style.display = 'flex';
+                  document.getElementById('actionButtons').style.flexDirection = 'row';
+                  document.getElementById('actionButtons').style.minHeight = '68px';
                   statusText.textContent = '文案生成完成，正在生成图片...';
                   break;
 
@@ -364,5 +567,120 @@ function resetButton() {
 }
 
 // 页面卸载时的清理工作（fetch API会自动处理）
+
+// 复制文案功能
+function copyText() {
+  const generatedText = document.getElementById('generatedText');
+  const textContent = generatedText.textContent;
+  
+  if (!textContent.trim()) {
+    showToast('没有可复制的文案内容', 'warning');
+    return;
+  }
+  
+  navigator.clipboard.writeText(textContent).then(() => {
+    showToast('文案已复制到剪贴板', 'success');
+  }).catch(err => {
+    console.error('复制失败:', err);
+    // 备用复制方法
+    const textArea = document.createElement('textarea');
+    textArea.value = textContent;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    showToast('文案已复制到剪贴板', 'success');
+  });
+}
+
+// 下载所有图片功能
+function downloadAllImages() {
+  const generatedPics = document.getElementById('generatedPics');
+  const picItems = generatedPics.querySelectorAll('.pic-item > div:first-child');
+  
+  if (picItems.length === 0) {
+    showToast('没有可下载的图片', 'warning');
+    return;
+  }
+  
+  const downloadBtn = document.querySelector('.download-btn');
+  
+  // 禁用按钮防止重复点击
+  downloadBtn.disabled = true;
+  downloadBtn.innerHTML = `
+    <span class="loading"></span>
+    打包中...
+  `;
+  
+  if (typeof html2canvas === 'undefined') {
+    resetDownloadButton(downloadBtn);
+    showToast('缺少下载功能依赖，请联系管理员', 'error');
+    return;
+  }
+  
+  if (typeof JSZip === 'undefined') {
+    resetDownloadButton(downloadBtn);
+    showToast('缺少打包功能依赖，请联系管理员', 'error');
+    return;
+  }
+  
+  const zip = new JSZip();
+  const promises = [];
+  
+  picItems.forEach((item, index) => {
+    const promise = html2canvas(item, {
+      backgroundColor: null,
+      scale: 2,
+      useCORS: true,
+      allowTaint: true
+    }).then(canvas => {
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          zip.file(`小红书图片_${index + 1}.png`, blob);
+          resolve();
+        }, 'image/png');
+      });
+    });
+    promises.push(promise);
+  });
+  
+  Promise.all(promises).then(() => {
+    downloadBtn.innerHTML = `
+      <span class="loading"></span>
+      生成中...
+    `;
+    
+    zip.generateAsync({type: 'blob'}).then((content) => {
+      const link = document.createElement('a');
+      link.download = `小红书图片集_${new Date().getTime()}.zip`;
+      link.href = URL.createObjectURL(content);
+      link.click();
+      
+      resetDownloadButton(downloadBtn);
+      showToast(`成功下载${picItems.length}张图片`, 'success');
+    }).catch(err => {
+      console.error('打包失败:', err);
+      resetDownloadButton(downloadBtn);
+      showToast('打包失败，请重试', 'error');
+    });
+  }).catch(err => {
+    console.error('图片生成失败:', err);
+    resetDownloadButton(downloadBtn);
+    showToast('图片生成失败，请重试', 'error');
+  });
+}
+
+// 恢复下载按钮状态
+function resetDownloadButton(button) {
+  button.disabled = false;
+  button.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="7 10 12 15 17 10"></polyline>
+      <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+    下载图片
+  `;
+}
 </script>
 {% endblock %}
