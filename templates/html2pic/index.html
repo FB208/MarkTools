@@ -100,6 +100,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
   }
 
   .pic-item > div {
@@ -350,6 +351,259 @@
       padding: 10px;
     }
   }
+
+  /* 编辑按钮样式 */
+  .edit-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+
+  .pic-item:hover .edit-btn {
+    opacity: 1;
+  }
+
+  .edit-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+  }
+
+  /* 编辑弹窗样式 */
+  .edit-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .edit-modal.active {
+    display: flex;
+  }
+
+  .edit-modal-content {
+    width: 90%;
+    max-width: 1500px;
+    height: 92vh;
+    max-height: 920px;
+    background: rgba(30, 30, 40, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  .edit-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    flex-shrink: 0;
+  }
+
+  .edit-modal-title {
+    color: #e3e3e3;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .edit-modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #e3e3e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .edit-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+  }
+
+  .edit-modal-body {
+    flex: 1;
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .edit-preview-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .edit-preview-label {
+    color: #a5b4fc;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .edit-preview-wrapper {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px;
+    /* display: flex; */
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    min-height: 0;
+  }
+
+  .edit-preview-content {
+    border-radius: 8px;
+    overflow: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    /* width: 600px;
+    height: 800px; */
+    flex-shrink: 0;
+  }
+
+  /* 确保预览内容里的元素正确显示 */
+  .edit-preview-content > * {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+  }
+
+  .edit-code-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .edit-code-label {
+    color: #a5b4fc;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .edit-code-textarea {
+    flex: 1;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    color: #e3e3e3;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: none;
+    overflow-y: auto;
+  }
+
+  .edit-code-textarea:focus {
+    outline: none;
+    border-color: rgba(79, 70, 229, 0.6);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  }
+
+  .edit-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 15px 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    flex-shrink: 0;
+  }
+
+  .edit-modal-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+  }
+
+  .edit-modal-btn.cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e3e3e3;
+  }
+
+  .edit-modal-btn.cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .edit-modal-btn.save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .edit-modal-btn.save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  /* 响应式调整 */
+  @media (max-width: 1400px) {
+    .edit-preview-content {
+      width: 450px;
+      height: 600px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .edit-modal-body {
+      flex-direction: column;
+    }
+
+    .edit-preview-content {
+      width: 375px;
+      height: 500px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .edit-modal-content {
+      width: 95%;
+      height: 95vh;
+    }
+
+    .edit-preview-content {
+      width: 300px;
+      height: 400px;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -422,10 +676,47 @@
     </div>
   </div>
 </div>
+
+<!-- 编辑弹窗 -->
+<div id="editModal" class="edit-modal">
+  <div class="edit-modal-content">
+    <div class="edit-modal-header">
+      <h3 class="edit-modal-title">编辑图片HTML</h3>
+      <button class="edit-modal-close" onclick="closeEditModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="edit-modal-body">
+      <!-- 左侧预览 -->
+      <div class="edit-preview-container">
+        <label class="edit-preview-label">实时预览</label>
+        <div class="edit-preview-wrapper">
+          <div id="editPreview" class="edit-preview-content">
+            <!-- 预览内容 -->
+          </div>
+        </div>
+      </div>
+      <!-- 右侧代码编辑 -->
+      <div class="edit-code-container">
+        <label class="edit-code-label">HTML代码</label>
+        <textarea id="editCode" class="edit-code-textarea" placeholder="在此编辑HTML代码..."></textarea>
+      </div>
+    </div>
+    <div class="edit-modal-footer">
+      <button class="edit-modal-btn cancel" onclick="closeEditModal()">取消</button>
+      <button class="edit-modal-btn save" onclick="saveEditChanges()">保存更改</button>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
+// 存储当前编辑的图片元素
+let currentEditingPicItem = null;
 
 // 为输入框添加回车快捷键
 document.getElementById('textInput').addEventListener('keydown', function(e) {
@@ -520,6 +811,19 @@ function generateRedbook() {
                   const picItem = document.createElement('div');
                   picItem.className = 'pic-item';
                   picItem.innerHTML = data.content;
+
+                  // 添加编辑按钮
+                  const editBtn = document.createElement('button');
+                  editBtn.className = 'edit-btn';
+                  editBtn.onclick = function() { openEditModal(picItem); };
+                  editBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  `;
+                  picItem.appendChild(editBtn);
+
                   generatedPics.appendChild(picItem);
                   statusText.textContent = `已生成 ${generatedPics.children.length} 张图片...`;
                   break;
@@ -682,5 +986,135 @@ function resetDownloadButton(button) {
     下载图片
   `;
 }
+
+// 打开编辑弹窗
+function openEditModal(picItem) {
+  const modal = document.getElementById('editModal');
+  const editCode = document.getElementById('editCode');
+  const editPreview = document.getElementById('editPreview');
+
+  // 保存当前编辑的图片元素
+  currentEditingPicItem = picItem;
+
+  // 获取图片内容的HTML（排除编辑按钮）
+  const contentDiv = picItem.querySelector('div');
+  if (contentDiv) {
+    const htmlContent = contentDiv.outerHTML;
+
+    // 设置代码编辑器的内容
+    editCode.value = formatHTML(htmlContent);
+
+    // 设置预览内容
+    editPreview.innerHTML = htmlContent;
+  }
+
+  // 显示弹窗
+  modal.classList.add('active');
+
+  // 自动聚焦到代码编辑器
+  setTimeout(() => editCode.focus(), 100);
+}
+
+// 关闭编辑弹窗
+function closeEditModal() {
+  const modal = document.getElementById('editModal');
+  modal.classList.remove('active');
+  currentEditingPicItem = null;
+}
+
+// 保存编辑的更改
+function saveEditChanges() {
+  if (!currentEditingPicItem) return;
+
+  const editCode = document.getElementById('editCode');
+  const newHTML = editCode.value;
+
+  try {
+    // 创建临时容器来验证HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = newHTML;
+
+    // 移除旧的内容（保留编辑按钮）
+    const oldContent = currentEditingPicItem.querySelector('div');
+    if (oldContent) {
+      oldContent.remove();
+    }
+
+    // 插入新的内容（在编辑按钮之前）
+    const editBtn = currentEditingPicItem.querySelector('.edit-btn');
+    currentEditingPicItem.insertBefore(tempDiv.firstElementChild, editBtn);
+
+    // 关闭弹窗
+    closeEditModal();
+
+    // 显示成功提示
+    showToast('图片已更新', 'success');
+  } catch (error) {
+    console.error('保存失败:', error);
+    showToast('HTML格式有误，请检查后重试', 'error');
+  }
+}
+
+// 格式化HTML代码
+function formatHTML(html) {
+  let formatted = html;
+  let indent = 0;
+
+  // 简单的格式化，添加换行和缩进
+  formatted = formatted.replace(/></g, '>\n<');
+
+  // 分割成行
+  const lines = formatted.split('\n');
+  const formattedLines = [];
+
+  for (let line of lines) {
+    line = line.trim();
+
+    // 处理结束标签
+    if (line.startsWith('</')) {
+      indent = Math.max(0, indent - 1);
+    }
+
+    // 添加缩进
+    formattedLines.push('  '.repeat(indent) + line);
+
+    // 处理开始标签
+    if (line.startsWith('<') && !line.startsWith('</') && !line.endsWith('/>') && !line.includes('</')) {
+      indent++;
+    }
+  }
+
+  return formattedLines.join('\n');
+}
+
+// 实时预览功能
+document.getElementById('editCode').addEventListener('input', function(e) {
+  const editPreview = document.getElementById('editPreview');
+  const code = e.target.value;
+
+  try {
+    editPreview.innerHTML = code;
+  } catch (error) {
+    // 如果HTML有错误，不更新预览
+    console.error('预览更新失败:', error);
+  }
+});
+
+// ESC键关闭弹窗
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('editModal');
+    if (modal.classList.contains('active')) {
+      closeEditModal();
+    }
+  }
+});
+
+// 点击弹窗背景关闭
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeEditModal();
+  }
+});
 </script>
 {% endblock %}
