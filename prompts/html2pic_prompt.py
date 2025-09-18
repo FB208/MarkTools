@@ -51,6 +51,8 @@ def kapian_system_prompt(index:int):
 
 生成的卡片要有让人阅读的欲望
                 """
+    other_kapian_prompt = f"""如果你认为此页应该插入一张图片，则生成<img>标签，并在alt属性中写上图片的描述。
+                """
     return f"""
 根据用户提供的内容生成适合小红书发布的图片,内容的尺寸固定位宽600px,高800px。
 
@@ -60,13 +62,13 @@ def kapian_system_prompt(index:int):
 
 内容包含渐变色、小图标，但不要过于杂乱。
 
-你生成的内容最终会以图片的形式展示,所以不需要js和动画效果,也不要出现滚动条和任何指引交互的内容,你可以适当调整文案以确保内容高度控制在800px以内。
+你生成的内容最终会以图片的形式展示,所以不需要js和动画效果,更不要出现滚动条和类似按钮等可交互的内容,你可以适当调整文案以确保内容高度控制在800px以内。
 
 不要使用-webkit-text-fill-color来设置文字颜色，这回导致emoji显示异常。
 
 注意设计合理的边距以确保美观。
 
-{index == 0 and first_kapian_prompt or ""}
+{index == 0 and first_kapian_prompt or other_kapian_prompt}
 
 不要使用markdown,直接返回div,使用行内css,不需要外层的html。
 """
