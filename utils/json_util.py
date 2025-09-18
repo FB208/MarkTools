@@ -1,4 +1,6 @@
 import json
+import ast
+import re
 
 def check_json(json_str: str, schema: str | dict) -> tuple[bool, str]:
     """
@@ -71,3 +73,66 @@ def check_json(json_str: str, schema: str | dict) -> tuple[bool, str]:
         
     except Exception as e:
         return False, f"未预期的错误: {str(e)}"
+
+
+def robust_parse_json_like(json_like: str, max_unwrap: int = 2) -> object:
+    """
+    稳健解析“看起来像 JSON”的字符串。
+
+    功能特性：
+    - 去除 ```json ... ``` 或 ``` 包裹的代码块
+    - 优先使用 json.loads 解析标准 JSON
+    - 失败后使用 ast.literal_eval 兜底，解析 Python 字面量风格（如 {'a': 1}）
+    - 若解析结果是字符串（外层再次包裹），最多继续解包 max_unwrap 次
+
+    Args:
+        json_like: 可能是 JSON/代码块/字符串字面量/再次包裹的字符串
+        max_unwrap: 最大二次解包次数（处理外层再包裹为字符串的情况）
+
+    Returns:
+        解析得到的 Python 对象（dict/list/str/数值等）
+
+    Raises:
+        ValueError: 无法解析为 JSON/JSON-like 内容
+    """
+    if json_like is None:
+        raise ValueError("json_like 不能为空")
+
+    # 清洗代码块包裹
+    content = str(json_like).strip()
+    # 去掉以 ```lang 开头的前缀
+    content = re.sub(r"^```[a-zA-Z0-9_+\-]*\s*", "", content)
+    # 去掉末尾的 ```
+    content = re.sub(r"\s*```$", "", content).strip()
+
+    current = content
+    attempts = max(1, int(max_unwrap) + 1)
+    for _ in range(attempts):
+        # 1) 尝试标准 JSON
+        try:
+            return json.loads(current)
+        except json.JSONDecodeError:
+            pass
+
+        # 2) 尝试 Python 字面量（如 {'data': ...}）
+        try:
+            value = ast.literal_eval(current)
+        except Exception:
+            value = None
+
+        if value is None:
+            break
+
+        # 如果得到的是容器类型，直接返回
+        if isinstance(value, (dict, list)):
+            return value
+
+        # 如果还是字符串，继续解包
+        if isinstance(value, str):
+            current = value.strip()
+            continue
+
+        # 其他基本类型（数值、布尔等）直接返回
+        return value
+
+    raise ValueError("Invalid JSON-like content: 解析失败或格式不受支持")

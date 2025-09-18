@@ -7,6 +7,8 @@ from .openai_proxy_llm_service import OpenAIProxyLLMService
 from .glm_llm_service import GLMLLMService
 from .hsfz_llm_service import HSFZLLMService
 from .longcat_llm_service import LongCatLLMService
+from .gb_llm_service import GBLLMService
+from .openrouter_llm_service import OpenRouterLLMService
 from flask import current_app as app
 
 class LLMFactory:
@@ -22,5 +24,7 @@ class LLMFactory:
             'openai_proxy': OpenAIProxyLLMService(),
             'glm': GLMLLMService(),
             'hsfz': HSFZLLMService(),
-            'longcat': LongCatLLMService()
+            'longcat': LongCatLLMService(),
+            'gb': GBLLMService(),
+            'or': OpenRouterLLMService()
         }.get(service_type, DeepSeekLLMService())

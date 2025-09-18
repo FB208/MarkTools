@@ -41,7 +41,6 @@ class LLMInterface(ABC):
     def get_json_completion(self,model, messages):
         pass    
     
-    @abstractmethod
     def get_json_completion_v2(self, messages):
         '''
         下面代码仅供参考
