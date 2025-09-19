@@ -246,6 +246,48 @@
     font-weight: 500;
   }
 
+  /* 进度条样式 */
+  .progress-container {
+    display: none;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 6px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: progress-shimmer 1.5s infinite;
+  }
+
+  @keyframes progress-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .progress-text {
+    color: #a5b4fc;
+    font-size: 12px;
+    margin-top: 5px;
+    text-align: center;
+  }
+
   /* 滚动条样式 */
   .input-textarea::-webkit-scrollbar,
   .output-container::-webkit-scrollbar {
@@ -482,6 +524,50 @@
     color: #a5b4fc;
     font-weight: 500;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .zoom-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #a5b4fc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .zoom-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+  }
+
+  .zoom-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .zoom-text {
+    color: #a5b4fc;
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 40px;
+    text-align: center;
   }
 
   .edit-preview-wrapper {
@@ -556,7 +642,8 @@
     flex: 1;
     height: auto;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    border-radius: 0 0 12px 12px;
+    border-top: none;
     font-size: 14px;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     background: rgba(0, 0, 0, 0.3) !important;
@@ -578,6 +665,79 @@
 
   .CodeMirror-linenumber {
     color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  /* 编辑器工具栏样式 */
+  .edit-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    flex-shrink: 0;
+  }
+
+  .toolbar-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #e3e3e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+  }
+
+  .toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+  }
+
+  .toolbar-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .toolbar-btn:disabled:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0 4px;
+  }
+
+  /* 错误提示样式 */
+  .error-indicator {
+    display: none;
+    color: #ff6b6b;
+    font-size: 12px;
+    padding: 4px 8px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .error-indicator.show {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .syntax-error {
+    border-color: rgba(255, 107, 107, 0.5) !important;
   }
 
   .edit-modal-footer {
@@ -673,6 +833,10 @@
             生成
           </button>
           <div id="statusText" class="status-text"></div>
+          <div id="progressContainer" class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+            <div id="progressText" class="progress-text">0%</div>
+          </div>
         </div>
         
         <label for="textInput">输入文案内容</label>
@@ -737,7 +901,15 @@
     <div class="edit-modal-body">
       <!-- 左侧预览 -->
       <div class="edit-preview-container">
-        <label class="edit-preview-label">实时预览</label>
+        <label class="edit-preview-label">
+          <span>实时预览</span>
+          <div class="zoom-controls">
+            <button id="zoomOutBtn" class="zoom-btn" title="缩小" onclick="zoomPreview(-0.25)">-</button>
+            <span id="zoomText" class="zoom-text">50%</span>
+            <button id="zoomInBtn" class="zoom-btn" title="放大" onclick="zoomPreview(0.25)">+</button>
+            <button id="zoomResetBtn" class="zoom-btn" title="重置" onclick="resetZoom()" style="width: auto; padding: 0 8px;">重置</button>
+          </div>
+        </label>
         <div class="edit-preview-wrapper">
           <div id="editPreview" class="edit-preview-content">
             <!-- 预览内容 -->
@@ -747,6 +919,30 @@
       <!-- 右侧代码编辑 -->
       <div class="edit-code-container">
         <label class="edit-code-label">HTML代码</label>
+        <div class="edit-toolbar">
+          <button id="undoBtn" class="toolbar-btn" title="撤销 (Ctrl+Z)" onclick="editorUndo()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7v6h6"></path>
+              <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+            </svg>
+          </button>
+          <button id="redoBtn" class="toolbar-btn" title="重做 (Ctrl+Y)" onclick="editorRedo()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 7v6h-6"></path>
+              <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"></path>
+            </svg>
+          </button>
+          <div class="toolbar-separator"></div>
+          <span style="color: #a5b4fc; font-size: 12px;">Ctrl+S 保存 | Esc 关闭</span>
+          <div id="errorIndicator" class="error-indicator">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            <span id="errorText">语法错误</span>
+          </div>
+        </div>
         <textarea id="editCode" class="edit-code-textarea" placeholder="在此编辑HTML代码..."></textarea>
       </div>
     </div>
@@ -763,6 +959,9 @@
 // 存储当前编辑的图片元素
 let currentEditingPicItem = null;
 let codeEditor = null;
+let progressInterval = null;
+let currentProgress = 0;
+let currentZoom = 0.5; // 默认50%缩放
 
 // 为输入框添加回车快捷键
 document.getElementById('textInput').addEventListener('keydown', function(e) {
@@ -797,6 +996,10 @@ function generateRedbook() {
   generateBtn.innerHTML = '<span class="loading"></span>生成中...';
   statusText.style.display = 'block';
   statusText.textContent = '正在连接服务器...';
+
+  // 显示进度条并开始虚拟进度动画
+  showProgressBar();
+  startVirtualProgress();
 
   // 注意：使用fetch API，连接会自动管理
 
@@ -877,6 +1080,7 @@ function generateRedbook() {
                 case 'done':
                   // 生成完成
                   statusText.textContent = '所有内容生成完成！';
+                  completeProgress();
                   resetButton();
                   showToast('生成完成！', 'success');
                   return;
@@ -899,6 +1103,7 @@ function generateRedbook() {
   }).catch(error => {
     console.error('请求失败:', error);
     statusText.textContent = '请求失败';
+    hideProgressBar();
     resetButton();
     showToast('生成过程中出现错误，请重试', 'error');
   });
@@ -914,6 +1119,70 @@ function resetButton() {
   setTimeout(() => {
     statusText.style.display = 'none';
   }, 3000);
+}
+
+// 进度条控制函数
+function showProgressBar() {
+  const progressContainer = document.getElementById('progressContainer');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+
+  progressContainer.style.display = 'block';
+  progressBar.style.width = '0%';
+  progressText.textContent = '0%';
+  currentProgress = 0;
+}
+
+function hideProgressBar() {
+  const progressContainer = document.getElementById('progressContainer');
+  progressContainer.style.display = 'none';
+  if (progressInterval) {
+    clearInterval(progressInterval);
+    progressInterval = null;
+  }
+}
+
+function startVirtualProgress() {
+  if (progressInterval) {
+    clearInterval(progressInterval);
+  }
+
+  currentProgress = 0;
+  progressInterval = setInterval(() => {
+    // 虚拟进度算法：快速到达80%，然后缓慢增长
+    if (currentProgress < 20) {
+      currentProgress += Math.random() * 8 + 2; // 2-10%递增
+    } else if (currentProgress < 50) {
+      currentProgress += Math.random() * 5 + 1; // 1-6%递增
+    } else if (currentProgress < 80) {
+      currentProgress += Math.random() * 3 + 0.5; // 0.5-3.5%递增
+    } else if (currentProgress < 95) {
+      currentProgress += Math.random() * 1; // 0-1%递增
+    }
+
+    currentProgress = Math.min(currentProgress, 95); // 最多到95%
+    updateProgress(currentProgress);
+  }, 800);
+}
+
+function completeProgress() {
+  if (progressInterval) {
+    clearInterval(progressInterval);
+    progressInterval = null;
+  }
+
+  updateProgress(100);
+  setTimeout(() => {
+    hideProgressBar();
+  }, 2000);
+}
+
+function updateProgress(percentage) {
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+
+  progressBar.style.width = percentage + '%';
+  progressText.textContent = Math.round(percentage) + '%';
 }
 
 // 页面卸载时的清理工作（fetch API会自动处理）
@@ -1069,11 +1338,8 @@ function openEditModal(picItem) {
       // 监听编辑器内容变化
       codeEditor.on('change', function() {
         const code = codeEditor.getValue();
-        try {
-          editPreview.innerHTML = code;
-        } catch (error) {
-          console.error('预览更新失败:', error);
-        }
+        validateHTML(code);
+        updateUndoRedoButtons();
       });
     }
 
@@ -1093,7 +1359,11 @@ function openEditModal(picItem) {
     if (codeEditor) {
       codeEditor.refresh();
       codeEditor.focus();
+      updateUndoRedoButtons();
     }
+    // 初始化缩放控制
+    currentZoom = 0.5;
+    updatePreviewZoom();
   }, 100);
 }
 
@@ -1166,6 +1436,180 @@ function formatHTML(html) {
   }
 
   return formattedLines.join('\n');
+}
+
+// 编辑器撤销/重做功能
+function editorUndo() {
+  if (codeEditor) {
+    codeEditor.undo();
+    updateUndoRedoButtons();
+  }
+}
+
+function editorRedo() {
+  if (codeEditor) {
+    codeEditor.redo();
+    updateUndoRedoButtons();
+  }
+}
+
+function updateUndoRedoButtons() {
+  if (!codeEditor) return;
+
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+
+  if (undoBtn) {
+    undoBtn.disabled = !codeEditor.historySize().undo;
+  }
+  if (redoBtn) {
+    redoBtn.disabled = !codeEditor.historySize().redo;
+  }
+}
+
+// HTML语法验证功能
+function validateHTML(htmlCode) {
+  const errorIndicator = document.getElementById('errorIndicator');
+  const errorText = document.getElementById('errorText');
+  const editPreview = document.getElementById('editPreview');
+  const codeWrapper = document.querySelector('.CodeMirror');
+
+  try {
+    // 创建临时DOM元素验证HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlCode;
+
+    // 基本语法检查
+    const errors = [];
+
+    // 检查标签是否配对
+    const tagPairs = checkTagPairs(htmlCode);
+    if (tagPairs.length > 0) {
+      errors.push(`未闭合标签: ${tagPairs.join(', ')}`);
+    }
+
+    // 检查属性引号
+    const quoteErrors = checkQuotes(htmlCode);
+    if (quoteErrors.length > 0) {
+      errors.push(`属性引号错误: ${quoteErrors.join(', ')}`);
+    }
+
+    if (errors.length > 0) {
+      // 显示错误
+      errorIndicator.classList.add('show');
+      errorText.textContent = errors[0]; // 显示第一个错误
+      if (codeWrapper) {
+        codeWrapper.classList.add('syntax-error');
+      }
+
+      // 尝试更新预览但可能失败
+      try {
+        editPreview.innerHTML = htmlCode;
+      } catch (e) {
+        editPreview.innerHTML = '<div style="color: #ff6b6b; padding: 20px; text-align: center;">HTML语法错误，无法预览</div>';
+      }
+    } else {
+      // 没有错误
+      errorIndicator.classList.remove('show');
+      if (codeWrapper) {
+        codeWrapper.classList.remove('syntax-error');
+      }
+
+      // 更新预览
+      editPreview.innerHTML = htmlCode;
+    }
+  } catch (error) {
+    // DOM解析错误
+    errorIndicator.classList.add('show');
+    errorText.textContent = 'HTML语法错误';
+    if (codeWrapper) {
+      codeWrapper.classList.add('syntax-error');
+    }
+    editPreview.innerHTML = '<div style="color: #ff6b6b; padding: 20px; text-align: center;">HTML语法错误，无法预览</div>';
+  }
+}
+
+// 检查标签配对
+function checkTagPairs(html) {
+  const errors = [];
+  const tagRegex = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
+  const stack = [];
+  const selfClosingTags = ['img', 'br', 'hr', 'input', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
+
+  let match;
+  while ((match = tagRegex.exec(html)) !== null) {
+    const fullTag = match[0];
+    const tagName = match[1].toLowerCase();
+
+    if (fullTag.startsWith('</')) {
+      // 闭合标签
+      if (stack.length === 0) {
+        errors.push(tagName);
+      } else {
+        const lastTag = stack.pop();
+        if (lastTag !== tagName) {
+          errors.push(`${lastTag} 与 ${tagName} 不匹配`);
+        }
+      }
+    } else if (!fullTag.endsWith('/>') && !selfClosingTags.includes(tagName)) {
+      // 开始标签（非自闭合）
+      stack.push(tagName);
+    }
+  }
+
+  // 检查未闭合的标签
+  while (stack.length > 0) {
+    errors.push(stack.pop());
+  }
+
+  return errors;
+}
+
+// 检查属性引号
+function checkQuotes(html) {
+  const errors = [];
+  const attrRegex = /(\w+)\s*=\s*([^"'\s>][^\s>]*)/g;
+
+  let match;
+  while ((match = attrRegex.exec(html)) !== null) {
+    errors.push(`属性 ${match[1]} 缺少引号`);
+  }
+
+  return errors;
+}
+
+// 预览缩放控制功能
+function zoomPreview(delta) {
+  currentZoom = Math.max(0.25, Math.min(2, currentZoom + delta)); // 限制在25%-200%之间
+  updatePreviewZoom();
+}
+
+function resetZoom() {
+  currentZoom = 0.5; // 重置为50%
+  updatePreviewZoom();
+}
+
+function updatePreviewZoom() {
+  const editPreview = document.getElementById('editPreview');
+  const zoomText = document.getElementById('zoomText');
+  const zoomOutBtn = document.getElementById('zoomOutBtn');
+  const zoomInBtn = document.getElementById('zoomInBtn');
+
+  if (editPreview) {
+    editPreview.style.transform = `scale(${currentZoom})`;
+  }
+
+  if (zoomText) {
+    zoomText.textContent = Math.round(currentZoom * 100) + '%';
+  }
+
+  // 更新按钮状态
+  if (zoomOutBtn) {
+    zoomOutBtn.disabled = currentZoom <= 0.25;
+  }
+  if (zoomInBtn) {
+    zoomInBtn.disabled = currentZoom >= 2;
+  }
 }
 
 // 保留原生textarea的实时预览功能作为备用
