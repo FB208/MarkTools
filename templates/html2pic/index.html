@@ -489,21 +489,24 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 10px;
-    /* display: flex; */
+    padding: 20px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    overflow: auto;
+    overflow: hidden;
     min-height: 0;
   }
 
   .edit-preview-content {
     border-radius: 8px;
-    overflow: auto;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    /* width: 600px;
-    height: 800px; */
+    /* 设置为原始600*800尺寸，然后缩放50%显示为300*400 */
+    width: 600px;
+    height: 800px;
+    transform: scale(0.5);
+    transform-origin: center center;
     flex-shrink: 0;
+    overflow: hidden;
   }
 
   /* 确保预览内容里的元素正确显示 */
