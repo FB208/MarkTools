@@ -5,6 +5,19 @@
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<!-- CodeMirror 5 (更轻量级) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/monokai.css">
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/xml/xml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/css/css.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/htmlmixed/htmlmixed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/edit/closetag.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/edit/matchtags.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/fold/xml-fold.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/fold/foldcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/fold/foldgutter.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/fold/foldgutter.css">
 <style>
   .redbook-content {
     display: flex;
@@ -535,6 +548,35 @@
     box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
   }
 
+  /* CodeMirror 编辑器样式 */
+  .CodeMirror {
+    flex: 1;
+    height: auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .CodeMirror:focus-within {
+    border-color: rgba(79, 70, 229, 0.6);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  }
+
+  .CodeMirror-scroll {
+    min-height: 100%;
+  }
+
+  .CodeMirror-gutters {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .CodeMirror-linenumber {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
   .edit-modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -717,6 +759,7 @@
 <script>
 // 存储当前编辑的图片元素
 let currentEditingPicItem = null;
+let codeEditor = null;
 
 // 为输入框添加回车快捷键
 document.getElementById('textInput').addEventListener('keydown', function(e) {
@@ -1001,8 +1044,39 @@ function openEditModal(picItem) {
   if (contentDiv) {
     const htmlContent = contentDiv.outerHTML;
 
+    // 初始化CodeMirror编辑器（如果还没有）
+    if (!codeEditor) {
+      codeEditor = CodeMirror.fromTextArea(editCode, {
+        mode: 'htmlmixed',
+        theme: 'monokai',
+        lineNumbers: true,
+        autoCloseTags: true,
+        matchTags: true,
+        foldGutter: true,
+        gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+        indentUnit: 2,
+        tabSize: 2,
+        lineWrapping: true,
+        extraKeys: {
+          'Ctrl-S': function() { saveEditChanges(); },
+          'Esc': function() { closeEditModal(); }
+        }
+      });
+
+      // 监听编辑器内容变化
+      codeEditor.on('change', function() {
+        const code = codeEditor.getValue();
+        try {
+          editPreview.innerHTML = code;
+        } catch (error) {
+          console.error('预览更新失败:', error);
+        }
+      });
+    }
+
     // 设置代码编辑器的内容
-    editCode.value = formatHTML(htmlContent);
+    const formattedHTML = formatHTML(htmlContent);
+    codeEditor.setValue(formattedHTML);
 
     // 设置预览内容
     editPreview.innerHTML = htmlContent;
@@ -1011,8 +1085,13 @@ function openEditModal(picItem) {
   // 显示弹窗
   modal.classList.add('active');
 
-  // 自动聚焦到代码编辑器
-  setTimeout(() => editCode.focus(), 100);
+  // 刷新编辑器显示
+  setTimeout(() => {
+    if (codeEditor) {
+      codeEditor.refresh();
+      codeEditor.focus();
+    }
+  }, 100);
 }
 
 // 关闭编辑弹窗
@@ -1026,8 +1105,7 @@ function closeEditModal() {
 function saveEditChanges() {
   if (!currentEditingPicItem) return;
 
-  const editCode = document.getElementById('editCode');
-  const newHTML = editCode.value;
+  const newHTML = codeEditor ? codeEditor.getValue() : document.getElementById('editCode').value;
 
   try {
     // 创建临时容器来验证HTML
@@ -1087,16 +1165,19 @@ function formatHTML(html) {
   return formattedLines.join('\n');
 }
 
-// 实时预览功能
+// 保留原生textarea的实时预览功能作为备用
 document.getElementById('editCode').addEventListener('input', function(e) {
-  const editPreview = document.getElementById('editPreview');
-  const code = e.target.value;
+  // 这个事件只在CodeMirror未初始化时生效
+  if (!codeEditor) {
+    const editPreview = document.getElementById('editPreview');
+    const code = e.target.value;
 
-  try {
-    editPreview.innerHTML = code;
-  } catch (error) {
-    // 如果HTML有错误，不更新预览
-    console.error('预览更新失败:', error);
+    try {
+      editPreview.innerHTML = code;
+    } catch (error) {
+      // 如果HTML有错误，不更新预览
+      console.error('预览更新失败:', error);
+    }
   }
 });
 
