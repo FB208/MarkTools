@@ -3,7 +3,6 @@ import faiss
 import pickle
 import os
 import tiktoken
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 import numpy as np
 
 '''
@@ -56,18 +55,19 @@ class EmbeddingSearch:
         else:
             print("没有新文档添加。")
     def add_long_document(self, document, max_tokens=1024):
-        num_tokens_in_text = self.num_tokens_in_string(document)
-        token_size = self.calculate_chunk_size(
-            token_count=num_tokens_in_text, token_limit=max_tokens
-        )
-        text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-            model_name="gpt-3.5-turbo",
-            chunk_size=token_size,
-            chunk_overlap=0,
-        )
-        source_text_chunks = text_splitter.split_text(document)
-        # 添加分割后的段落到文档集
-        self.add_documents(source_text_chunks)
+        return none
+        # num_tokens_in_text = self.num_tokens_in_string(document)
+        # token_size = self.calculate_chunk_size(
+        #     token_count=num_tokens_in_text, token_limit=max_tokens
+        # )
+        # text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        #     model_name="gpt-3.5-turbo",
+        #     chunk_size=token_size,
+        #     chunk_overlap=0,
+        # )
+        # source_text_chunks = text_splitter.split_text(document)
+        # # 添加分割后的段落到文档集
+        # self.add_documents(source_text_chunks)
     def save(self):
         print("保存索引和文档...")
         faiss.write_index(self.index, self.index_file)

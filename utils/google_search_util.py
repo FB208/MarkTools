@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 import json
 import os
 import chardet
-from langchain.document_loaders import WebBaseLoader
 from flask import current_app as app
 
 class GoogleSearchUtil:
@@ -107,18 +106,19 @@ class GoogleSearchUtil:
             }
 
     def fetch_article_details(self, url: str):
-        try:
-            loader = WebBaseLoader(url)
-            documents = loader.load()
+        return ""
+        # try:
+        #     loader = WebBaseLoader(url)
+        #     documents = loader.load()
 
-            # 打印提取的正文内容
-            for doc in documents:
-                print("URL:", doc.metadata.get('url', 'N/A'))
-                print("Title:", doc.metadata.get('title', 'N/A'))
-                print("Content:", doc.page_content)
+        #     # 打印提取的正文内容
+        #     for doc in documents:
+        #         print("URL:", doc.metadata.get('url', 'N/A'))
+        #         print("Title:", doc.metadata.get('title', 'N/A'))
+        #         print("Content:", doc.page_content)
 
-            # 直接返回 documents 列表
-            return documents
-        except Exception as e:
-            print(f"提取内容失败 {url}: {str(e)}")
-            return None
+        #     # 直接返回 documents 列表
+        #     return documents
+        # except Exception as e:
+        #     print(f"提取内容失败 {url}: {str(e)}")
+        #     return None

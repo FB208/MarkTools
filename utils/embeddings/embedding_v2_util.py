@@ -5,7 +5,6 @@ import google.generativeai as genai
 import pickle
 from typing import List, Tuple, Optional
 from flask import current_app as app
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 import tiktoken
 
 class EmbeddingSearchV2:
@@ -117,17 +116,18 @@ class EmbeddingSearchV2:
             print("没有新文档被添加")
 
     def add_long_document(self, document: str, max_tokens: int = 1024):
+        return none
         """处理长文档"""
-        num_tokens = self.num_tokens_in_string(document)
-        chunk_size = self.calculate_chunk_size(num_tokens, max_tokens)
+        # num_tokens = self.num_tokens_in_string(document)
+        # chunk_size = self.calculate_chunk_size(num_tokens, max_tokens)
         
-        splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-            model_name="gpt-3.5-turbo",
-            chunk_size=chunk_size,
-            chunk_overlap=0,
-        )
-        chunks = splitter.split_text(document)
-        self.add_documents(chunks)
+        # splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        #     model_name="gpt-3.5-turbo",
+        #     chunk_size=chunk_size,
+        #     chunk_overlap=0,
+        # )
+        # chunks = splitter.split_text(document)
+        # self.add_documents(chunks)
 
     def search(self, query: str, top_k: int = 5) -> List[Tuple[float, str]]:
         """搜索相似文档"""
