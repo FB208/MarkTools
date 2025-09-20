@@ -57,6 +57,8 @@ jobs:
           port: 22222
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
+          timeout: 60s
+          use_insecure_cipher: true
           script: |
             set -e
             export VERSION="${{ github.ref_name }}"
