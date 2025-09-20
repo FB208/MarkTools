@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    image: ${REGISTRY_REPO:-fb208/marktools}:${VERSION:-latest}
+    container_name: marktools
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.deepseek.com/v1/}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL:-https://api.deepseek.com/v1/}
+      - SIMPLE_GOOGLE_API_KEY=${SIMPLE_GOOGLE_API_KEY}
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT:-meta-buckeye-433400-c6}
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/google_credentials/meta-buckeye-433400-c6-109fbeae7021.json
+      - BUCKET_NAME=${BUCKET_NAME:-speech-audio-mark}
+      - LLM_SERVICE=${LLM_SERVICE:-deepseek}
+    volumes:
+      - ./google_credentials:/app/google_credentials
+    networks:
+      - marktools_net
+
+networks:
+  marktools_net:
+    driver: bridge

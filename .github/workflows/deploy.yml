@@ -1,0 +1,100 @@
+name: Deploy on tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-push:
+    name: Build and Push Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set VERSION from tag
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to container registry
+        env:
+          REGISTRY: ${{ secrets.REGISTRY }}
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        run: |
+          echo "$REGISTRY_PASSWORD" | docker login "$REGISTRY" -u "$REGISTRY_USERNAME" --password-stdin
+
+      - name: Build and push image
+        env:
+          REGISTRY_REPO: ${{ secrets.REGISTRY_REPO }} # 例如 docker.agnet.top/fb208/marktools
+          VERSION: ${{ env.VERSION }}
+        run: |
+          set -e
+          docker build \
+            -f docker/Dockerfile \
+            -t "$REGISTRY_REPO:$VERSION" \
+            -t "$REGISTRY_REPO:latest" \
+            .
+          docker push "$REGISTRY_REPO:$VERSION"
+          docker push "$REGISTRY_REPO:latest"
+
+  deploy:
+    name: SSH Deploy
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: 22222
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            set -e
+            export VERSION="${{ github.ref_name }}"
+            echo "Deploying version: $VERSION"
+            # 登录镜像仓库（私有仓库需要）
+            echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login "${{ secrets.REGISTRY }}" -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
+            # 切换到部署目录（应包含 docker-compose.yml）
+            cd "${{ secrets.DEPLOY_DIR }}"
+            # 拉取并以指定版本启动
+            VERSION="$VERSION" docker compose -f docker-compose.yml pull app
+            VERSION="$VERSION" docker compose -f docker-compose.yml up -d --no-build app
+            # 清理无用镜像
+            docker image prune -f
+
+  notify:
+    name: Send email notification
+    needs:
+      - build-and-push
+      - deploy
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_PASSWORD }}
+          subject: "[MarkTools] Tag ${{ github.ref_name }} 部署结果: build=${{ needs.build-and-push.result }}, deploy=${{ needs.deploy.result }}"
+          to: ${{ secrets.GMAIL_TO }}
+          from: ${{ secrets.GMAIL_USERNAME }}
+          secure: false
+          body: |
+            仓库: ${{ github.repository }}
+            触发: push tag ${{ github.ref_name }}
+            构建: ${{ needs.build-and-push.result }}
+            部署: ${{ needs.deploy.result }}
+            提交: ${{ github.sha }}
+            运行链接: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            触发人: ${{ github.actor }}
