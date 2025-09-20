@@ -27,7 +27,7 @@ def generate_redbook():
             {"role": "user", "content": origin_content}
         ]
         llm_service = LLMFactory.get_llm_service("or")
-        completion = llm_service.get_chat_completion(model="openrouter/sonoma-sky-alpha",messages=messages)
+        completion = llm_service.get_chat_completion(model="x-ai/grok-4-fast:free",messages=messages)
         wenan = llm_service.get_messages(completion)
         return wenan
     
@@ -41,7 +41,7 @@ def generate_redbook():
             {"role": "user", "content": wenan}
         ]
         llm_service = LLMFactory.get_llm_service("or")
-        completion = llm_service.get_json_completion(model="openrouter/sonoma-sky-alpha",messages=messages)
+        completion = llm_service.get_json_completion(model="x-ai/grok-4-fast:free",messages=messages)
         chaifen = llm_service.get_messages(completion)
 
         obj = robust_parse_json_like(chaifen, max_unwrap=2)
@@ -59,20 +59,6 @@ def generate_redbook():
         #     retry_count += 1
             
             
-    result_queue = queue.Queue()
-    def generate_kapian_async(index, chaifen_content, result_queue, flask_app):
-        with flask_app.app_context():
-            messages = [
-                {"role": "system", "content": html2pic_prompt.kapian_system_prompt(index)},
-                {"role": "user", "content": convert_to_string(chaifen_content)}
-            ]
-            llm_service = LLMFactory.get_llm_service("gb")
-            completion = llm_service.get_chat_completion(model="gemini-2.5-pro",messages=messages)
-            kapian = llm_service.get_messages(completion)
-            kapian_html = kapian.replace('```html', '').replace('```', '').strip()
-            kapian_html = convert_to_string(kapian_html)
-            result_queue.put(kapian_html)
-            
     def generate():
         # 立即发送一个心跳数据,保持连接活跃
         yield f"data: {json.dumps({'type': 'heartbeat', 'status': 'success', 'content': '连接已建立'})}\n\n"
@@ -87,13 +73,34 @@ def generate_redbook():
         #     kapian_html = generate_kapian(index,chaifen_content,wenan)
         #     yield f"data: {json.dumps({'type': f'pic', 'status': 'success', 'content': kapian_html})}\n\n"
 
+        # 使用字典存储结果，支持实时返回和顺序保证
+        results = {}
+        results_lock = threading.Lock()
+        next_index_to_yield = 0
+        
+        def generate_kapian_async(index, chaifen_content, results_dict, lock, flask_app):
+            with flask_app.app_context():
+                messages = [
+                    {"role": "system", "content": html2pic_prompt.kapian_system_prompt(index)},
+                    {"role": "user", "content": convert_to_string(chaifen_content)}
+                ]
+                llm_service = LLMFactory.get_llm_service("gb")
+                completion = llm_service.get_chat_completion(model="gemini-2.5-pro",messages=messages)
+                kapian = llm_service.get_messages(completion)
+                kapian_html = kapian.replace('```html', '').replace('```', '').strip()
+                kapian_html = convert_to_string(kapian_html)
+                
+                # 线程安全地存储结果
+                with lock:
+                    results_dict[index] = kapian_html
+
         # 创建线程列表
         threads = []
         flask_app = app._get_current_object()
         for index,chaifen_content in enumerate(chaifen):
             thread_kapian = threading.Thread(
                 target=generate_kapian_async,
-                args=(index, chaifen_content, result_queue, flask_app),
+                args=(index, chaifen_content, results, results_lock, flask_app),
                 daemon=True
             )
             threads.append(thread_kapian)
@@ -102,16 +109,19 @@ def generate_redbook():
         for thread in threads:
             thread.start()
 
-        # 等待并返回所有卡片结果
-        received = 0
-        while received < len(chaifen):
-            try:
-                result = result_queue.get(timeout=1)  # 设置超时防止无限等待
-                # return_content = result.get("content")
-                yield f"data: {json.dumps({'type': f'pic', 'status': 'success', 'content': result})}\n\n"
-                received += 1
-            except queue.Empty:
-                continue
+        # 按顺序返回结果，即使某些结果还未完成也要等待
+        for i in range(len(chaifen)):
+            # 等待第i个结果完成
+            while i not in results:
+                # 检查是否所有线程都已结束（避免死锁）
+                if all(not thread.is_alive() for thread in threads):
+                    break
+                # 短暂等待
+                threading.Event().wait(0.1)
+            
+            if i in results:
+                yield f"data: {json.dumps({'type': f'pic', 'status': 'success', 'content': results[i]})}\n\n"
+        
         # 等待所有线程完成
         for thread in threads:
             thread.join()
