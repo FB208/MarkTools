@@ -1,5 +1,6 @@
 from flask import render_template, request, jsonify, current_app as app
 from flask import render_template, request, jsonify, Response, session,stream_with_context
+from flask import send_file
 from . import html2pic_bp
 import queue
 import threading
@@ -8,6 +9,11 @@ from llm.llm_factory import LLMFactory
 from prompts import html2pic_prompt
 from utils.json_util import check_json, robust_parse_json_like
 from utils.text_util import convert_to_string
+import io
+import zipfile
+import base64
+import time
+import requests
 
 @html2pic_bp.route('/html2pic', methods=['GET'])
 def index():
@@ -129,3 +135,97 @@ def generate_redbook():
         yield f"data: {json.dumps({'type': 'done', 'status': 'success', 'content': '生成完成'})}\n\n"
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
+
+
+@html2pic_bp.route('/download_images', methods=['POST'])
+def download_images():
+    """
+    接收前端传来的图片HTML数组，调用外部服务渲染为PNG图片，并打包为ZIP返回下载。
+    请求JSON参数：
+    {
+      "html_list": ["<div>...</div>", ...],
+      "width": 600,
+      "height": 800,
+      "watermark_text": "",
+      "watermark_image_url": ""
+    }
+    """
+    data = request.get_json(silent=True) or {}
+    html_list = data.get('html_list', [])
+    width = int(data.get('width', 600) or 600)
+    height = int(data.get('height', 800) or 800)
+    watermark_text = data.get('watermark_text', '') or ''
+    watermark_image_url = data.get('watermark_image_url', '') or ''
+
+    if not isinstance(html_list, list) or len(html_list) == 0:
+        return jsonify({
+            'status': 'error',
+            'message': 'html_list 不能为空且必须为数组'
+        }), 400
+
+    service_url = 'https://mt.agnet.top/image/url2png'
+
+    def render_html_to_png_bytes(html_string: str) -> bytes:
+        html_b64 = base64.b64encode(html_string.encode('utf-8')).decode('utf-8')
+        payload = {
+            'html_base64': html_b64,
+            'width': width,
+            'height': height,
+            'watermark_text': watermark_text,
+            'watermark_image_url': watermark_image_url,
+            'response_type': 'base64'
+        }
+        resp = requests.post(service_url, json=payload, timeout=60)
+        resp.raise_for_status()
+
+        # 外部服务返回结构固定：
+        # {
+        #   "success": true,
+        #   "data": { "image_base64": "" },
+        #   "message": "ok",
+        #   "status": 200
+        # }
+        obj = resp.json()
+        if not isinstance(obj, dict):
+            raise RuntimeError('外部服务返回非JSON对象')
+        if not obj.get('success'):
+            raise RuntimeError(f"外部服务失败: {obj.get('message')}")
+        data_obj = obj.get('data') or {}
+        base64_data = data_obj.get('image_base64')
+        if not isinstance(base64_data, str) or not base64_data.strip():
+            raise RuntimeError('外部服务未返回有效的 image_base64')
+        base64_data = base64_data.strip()
+        if base64_data.startswith('data:image'):
+            base64_data = base64_data.split(',', 1)[-1]
+        try:
+            return base64.b64decode(base64_data)
+        except Exception as e:
+            raise RuntimeError(f'Base64解码失败: {e}')
+
+    # 生成ZIP到内存
+    zip_buffer = io.BytesIO()
+    success_count = 0
+    with zipfile.ZipFile(zip_buffer, mode='w', compression=zipfile.ZIP_DEFLATED) as zipf:
+        for idx, html_str in enumerate(html_list, start=1):
+            try:
+                img_bytes = render_html_to_png_bytes(str(html_str))
+                zipf.writestr(f'小红书图片_{idx}.png', img_bytes)
+                success_count += 1
+            except Exception as e:
+                # 将失败信息写入ZIP，便于排查（不删除用户注释）
+                zipf.writestr(f'error_{idx}.txt', f'生成第{idx}张图片失败: {str(e)}')
+
+    if success_count == 0:
+        return jsonify({
+            'status': 'error',
+            'message': '所有图片生成失败，请稍后重试'
+        }), 502
+
+    zip_buffer.seek(0)
+    download_name = f"小红书图片集_{int(time.time() * 1000)}.zip"
+    return send_file(
+        zip_buffer,
+        mimetype='application/zip',
+        as_attachment=True,
+        download_name=download_name
+    )

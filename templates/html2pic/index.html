@@ -1231,61 +1231,49 @@ function downloadAllImages() {
     打包中...
   `;
   
-  if (typeof html2canvas === 'undefined') {
+  // 收集每张图片的HTML（使用第一个子div的完整outerHTML）
+  const htmlList = Array.from(picItems).map(node => node.outerHTML);
+
+  // 调用后端生成ZIP
+  fetch('/html2pic/download_images', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      html_list: htmlList,
+      width: 600,
+      height: 800,
+      watermark_text: '',
+      watermark_image_url: ''
+    })
+  }).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    // 获取文件名
+    const disposition = response.headers.get('Content-Disposition') || '';
+    let filename = `小红书图片集_${new Date().getTime()}.zip`;
+    const match = disposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
+    if (match) {
+      filename = decodeURIComponent(match[1] || match[2] || filename);
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
     resetDownloadButton(downloadBtn);
-    showToast('缺少下载功能依赖，请联系管理员', 'error');
-    return;
-  }
-  
-  if (typeof JSZip === 'undefined') {
-    resetDownloadButton(downloadBtn);
-    showToast('缺少打包功能依赖，请联系管理员', 'error');
-    return;
-  }
-  
-  const zip = new JSZip();
-  const promises = [];
-  
-  picItems.forEach((item, index) => {
-    const promise = html2canvas(item, {
-      backgroundColor: null,
-      scale: 2,
-      useCORS: true,
-      allowTaint: true
-    }).then(canvas => {
-      return new Promise((resolve) => {
-        canvas.toBlob((blob) => {
-          zip.file(`小红书图片_${index + 1}.png`, blob);
-          resolve();
-        }, 'image/png');
-      });
-    });
-    promises.push(promise);
-  });
-  
-  Promise.all(promises).then(() => {
-    downloadBtn.innerHTML = `
-      <span class="loading"></span>
-      生成中...
-    `;
-    
-    zip.generateAsync({type: 'blob'}).then((content) => {
-      const link = document.createElement('a');
-      link.download = `小红书图片集_${new Date().getTime()}.zip`;
-      link.href = URL.createObjectURL(content);
-      link.click();
-      
-      resetDownloadButton(downloadBtn);
-      showToast(`成功下载${picItems.length}张图片`, 'success');
-    }).catch(err => {
-      console.error('打包失败:', err);
-      resetDownloadButton(downloadBtn);
-      showToast('打包失败，请重试', 'error');
-    });
+    showToast(`成功下载${picItems.length}张图片`, 'success');
   }).catch(err => {
-    console.error('图片生成失败:', err);
+    console.error('下载失败:', err);
     resetDownloadButton(downloadBtn);
-    showToast('图片生成失败，请重试', 'error');
+    showToast('下载失败，请重试', 'error');
   });
 }
 
