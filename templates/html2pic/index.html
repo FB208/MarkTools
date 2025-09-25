@@ -116,27 +116,30 @@
     position: relative;
   }
 
+  /* 固定图片显示比例为3:4（已由 .iframe-shell 接管，保留注释）
   .pic-item > div {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    /* 固定图片显示比例为3:4 */
     width: 450px;
     max-width: calc(100vw - 120px);
     aspect-ratio: 3/4;
   }
+  */
 
   /* 确保生成的图片内容适应容器 */
+  /* 旧：拉伸内部内容填满容器，已弃用
   .pic-item > div > * {
     width: 100% !important;
     height: 100% !important;
     max-width: none !important;
     max-height: none !important;
   }
+  */
 
-  /* 列表预览：固定为600x800，再按容器缩放显示一致 */
+  /* 旧：以600x800并用transform缩放显示的方案，已改为 iframe-shell
   .pic-item > div > * {
     width: 600px !important;
     height: 800px !important;
@@ -146,6 +149,7 @@
     transform-origin: center center;
     display: block;
   }
+  */
 
   .generate-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -329,105 +333,39 @@
       height: calc(100vh - 80px);
     }
 
-    .pic-item > div {
-      width: 360px;
-    }
-    .pic-item > div > * {
-      transform: scale(0.6);
-    }
+    /* .pic-item > div { width: 360px; } */
+    /* .pic-item > div > * { transform: scale(0.6); } */
   }
 
   @media (max-width: 1024px) {
-    .redbook-content {
-      height: calc(100vh - 80px);
-    }
+    .redbook-content { height: calc(100vh - 80px); }
+    .redbook-area { flex-direction: column; gap: 20px; height: calc(100% - 60px); }
+    .input-container { flex: none; max-width: 100%; width: 100%; height: auto; min-height: 250px; }
+    .output-container { flex: 1; max-width: 100%; width: 100%; min-height: 400px; }
 
-    .redbook-area {
-      flex-direction: column;
-      gap: 20px;
-      height: calc(100% - 60px);
-    }
-
-    .input-container {
-      flex: none;
-      max-width: 100%;
-      width: 100%;
-      height: auto;
-      min-height: 250px;
-    }
-
-    .output-container {
-      flex: 1;
-      max-width: 100%;
-      width: 100%;
-      min-height: 400px;
-    }
-
-    .pic-item > div {
-      width: min(450px, calc(100vw - 80px));
-    }
-    .pic-item > div > * {
-      transform: scale(0.75);
-    }
+    /* .pic-item > div { width: min(450px, calc(100vw - 80px)); } */
+    /* .pic-item > div > * { transform: scale(0.75); } */
   }
 
   @media (max-width: 768px) {
-    .redbook-content {
-      padding: 20px;
-      height: calc(100vh - 60px);
-    }
+    .redbook-content { padding: 20px; height: calc(100vh - 60px); }
+    .redbook-area { height: calc(100% - 40px); gap: 15px; }
+    .input-textarea { min-height: 150px; }
+    .action-buttons { flex-direction: column !important; align-items: stretch; gap: 8px; }
+    .action-btn { flex: none; }
+    .status-text { text-align: center; margin: 8px 0; }
 
-    .redbook-area {
-      height: calc(100% - 40px);
-      gap: 15px;
-    }
+    /* .pic-item > div { width: min(350px, calc(100vw - 60px)); } */
+    /* .pic-item > div > * { transform: scale(0.5833); } */
 
-    .input-textarea {
-      min-height: 150px;
-    }
-
-    .action-buttons {
-      flex-direction: column !important;
-      align-items: stretch;
-      gap: 8px;
-    }
-
-    .action-btn {
-      flex: none;
-    }
-
-    .status-text {
-      text-align: center;
-      margin: 8px 0;
-    }
-
-    .pic-item > div {
-      width: min(350px, calc(100vw - 60px));
-    }
-    .pic-item > div > * {
-      transform: scale(0.5833);
-    }
-
-    .pic-item {
-      padding: 15px;
-    }
+    .pic-item { padding: 15px; }
   }
 
   @media (max-width: 480px) {
-    .pic-item > div {
-      width: min(280px, calc(100vw - 40px));
-    }
-    .pic-item > div > * {
-      transform: scale(0.4667);
-    }
-
-    .redbook-content {
-      padding: 15px;
-    }
-
-    .pic-item {
-      padding: 10px;
-    }
+    /* .pic-item > div { width: min(280px, calc(100vw - 40px)); } */
+    /* .pic-item > div > * { transform: scale(0.4667); } */
+    .redbook-content { padding: 15px; }
+    .pic-item { padding: 10px; }
   }
 
   /* 编辑按钮样式 */
@@ -802,7 +740,7 @@
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
   }
 
-  /* 响应式调整 */
+  /* 响应式调整（编辑弹窗由外层缩放控制，不再固定尺寸）
   @media (max-width: 1400px) {
     .edit-preview-content {
       width: 450px;
@@ -811,10 +749,7 @@
   }
 
   @media (max-width: 1024px) {
-    .edit-modal-body {
-      flex-direction: column;
-    }
-
+    .edit-modal-body { flex-direction: column; }
     .edit-preview-content {
       width: 375px;
       height: 500px;
@@ -822,15 +757,44 @@
   }
 
   @media (max-width: 768px) {
-    .edit-modal-content {
-      width: 95%;
-      height: 95vh;
-    }
-
+    .edit-modal-content { width: 95%; height: 95vh; }
     .edit-preview-content {
       width: 300px;
       height: 400px;
     }
+  }
+  */
+  /* 新的 iframe 预览容器，按 3:4 占位 */
+  .iframe-shell {
+    width: 450px;
+    max-width: calc(100vw - 120px);
+    aspect-ratio: 3/4;
+    border-radius: 8px;
+    overflow: hidden; /* 仅裁切容器边缘 */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: block;
+  }
+  /* 让 iframe 占满容器，取消外层旧样式的缩放干扰 */
+  .iframe-shell > iframe {
+    /* width: 100% !important;
+    height: 100% !important; */
+    border: 0 !important;
+    transform: none !important;
+    display: block;
+  }
+
+  @media (max-width: 1200px) {
+    .iframe-shell { width: 360px; }
+  }
+  @media (max-width: 1024px) {
+    .iframe-shell { width: min(450px, calc(100vw - 80px)); }
+  }
+  @media (max-width: 768px) {
+    .iframe-shell { width: min(350px, calc(100vw - 60px)); }
+  }
+  @media (max-width: 480px) {
+    .iframe-shell { width: min(280px, calc(100vw - 40px)); }
   }
 </style>
 {% endblock %}
@@ -994,6 +958,22 @@ document.getElementById('textInput').addEventListener('keydown', function(e) {
   }
 });
 
+// 构建隔离的 srcdoc，去除默认边距，避免 iframe 内出现空白
+function buildIsolatedSrcdoc(rawHtml, scale = 1) {
+  // 简化：直接渲染用户 HTML，但去掉默认边距以避免多余空白
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+    html,body{margin:0;padding:0;background:transparent;}
+  </style></head><body>${rawHtml}</body></html>`;
+  // 旧实现（含 scale 与画布包裹）保留注释以便回滚
+  // const safeScale = Math.max(0.1, Math.min(2, scale));
+  // return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+  //   html,body{margin:0;padding:0;background:transparent;height:100%;}
+  //   *{box-sizing:border-box;}
+  //   .canvas{width:600px;height:800px;transform:scale(${safeScale});transform-origin:top left;}
+  //   .fit{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+  // </style></head><body><div class="fit"><div class="canvas">${rawHtml}</div></div></body></html>`;
+}
+
 function generateRedbook() {
   const textInput = document.getElementById('textInput');
   const generateBtn = document.getElementById('generateBtn');
@@ -1082,7 +1062,22 @@ function generateRedbook() {
                   // 显示生成的图片HTML
                   const picItem = document.createElement('div');
                   picItem.className = 'pic-item';
-                  picItem.innerHTML = data.content;
+                  // 使用 iframe-shell 隔离外层样式
+                  const previewContainer = document.createElement('div');
+                  previewContainer.className = 'iframe-shell';
+                  // 保存原始HTML用于编辑/下载
+                  previewContainer.dataset.rawHtml = data.content;
+
+                  // 当前容器宽度（若未渲染，取默认450）
+                  const shellWidth = previewContainer.getBoundingClientRect().width || 450;
+                  const scale = shellWidth / 600; // 等比例适配 600x800
+
+                  const iframe = document.createElement('iframe');
+                  iframe.setAttribute('frameborder', '0');
+                  iframe.setAttribute('scrolling', 'no');
+                  iframe.srcdoc = buildIsolatedSrcdoc(data.content, scale);
+                  previewContainer.appendChild(iframe);
+                  picItem.appendChild(previewContainer);
 
                   // 添加编辑按钮
                   const editBtn = document.createElement('button');
@@ -1254,8 +1249,11 @@ function downloadAllImages() {
     打包中...
   `;
   
-  // 收集每张图片的HTML（使用第一个子div的完整outerHTML）
-  const htmlList = Array.from(picItems).map(node => node.outerHTML);
+  // 收集每张图片的HTML（读取每个项内 iframe 的 srcdoc）
+  const htmlList = Array.from(picItems).map(node => {
+    const iframe = node.querySelector('iframe');
+    return iframe ? (iframe.srcdoc || '') : node.outerHTML;
+  });
 
   // 调用后端生成ZIP
   fetch('/html2pic/download_images', {
@@ -1322,45 +1320,52 @@ function openEditModal(picItem) {
   // 保存当前编辑的图片元素
   currentEditingPicItem = picItem;
 
-  // 获取图片内容的HTML（排除编辑按钮）
-  const contentDiv = picItem.querySelector('div');
-  if (contentDiv) {
-    const htmlContent = contentDiv.outerHTML;
+  // 获取图片内容的HTML（从 iframe 的 srcdoc 读取）
+  const iframeEl = picItem.querySelector('iframe');
+  const htmlContent = iframeEl ? (iframeEl.srcdoc || '') : '';
 
-    // 初始化CodeMirror编辑器（如果还没有）
-    if (!codeEditor) {
-      codeEditor = CodeMirror.fromTextArea(editCode, {
-        mode: 'htmlmixed',
-        theme: 'monokai',
-        lineNumbers: true,
-        autoCloseTags: true,
-        matchTags: true,
-        foldGutter: true,
-        gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-        indentUnit: 2,
-        tabSize: 2,
-        lineWrapping: true,
-        extraKeys: {
-          'Ctrl-S': function() { saveEditChanges(); },
-          'Esc': function() { closeEditModal(); }
-        }
-      });
+  // 初始化CodeMirror编辑器（如果还没有）
+  if (!codeEditor) {
+    codeEditor = CodeMirror.fromTextArea(editCode, {
+      mode: 'htmlmixed',
+      theme: 'monokai',
+      lineNumbers: true,
+      autoCloseTags: true,
+      matchTags: true,
+      foldGutter: true,
+      gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+      indentUnit: 2,
+      tabSize: 2,
+      lineWrapping: true,
+      extraKeys: {
+        'Ctrl-S': function() { saveEditChanges(); },
+        'Esc': function() { closeEditModal(); }
+      }
+    });
 
-      // 监听编辑器内容变化
-      codeEditor.on('change', function() {
-        const code = codeEditor.getValue();
-        validateHTML(code);
-        updateUndoRedoButtons();
-      });
-    }
-
-    // 设置代码编辑器的内容
-    const formattedHTML = formatHTML(htmlContent);
-    codeEditor.setValue(formattedHTML);
-
-    // 设置预览内容
-    editPreview.innerHTML = htmlContent;
+    // 监听编辑器内容变化
+    codeEditor.on('change', function() {
+      const code = codeEditor.getValue();
+      validateHTML(code);
+      updateUndoRedoButtons();
+    });
   }
+
+  // 设置代码编辑器的内容
+  const formattedHTML = formatHTML(htmlContent);
+  codeEditor.setValue(formattedHTML);
+
+  // 设置预览内容为 iframe 隔离渲染
+  editPreview.innerHTML = '';
+  const previewIframe = document.createElement('iframe');
+  previewIframe.setAttribute('frameborder', '0');
+  previewIframe.setAttribute('scrolling', 'no');
+  previewIframe.style.width = '100%';
+  previewIframe.style.height = '100%';
+  previewIframe.style.border = '0';
+  // 弹窗内不做内部缩放，统一由外层容器 transform 控制
+  previewIframe.srcdoc = buildIsolatedSrcdoc(htmlContent, 1);
+  editPreview.appendChild(previewIframe);
 
   // 显示弹窗
   modal.classList.add('active');
@@ -1515,7 +1520,15 @@ function validateHTML(htmlCode) {
 
       // 尝试更新预览但可能失败
       try {
-        editPreview.innerHTML = htmlCode;
+        editPreview.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = '0';
+        iframe.srcdoc = buildIsolatedSrcdoc(htmlCode, 1);
+        editPreview.appendChild(iframe);
       } catch (e) {
         editPreview.innerHTML = '<div style="color: #ff6b6b; padding: 20px; text-align: center;">HTML语法错误，无法预览</div>';
       }
@@ -1526,8 +1539,16 @@ function validateHTML(htmlCode) {
         codeWrapper.classList.remove('syntax-error');
       }
 
-      // 更新预览
-      editPreview.innerHTML = htmlCode;
+      // 更新预览为 iframe 渲染
+      editPreview.innerHTML = '';
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('scrolling', 'no');
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = '0';
+      iframe.srcdoc = buildIsolatedSrcdoc(htmlCode, 1);
+      editPreview.appendChild(iframe);
     }
   } catch (error) {
     // DOM解析错误
@@ -1631,9 +1652,16 @@ document.getElementById('editCode').addEventListener('input', function(e) {
     const code = e.target.value;
 
     try {
-      editPreview.innerHTML = code;
+      editPreview.innerHTML = '';
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('scrolling', 'no');
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = '0';
+      iframe.srcdoc = buildIsolatedSrcdoc(code, 1);
+      editPreview.appendChild(iframe);
     } catch (error) {
-      // 如果HTML有错误，不更新预览
       console.error('预览更新失败:', error);
     }
   }
