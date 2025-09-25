@@ -136,6 +136,17 @@
     max-height: none !important;
   }
 
+  /* 列表预览：固定为600x800，再按容器缩放显示一致 */
+  .pic-item > div > * {
+    width: 600px !important;
+    height: 800px !important;
+    max-width: none !important;
+    max-height: none !important;
+    transform: scale(0.75);
+    transform-origin: center center;
+    display: block;
+  }
+
   .generate-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -321,6 +332,9 @@
     .pic-item > div {
       width: 360px;
     }
+    .pic-item > div > * {
+      transform: scale(0.6);
+    }
   }
 
   @media (max-width: 1024px) {
@@ -351,6 +365,9 @@
 
     .pic-item > div {
       width: min(450px, calc(100vw - 80px));
+    }
+    .pic-item > div > * {
+      transform: scale(0.75);
     }
   }
 
@@ -387,6 +404,9 @@
     .pic-item > div {
       width: min(350px, calc(100vw - 60px));
     }
+    .pic-item > div > * {
+      transform: scale(0.5833);
+    }
 
     .pic-item {
       padding: 15px;
@@ -396,6 +416,9 @@
   @media (max-width: 480px) {
     .pic-item > div {
       width: min(280px, calc(100vw - 40px));
+    }
+    .pic-item > div > * {
+      transform: scale(0.4667);
     }
 
     .redbook-content {
@@ -586,10 +609,10 @@
   .edit-preview-content {
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    /* 设置为原始600*800尺寸，然后缩放50%显示为300*400 */
+    /* 设置为原始600*800尺寸，然后缩放75%显示为450*600 */
     width: 600px;
     height: 800px;
-    transform: scale(0.5);
+    transform: scale(0.75);
     transform-origin: center center;
     flex-shrink: 0;
     overflow: hidden;
@@ -905,7 +928,7 @@
           <span>实时预览</span>
           <div class="zoom-controls">
             <button id="zoomOutBtn" class="zoom-btn" title="缩小" onclick="zoomPreview(-0.25)">-</button>
-            <span id="zoomText" class="zoom-text">50%</span>
+            <span id="zoomText" class="zoom-text">75%</span>
             <button id="zoomInBtn" class="zoom-btn" title="放大" onclick="zoomPreview(0.25)">+</button>
             <button id="zoomResetBtn" class="zoom-btn" title="重置" onclick="resetZoom()" style="width: auto; padding: 0 8px;">重置</button>
           </div>
@@ -961,7 +984,7 @@ let currentEditingPicItem = null;
 let codeEditor = null;
 let progressInterval = null;
 let currentProgress = 0;
-let currentZoom = 0.5; // 默认50%缩放
+let currentZoom = 0.75; // 默认75%缩放
 
 // 为输入框添加回车快捷键
 document.getElementById('textInput').addEventListener('keydown', function(e) {
@@ -1350,7 +1373,7 @@ function openEditModal(picItem) {
       updateUndoRedoButtons();
     }
     // 初始化缩放控制
-    currentZoom = 0.5;
+    currentZoom = 0.75;
     updatePreviewZoom();
   }, 100);
 }
@@ -1573,7 +1596,7 @@ function zoomPreview(delta) {
 }
 
 function resetZoom() {
-  currentZoom = 0.5; // 重置为50%
+  currentZoom = 0.75; // 重置为75%
   updatePreviewZoom();
 }
 
