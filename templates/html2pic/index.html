@@ -116,41 +116,6 @@
     position: relative;
   }
 
-  /* 固定图片显示比例为3:4（已由 .iframe-shell 接管，保留注释）
-  .pic-item > div {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    width: 450px;
-    max-width: calc(100vw - 120px);
-    aspect-ratio: 3/4;
-  }
-  */
-
-  /* 确保生成的图片内容适应容器 */
-  /* 旧：拉伸内部内容填满容器，已弃用
-  .pic-item > div > * {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
-  }
-  */
-
-  /* 旧：以600x800并用transform缩放显示的方案，已改为 iframe-shell
-  .pic-item > div > * {
-    width: 600px !important;
-    height: 800px !important;
-    max-width: none !important;
-    max-height: none !important;
-    transform: scale(0.75);
-    transform-origin: center center;
-    display: block;
-  }
-  */
-
   .generate-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -324,48 +289,6 @@
   .input-textarea::-webkit-scrollbar-thumb:hover,
   .output-container::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
-  }
-
-  /* 响应式设计 */
-  @media (max-width: 1200px) {
-    .redbook-content {
-      max-width: 100%;
-      height: calc(100vh - 80px);
-    }
-
-    /* .pic-item > div { width: 360px; } */
-    /* .pic-item > div > * { transform: scale(0.6); } */
-  }
-
-  @media (max-width: 1024px) {
-    .redbook-content { height: calc(100vh - 80px); }
-    .redbook-area { flex-direction: column; gap: 20px; height: calc(100% - 60px); }
-    .input-container { flex: none; max-width: 100%; width: 100%; height: auto; min-height: 250px; }
-    .output-container { flex: 1; max-width: 100%; width: 100%; min-height: 400px; }
-
-    /* .pic-item > div { width: min(450px, calc(100vw - 80px)); } */
-    /* .pic-item > div > * { transform: scale(0.75); } */
-  }
-
-  @media (max-width: 768px) {
-    .redbook-content { padding: 20px; height: calc(100vh - 60px); }
-    .redbook-area { height: calc(100% - 40px); gap: 15px; }
-    .input-textarea { min-height: 150px; }
-    .action-buttons { flex-direction: column !important; align-items: stretch; gap: 8px; }
-    .action-btn { flex: none; }
-    .status-text { text-align: center; margin: 8px 0; }
-
-    /* .pic-item > div { width: min(350px, calc(100vw - 60px)); } */
-    /* .pic-item > div > * { transform: scale(0.5833); } */
-
-    .pic-item { padding: 15px; }
-  }
-
-  @media (max-width: 480px) {
-    /* .pic-item > div { width: min(280px, calc(100vw - 40px)); } */
-    /* .pic-item > div > * { transform: scale(0.4667); } */
-    .redbook-content { padding: 15px; }
-    .pic-item { padding: 10px; }
   }
 
   /* 编辑按钮样式 */
@@ -740,62 +663,26 @@
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
   }
 
-  /* 响应式调整（编辑弹窗由外层缩放控制，不再固定尺寸）
-  @media (max-width: 1400px) {
-    .edit-preview-content {
-      width: 450px;
-      height: 600px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    .edit-modal-body { flex-direction: column; }
-    .edit-preview-content {
-      width: 375px;
-      height: 500px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .edit-modal-content { width: 95%; height: 95vh; }
-    .edit-preview-content {
-      width: 300px;
-      height: 400px;
-    }
-  }
-  */
   /* 新的 iframe 预览容器，按 3:4 占位 */
   .iframe-shell {
-    width: 450px;
-    max-width: calc(100vw - 120px);
-    aspect-ratio: 3/4;
+    width: 600px;
+    height: 800px;
     border-radius: 8px;
     overflow: hidden; /* 仅裁切容器边缘 */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     position: relative;
     display: block;
+    /* transform: scale(0.75); */
   }
   /* 让 iframe 占满容器，取消外层旧样式的缩放干扰 */
   .iframe-shell > iframe {
-    /* width: 100% !important;
-    height: 100% !important; */
+    width: 100% !important;
+    height: 100% !important;
     border: 0 !important;
     transform: none !important;
     display: block;
   }
 
-  @media (max-width: 1200px) {
-    .iframe-shell { width: 360px; }
-  }
-  @media (max-width: 1024px) {
-    .iframe-shell { width: min(450px, calc(100vw - 80px)); }
-  }
-  @media (max-width: 768px) {
-    .iframe-shell { width: min(350px, calc(100vw - 60px)); }
-  }
-  @media (max-width: 480px) {
-    .iframe-shell { width: min(280px, calc(100vw - 40px)); }
-  }
 </style>
 {% endblock %}
 
@@ -974,6 +861,18 @@ function buildIsolatedSrcdoc(rawHtml, scale = 1) {
   // </style></head><body><div class="fit"><div class="canvas">${rawHtml}</div></div></body></html>`;
 }
 
+// 列表专用：带缩放的隔离模板，保证 600x800 内容按容器宽度等比显示
+function buildListSrcdoc(rawHtml, scale) {
+  return rawHtml
+  const safeScale = Math.max(0.1, Math.min(3, Number(scale) || 1));
+  return `<!DOCTYPE html><html><head><meta charset=\"utf-8\"><style>
+    html,body{margin:0;padding:0;background:transparent;height:100%;}
+    *{box-sizing:border-box;}
+    .canvas{width:600px;height:800px;transform:scale(${safeScale});transform-origin:top left;}
+    .fit{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+  </style></head><body><div class=\"fit\"><div class=\"canvas\">${rawHtml}</div></div></body></html>`;
+}
+
 function generateRedbook() {
   const textInput = document.getElementById('textInput');
   const generateBtn = document.getElementById('generateBtn');
@@ -1068,16 +967,19 @@ function generateRedbook() {
                   // 保存原始HTML用于编辑/下载
                   previewContainer.dataset.rawHtml = data.content;
 
-                  // 当前容器宽度（若未渲染，取默认450）
-                  const shellWidth = previewContainer.getBoundingClientRect().width || 450;
-                  const scale = shellWidth / 600; // 等比例适配 600x800
-
                   const iframe = document.createElement('iframe');
                   iframe.setAttribute('frameborder', '0');
                   iframe.setAttribute('scrolling', 'no');
-                  iframe.srcdoc = buildIsolatedSrcdoc(data.content, scale);
+
+                  // 先挂载再测量，避免宽度为0
                   previewContainer.appendChild(iframe);
                   picItem.appendChild(previewContainer);
+                  generatedPics.appendChild(picItem);
+
+                  // 以 600px 画布宽为基准计算比例
+                  const width = previewContainer.getBoundingClientRect().width || 450;
+                  const scale = width / 600;
+                  iframe.srcdoc = buildListSrcdoc(data.content, scale);
 
                   // 添加编辑按钮
                   const editBtn = document.createElement('button');
@@ -1091,7 +993,6 @@ function generateRedbook() {
                   `;
                   picItem.appendChild(editBtn);
 
-                  generatedPics.appendChild(picItem);
                   statusText.textContent = `已生成 ${generatedPics.children.length} 张图片...`;
                   break;
 
@@ -1643,6 +1544,28 @@ function updatePreviewZoom() {
     zoomInBtn.disabled = currentZoom >= 2;
   }
 }
+
+// 列表自适应缩放刷新，仅作用于外层列表
+function refreshListPreviewScale() {
+  const listRoot = document.getElementById('generatedPics');
+  if (!listRoot) return;
+  const shells = listRoot.querySelectorAll('.iframe-shell');
+  shells.forEach(shell => {
+    const iframe = shell.querySelector('iframe');
+    if (!iframe) return;
+    const raw = shell.dataset.rawHtml || '';
+    const width = shell.getBoundingClientRect().width || 450;
+    const scale = width / 600;
+    // 仅列表使用 buildListSrcdoc，不影响弹窗
+    iframe.srcdoc = buildListSrcdoc(raw || iframe.srcdoc, scale);
+  });
+}
+window.addEventListener('resize', () => {
+  clearTimeout(window.__listScaleTimer);
+  window.__listScaleTimer = setTimeout(refreshListPreviewScale, 120);
+});
+// 首图插入后异步刷新一次
+setTimeout(refreshListPreviewScale, 0);
 
 // 保留原生textarea的实时预览功能作为备用
 document.getElementById('editCode').addEventListener('input', function(e) {
