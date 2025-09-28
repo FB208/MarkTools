@@ -43,8 +43,13 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        from models.user import User
-        return User.get_or_none(User.id == int(user_id))
+        # 仅使用会话中的外部用户信息，不再兼容本地用户表
+        from models.session_user import SessionUser
+        from flask import session as flask_session
+        ext_user = flask_session.get('ext_user')
+        if ext_user:
+            return SessionUser.from_dict(ext_user)
+        return None
 
     with app.app_context():
         from routes import main_bp, translate_bp, md2all_bp, speech2text_bp, article_bp, test_bp, wechat_bp, starbot_bp, scheduler_bp, life_bp, word_plugin_bp, auth_bp, fun_bp, text2speech_bp, wechat_sub_account_bp, lighthouse_bp, html2pic_bp

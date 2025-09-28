@@ -23,7 +23,7 @@
                 {% endif %}
                 {% endwith %}
 
-                <form method="POST" action="{{ url_for('auth.register') }}" class="space-y-5">
+                <form id="registerForm" method="POST" action="{{ url_for('auth.register') }}" class="space-y-5" autocomplete="off" spellcheck="false">
                     <div class="group/input">
                         <label
                             class="block text-white/60 text-sm mb-2 tracking-wide hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text hover:text-transparent transition-colors"
@@ -34,7 +34,7 @@
                                focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 
                                hover:border-white/20 hover:bg-white/[0.06]
                                placeholder-white/20 transition-all duration-300" id="username" name="username"
-                            type="text" required placeholder="请输入用户名">
+                            type="text" placeholder="请输入用户名（可留空）" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off">
                     </div>
 
                     <div class="group/input">
@@ -47,7 +47,23 @@
                                focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 
                                hover:border-white/20 hover:bg-white/[0.06]
                                placeholder-white/20 transition-all duration-300" id="email" name="email" type="email"
-                            required placeholder="请输入邮箱">
+                            required placeholder="请输入邮箱" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off">
+                    </div>
+
+                    <div class="group/input">
+                        <label
+                            class="block text-white/60 text-sm mb-2 tracking-wide hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text hover:text-transparent transition-colors"
+                            for="verify_code">
+                            验证码
+                        </label>
+                        <div class="input-button-group">
+                            <input id="verify_code" name="verify_code"
+                                   type="text" placeholder="请输入验证码" inputmode="numeric" pattern="[0-9]*" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off">
+                            <button type="button" id="sendCodeBtn" class="ibg-btn">发送</button>
+                        </div>
+                        <div class="mt-2">
+                            <span id="sendCodeMsg" class="text-xs text-white/60"></span>
+                        </div>
                     </div>
 
                     <div class="group/input">
@@ -60,11 +76,11 @@
                                focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 
                                hover:border-white/20 hover:bg-white/[0.06]
                                placeholder-white/20 transition-all duration-300" id="password" name="password"
-                            type="password" required placeholder="请输入密码">
+                            type="password" placeholder="请输入密码（可留空）" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off">
                     </div>
 
                     <div class="flex items-center justify-between pt-2">
-                        <button type="submit" class="button">
+                        <button type="submit" id="registerSubmitBtn" class="button">
                             注册
                         </button>
                         <a class="text-sm text-white/60 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text hover:text-transparent transition-all duration-300 tracking-wide"
@@ -95,4 +111,114 @@
         animation: fade-in 0.3s ease-out forwards;
     }
 </style>
+<script>
+    (function () {
+        const sendBtn = document.getElementById('sendCodeBtn');
+        const emailInput = document.getElementById('email');
+        const msgEl = document.getElementById('sendCodeMsg');
+        const formEl = document.getElementById('registerForm');
+        const usernameInput = document.getElementById('username');
+        const codeInput = document.getElementById('verify_code');
+        const passwordInput = document.getElementById('password');
+        const submitBtn = document.getElementById('registerSubmitBtn');
+
+        if (!sendBtn) return;
+
+        function showMsg(text, isError) {
+            msgEl.textContent = text || '';
+            msgEl.className = 'text-xs ' + (isError ? 'text-red-400' : 'text-green-400');
+        }
+
+        function startCountdown(seconds) {
+            let remain = seconds;
+            sendBtn.disabled = true;
+            const originText = '发送';
+            const timer = setInterval(() => {
+                remain -= 1;
+                sendBtn.textContent = `重新发送(${remain}s)`;
+                if (remain <= 0) {
+                    clearInterval(timer);
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = originText;
+                }
+            }, 1000);
+        }
+
+        function isEmail(str) {
+            return /.+@.+\..+/.test(str);
+        }
+
+        sendBtn.addEventListener('click', async () => {
+            const email = (emailInput.value || '').trim();
+            if (!email) {
+                showMsg('请先输入邮箱', true);
+                emailInput.focus();
+                return;
+            }
+            if (!isEmail(email)) {
+                showMsg('邮箱格式不正确', true);
+                emailInput.focus();
+                return;
+            }
+
+            showMsg('正在发送...', false);
+            sendBtn.disabled = true;
+            try {
+                const resp = await fetch("{{ url_for('auth.send_code') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await resp.json().catch(() => ({ success: false, message: '服务返回格式错误' }));
+                if (resp.ok && data && data.success) {
+                    const expire = (data.expire_minutes !== undefined) ? `（${data.expire_minutes}分钟内有效）` : '';
+                    showMsg((data.message || '验证码已发送') + expire, false);
+                    startCountdown(60);
+                } else {
+                    showMsg(data && data.message ? data.message : '发送失败，请稍后重试', true);
+                    sendBtn.disabled = false;
+                }
+            } catch (e) {
+                showMsg('网络异常，请稍后重试', true);
+                sendBtn.disabled = false;
+            }
+        });
+
+        // 注册提交改为异步 JSON
+        formEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = (emailInput.value || '').trim();
+            const code = (codeInput.value || '').trim();
+            const nikename = (usernameInput.value || '').trim();
+            const password = (passwordInput.value || '').trim();
+
+            if (!email) { showMsg('请输入邮箱', true); emailInput.focus(); return; }
+            if (!isEmail(email)) { showMsg('邮箱格式不正确', true); emailInput.focus(); return; }
+            if (!code) { showMsg('请输入验证码', true); codeInput.focus(); return; }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '注册中...';
+            try {
+                const resp = await fetch("{{ url_for('auth.register') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code, nikename, password })
+                });
+                const data = await resp.json().catch(() => ({ success: false, message: '服务返回格式错误' }));
+                if (resp.ok && data && data.success) {
+                    const tip = data.message || '注册成功，已为您登录';
+                    try { showToast(tip, 'success'); } catch (_) {}
+                    setTimeout(() => { window.location.href = "{{ url_for('main.index') }}"; }, 3000);
+                } else {
+                    showMsg(data && data.message ? data.message : '注册失败，请稍后重试', true);
+                }
+            } catch (err) {
+                showMsg('网络异常，请稍后重试', true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '注册';
+            }
+        });
+    })();
+</script>
 {% endblock %}

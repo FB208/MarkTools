@@ -379,3 +379,51 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
 }
+
+/* 通用 输入+按钮 组件：input-button-group */
+.input-button-group {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem; /* 与页面其他输入保持一致 */
+  background-color: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.input-button-group:focus-within {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+}
+.input-button-group input {
+  flex: 1;
+  height: 40px;
+  padding: 0 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: rgba(255, 255, 255, 0.9);
+  outline: none;
+}
+.input-button-group input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+.input-button-group .ibg-btn {
+  height: 40px;
+  padding: 0 14px;
+  background-image: linear-gradient(to right, #6366f1, #9333ea);
+  color: #fff;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+.input-button-group .ibg-btn:hover {
+  background-image: linear-gradient(to right, #4f46e5, #7e22ce);
+}
+.input-button-group .ibg-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
