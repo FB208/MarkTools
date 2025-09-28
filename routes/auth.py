@@ -1,36 +1,102 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session
 from flask import current_app as app
 from flask_login import login_user, logout_user, login_required, current_user
-from models.user import User
-from utils.mysql_util import db
 from . import auth_bp
 import re
 import requests
 
 
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/login', methods=['GET'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
-        
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        remember = request.form.get('remember', False) == 'on'
-        
-        user = User.get_or_none(User.username == username)
-        
-        if user is not None and user.check_password(password):
-            login_user(user, remember=remember)
-            user.update_last_login()
-            next_page = request.args.get('next')
-            if not next_page or not next_page.startswith('/'):
-                next_page = url_for('main.index')
-            return redirect(next_page)
-        flash('用户名或密码错误')
-    
     return render_template('auth/login.html')
+
+@auth_bp.route('/login_password', methods=['POST'])
+def login_password():
+    # 使用统一认证平台：邮箱 + 密码登录
+    payload = request.get_json(silent=True) or {}
+    email = (payload.get('email') or '').strip()
+    password = payload.get('password') or ''
+    remember = bool(payload.get('remember'))
+
+    if not email or not password:
+        return jsonify({"success": False, "message": "邮箱与密码不能为空"}), 400
+
+    upstream_url = f"{app.config['MTV2_BASE_URL']}auth/login/password"
+    headers = {"Authorization": f"Bearer {app.config['MTV2_API_TOKEN']}"}
+    body = {
+        "email": email,
+        "password": password,
+        "platform": app.config.get('PLATFORM', 'marktools'),
+        "platform_version": app.config.get('PLATFORM_VERSION', '1.0.0'),
+    }
+    try:
+        resp = requests.post(upstream_url, headers=headers, json=body, timeout=12)
+        data = resp.json()
+    except Exception:
+        return jsonify({"success": False, "message": "登录失败，请稍后重试"}), 502
+
+    if data.get('success') and isinstance(data.get('data'), dict):
+        access_token = data['data'].get('access_token')
+        token_type = data['data'].get('token_type')
+        user_info = data['data'].get('user')
+        if access_token and token_type:
+            session['access_token'] = access_token
+            session['token_type'] = token_type
+            session['ext_user'] = user_info
+            try:
+                from models.session_user import SessionUser
+                su = SessionUser.from_dict(user_info)
+                if su and su.get_id() is not None:
+                    login_user(su, remember=remember)
+            except Exception:
+                pass
+
+    return jsonify(data), resp.status_code
+
+@auth_bp.route('/login_code', methods=['POST'])
+def login_code():
+    # 使用统一认证平台：邮箱 + 验证码登录
+    payload = request.get_json(silent=True) or {}
+    email = (payload.get('email') or '').strip()
+    code = (payload.get('code') or '').strip()
+
+    if not email or not code:
+        return jsonify({"success": False, "message": "邮箱与验证码不能为空"}), 400
+
+    upstream_url = f"{app.config['MTV2_BASE_URL']}auth/login/code"
+    headers = {"Authorization": f"Bearer {app.config['MTV2_API_TOKEN']}"}
+    body = {
+        "email": email,
+        "code": code,
+        "platform": app.config.get('PLATFORM', 'marktools'),
+        "platform_version": app.config.get('PLATFORM_VERSION', '1.0.0'),
+    }
+    try:
+        resp = requests.post(upstream_url, headers=headers, json=body, timeout=12)
+        data = resp.json()
+    except Exception:
+        return jsonify({"success": False, "message": "登录失败，请稍后重试"}), 502
+
+    if data.get('success') and isinstance(data.get('data'), dict):
+        access_token = data['data'].get('access_token')
+        token_type = data['data'].get('token_type')
+        user_info = data['data'].get('user')
+        if access_token and token_type:
+            session['access_token'] = access_token
+            session['token_type'] = token_type
+            session['ext_user'] = user_info
+            try:
+                from models.session_user import SessionUser
+                su = SessionUser.from_dict(user_info)
+                if su and su.get_id() is not None:
+                    login_user(su, remember=True)
+            except Exception:
+                pass
+
+    return jsonify(data), resp.status_code
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():

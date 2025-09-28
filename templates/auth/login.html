@@ -10,7 +10,13 @@
                 class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-500">
             </div>
             <div class="relative bg-[#1a1b26] p-8 rounded-xl">
-                <h2 class="text-3xl font-medium mb-8 text-center tracking-wider bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-sans">LOGIN</h2>
+                <h2 class="text-3xl font-medium mb-4 text-center tracking-wider bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-sans">LOGIN</h2>
+
+                <!-- 登录方式切换标签 -->
+                <div class="flex items-center justify-center gap-2 mb-6" role="tablist">
+                    <button type="button" id="tabPwd" data-tab="pwd" class="tab tab-active" aria-selected="true">密码登录</button>
+                    <button type="button" id="tabCode" data-tab="code" class="tab tab-inactive" aria-selected="false">邮箱验证码</button>
+                </div>
 
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
@@ -23,18 +29,19 @@
                 {% endif %}
                 {% endwith %}
 
-                <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-5">
+                <!-- 密码登录表单 -->
+                <form id="pwdLoginForm" method="POST" action="{{ url_for('auth.login') }}" class="space-y-5" autocomplete="off" spellcheck="false">
                     <div class="group/input">
                         <label
                             class="block text-white/60 text-sm mb-2 tracking-wide hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text hover:text-transparent transition-colors"
                             for="username">
-                            用户名
+                            邮箱
                         </label>
                         <input class="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-white/10 text-white/90 
                                focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 
                                hover:border-white/20 hover:bg-white/[0.06]
                                placeholder-white/20 transition-all duration-300" id="username" name="username"
-                            type="text" required placeholder="请输入用户名">
+                            type="email" required placeholder="请输入邮箱">
                     </div>
 
                     <div class="group/input">
@@ -66,7 +73,47 @@
                         </button>
                         <a class="text-sm text-white/60 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text hover:text-transparent transition-all duration-300 tracking-wide"
                             href="{{ url_for('auth.register') }}">
-                            注册账号
+                            没有账号？注册
+                        </a>
+                    </div>
+                </form>
+
+                <!-- 验证码登录表单 -->
+                <form id="codeLoginForm" class="space-y-5 hidden" autocomplete="off" spellcheck="false">
+                    <div class="group/input">
+                        <label
+                            class="block text-white/60 text-sm mb-2 tracking-wide hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text hover:text-transparent transition-colors"
+                            for="login_email">
+                            邮箱
+                        </label>
+                        <input class="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-white/10 text-white/90 
+                               focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 
+                               hover:border-white/20 hover:bg-white/[0.06]
+                               placeholder-white/20 transition-all duration-300" id="login_email" name="login_email" type="email"
+                            required placeholder="请输入邮箱">
+                    </div>
+
+                    <div class="group/input">
+                        <label
+                            class="block text-white/60 text-sm mb-2 tracking-wide hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text hover:text-transparent transition-colors"
+                            for="login_code">
+                            验证码
+                        </label>
+                        <div class="input-button-group">
+                            <input id="login_code" name="login_code"
+                                   type="text" placeholder="请输入验证码" inputmode="numeric" pattern="[0-9]*" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off">
+                            <button type="button" id="sendCodeBtnLogin" class="ibg-btn">发送</button>
+                        </div>
+                        <div class="mt-2">
+                            <span id="sendCodeMsgLogin" class="text-xs text-white/60"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <button type="submit" id="codeLoginSubmit" class="button">登录</button>
+                        <a class="text-sm text-white/60 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text hover:text-transparent transition-all duration-300 tracking-wide"
+                            href="{{ url_for('auth.register') }}">
+                            没有账号？注册
                         </a>
                     </div>
                 </form>
@@ -92,4 +139,179 @@
         animation: fade-in 0.3s ease-out forwards;
     }
 </style>
+<style>
+    /* 登录页选项卡样式增强 */
+    .tab {
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid transparent;
+        font-size: 0.875rem;
+        transition: all .2s ease;
+    }
+    .tab-active {
+        background: linear-gradient(135deg, rgba(59,130,246,.15), rgba(168,85,247,.15));
+        color: rgba(255,255,255,.95);
+        border-color: rgba(255,255,255,.18);
+        box-shadow: 0 0 0 1px rgba(59,130,246,.35) inset;
+    }
+    .tab-inactive {
+        color: rgba(255,255,255,.6);
+        border-color: rgba(255,255,255,.08);
+        background: rgba(255,255,255,.02);
+    }
+    .tab:hover { border-color: rgba(255,255,255,.25); color: rgba(255,255,255,.95); }
+    [aria-selected="true"].tab { cursor: default; }
+</style>
+<script>
+    (function () {
+        // Tab 切换
+        const tabPwd = document.getElementById('tabPwd');
+        const tabCode = document.getElementById('tabCode');
+        const formPwd = document.getElementById('pwdLoginForm');
+        const formCode = document.getElementById('codeLoginForm');
+
+        function activate(tab) {
+            const isPwd = tab === 'pwd';
+            formPwd.classList.toggle('hidden', !isPwd);
+            formCode.classList.toggle('hidden', isPwd);
+            // 状态类切换
+            tabPwd.classList.toggle('tab-active', isPwd);
+            tabPwd.classList.toggle('tab-inactive', !isPwd);
+            tabPwd.setAttribute('aria-selected', String(isPwd));
+            tabCode.classList.toggle('tab-active', !isPwd);
+            tabCode.classList.toggle('tab-inactive', isPwd);
+            tabCode.setAttribute('aria-selected', String(!isPwd));
+        }
+
+        tabPwd && tabPwd.addEventListener('click', () => activate('pwd'));
+        tabCode && tabCode.addEventListener('click', () => activate('code'));
+
+        // 密码登录提交：调用后端 /auth/login_password
+        const pwdEmailInput = document.getElementById('username');
+        const pwdPassInput = document.getElementById('password');
+        const rememberInput = document.querySelector('input[name="remember"]');
+        formPwd && formPwd.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = (pwdEmailInput.value || '').trim();
+            const password = (pwdPassInput.value || '').trim();
+            const remember = !!(rememberInput && rememberInput.checked);
+            if (!email) { try { showToast('请输入邮箱', 'error'); } catch (_) {} pwdEmailInput.focus(); return; }
+            if (!password) { try { showToast('请输入密码', 'error'); } catch (_) {} pwdPassInput.focus(); return; }
+            const submitBtn = formPwd.querySelector('button[type="submit"]');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '登录中...'; }
+            try {
+                const resp = await fetch("{{ url_for('auth.login_password') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, remember, platform: "{{ config.get('PLATFORM', 'marktools') }}", platform_version: "{{ config.get('PLATFORM_VERSION', '1.0.0') }}" })
+                });
+                const data = await resp.json().catch(() => ({ success: false, message: '服务返回格式错误' }));
+                if (resp.ok && data && data.success) {
+                    try { showToast('登录成功', 'success'); } catch (_) {}
+                    setTimeout(() => { window.location.href = "{{ url_for('main.index') }}"; }, 1000);
+                } else {
+                    const msg = (data && data.message) ? data.message : '登录失败，请稍后重试';
+                    try { showToast(msg, 'error'); } catch (_) { alert(msg); }
+                }
+            } catch (err) {
+                try { showToast('网络异常，请稍后重试', 'error'); } catch (_) { alert('网络异常，请稍后重试'); }
+            } finally {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '登录'; }
+            }
+        });
+
+        // 邮件验证码登录：发送验证码
+        const sendBtn = document.getElementById('sendCodeBtnLogin');
+        const emailInput = document.getElementById('login_email');
+        const msgEl = document.getElementById('sendCodeMsgLogin');
+        const codeInput = document.getElementById('login_code');
+        const submitBtn = document.getElementById('codeLoginSubmit');
+
+        function showMsg(text, isError) {
+            if (!msgEl) return;
+            msgEl.textContent = text || '';
+            msgEl.className = 'text-xs ' + (isError ? 'text-red-400' : 'text-green-400');
+        }
+        function isEmail(str) { return /.+@.+\..+/.test(str); }
+        function startCountdown(seconds) {
+            let remain = seconds;
+            const originText = '发送';
+            sendBtn.disabled = true;
+            const timer = setInterval(() => {
+                remain -= 1;
+                if (sendBtn) sendBtn.textContent = `重新发送(${remain}s)`;
+                if (remain <= 0) {
+                    clearInterval(timer);
+                    sendBtn.disabled = false;
+                    if (sendBtn) sendBtn.textContent = originText;
+                }
+            }, 1000);
+        }
+
+        sendBtn && sendBtn.addEventListener('click', async () => {
+            const email = (emailInput.value || '').trim();
+            if (!email) { showMsg('请先输入邮箱', true); emailInput.focus(); return; }
+            if (!isEmail(email)) { showMsg('邮箱格式不正确', true); emailInput.focus(); return; }
+
+            showMsg('正在发送...', false);
+            sendBtn.disabled = true;
+            try {
+                const resp = await fetch("{{ url_for('auth.send_code') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await resp.json().catch(() => ({ success: false, message: '服务返回格式错误' }));
+                if (resp.ok && data && data.success) {
+                    const expire = (data.expire_minutes !== undefined) ? `（${data.expire_minutes}分钟内有效）` : '';
+                    showMsg((data.message || '验证码已发送') + expire, false);
+                    startCountdown(60);
+                } else {
+                    showMsg(data && data.message ? data.message : '发送失败，请稍后重试', true);
+                    sendBtn.disabled = false;
+                }
+            } catch (e) {
+                showMsg('网络异常，请稍后重试', true);
+                sendBtn.disabled = false;
+            }
+        });
+
+        // 验证码登录提交：调用后端 /auth/login_code
+        const formCodeEl = document.getElementById('codeLoginForm');
+        formCodeEl && formCodeEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = (emailInput.value || '').trim();
+            const code = (codeInput.value || '').trim();
+            if (!email) { showMsg('请输入邮箱', true); emailInput.focus(); return; }
+            if (!isEmail(email)) { showMsg('邮箱格式不正确', true); emailInput.focus(); return; }
+            if (!code) { showMsg('请输入验证码', true); codeInput.focus(); return; }
+
+            submitBtn.disabled = true;
+            const origin = submitBtn.textContent;
+            submitBtn.textContent = '登录中...';
+            try {
+                const resp = await fetch("{{ url_for('auth.login_code') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code, platform: "{{ config.get('PLATFORM', 'marktools') }}", platform_version: "{{ config.get('PLATFORM_VERSION', '1.0.0') }}" })
+                });
+                const data = await resp.json().catch(() => ({ success: false, message: '服务返回格式错误' }));
+                if (resp.ok && data && data.success) {
+                    try { showToast('登录成功', 'success'); } catch (_) {}
+                    setTimeout(() => { window.location.href = "{{ url_for('main.index') }}"; }, 1000);
+                } else {
+                    showMsg(data && data.message ? data.message : '登录失败，请稍后重试', true);
+                }
+            } catch (err) {
+                showMsg('网络异常，请稍后重试', true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = origin;
+            }
+        });
+
+        // 默认激活密码登录
+        activate('pwd');
+    })();
+</script>
 {% endblock %}
