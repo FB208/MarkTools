@@ -4,6 +4,7 @@ from .base_model import BaseModel
 class CreditCard(BaseModel):
     """信用卡表"""
     id = AutoField(primary_key=True)  # 修改为 AutoField 对应自增主键
+    v2user_id = BigIntegerField(null=True, help_text='V2 用户ID')
     card_code = CharField(max_length=50, null=True, help_text='卡号')
     credit_year = IntegerField(null=True, help_text='年份')
     credit_month = IntegerField(null=True, help_text='月份')

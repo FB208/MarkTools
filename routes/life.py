@@ -1,7 +1,7 @@
 from flask import render_template, request, jsonify
 from . import life_bp
 from services.credit_card_service import get_credit_cards, add_swipe_record
-from flask_login import login_required
+from flask_login import login_required,current_user
 
 @life_bp.route('/credit_card')
 @login_required
@@ -14,7 +14,8 @@ def credit_card():
 @login_required
 def credit_card_list():
     """信用卡列表接口"""
-    credit_cards = get_credit_cards()
+    v2user_id = int(current_user.get_id())
+    credit_cards = get_credit_cards(v2user_id)
     return jsonify(credit_cards)
 
 @life_bp.route('/credit_card/swipe', methods=['POST'])

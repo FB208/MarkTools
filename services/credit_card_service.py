@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 from models import CreditCard, CreditCardLog
 from utils.mysql_util import MySQLUtil
-
-def get_credit_cards():
+def get_credit_cards(v2user_id: int):
     """获取信用卡信息，并按开卡月份计算年度刷卡次数"""
     try:
         # 初始化数据库连接
@@ -11,8 +10,8 @@ def get_credit_cards():
         # 获取当前日期
         now = datetime.now()
         
-        # 获取所有信用卡
-        cards = CreditCard.select()
+        # 获取所有信用卡（按传入用户过滤）
+        cards = CreditCard.select().where(CreditCard.v2user_id == v2user_id)
         result = []
         
         for card in cards:
@@ -49,7 +48,7 @@ def get_credit_cards():
             }
             result.append(card_data)
             
-        return result
+        return result            
         
     except Exception as e:
         print(f"获取信用卡信息失败: {str(e)}")
