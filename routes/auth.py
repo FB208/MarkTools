@@ -4,6 +4,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from . import auth_bp
 import re
 import requests
+from utils.log_util import log
 
 
 
@@ -165,6 +166,7 @@ def send_code():
     mtv2_base_url = app.config['MTV2_BASE_URL']
     mtv2_api_token = app.config['MTV2_API_TOKEN']
     upstream_url = f'{mtv2_base_url}email/send_verify_code'
+    log.info(f"发送验证码到邮箱: {email}")
     try:
         resp = requests.post(
             upstream_url,
@@ -177,7 +179,9 @@ def send_code():
             },
             timeout=10
         )
-    except requests.RequestException:
+        log.info(resp)
+    except Exception as e:
+        log.error(f"发送验证码到邮箱: {email} 失败: {e}")
         return jsonify({"success": False, "message": "发送失败，请稍后重试"}), 502
 
     # 尝试解析上游返回
