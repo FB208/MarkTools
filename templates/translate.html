@@ -4,18 +4,16 @@
 
 {% block head %}
 <style>
-
-
   .translate-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 1000px;
+    max-width: 1200px;
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    padding: 30px;
+    padding: 40px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   }
 
@@ -24,22 +22,68 @@
     justify-content: center;
     align-items: center;
     width: 100%;
+    gap: 20px;
   }
 
   .textarea-container {
     flex: 1;
-    max-width: 45%;
+    max-width: 47%;
+    position: relative;
+  }
+
+  .textarea-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .label-text {
+    color: #a5b4fc;
+    font-weight: 500;
+    font-size: 16px;
+    text-shadow: 0 0 3px #a5b4fc;
+  }
+
+  .clear-icon-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(165, 180, 252, 0.3);
+    background: transparent;
+    color: #a5b4fc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+    margin-left: 10px;
+  }
+
+  .clear-icon-btn:hover {
+    opacity: 1;
+    background: rgba(79, 70, 229, 0.2);
+    border-color: rgba(165, 180, 252, 0.6);
+    transform: rotate(90deg);
+  }
+
+  .clear-icon-btn svg {
+    width: 16px;
+    height: 16px;
   }
 
   .textarea {
     width: 100%;
-    min-height: 200px;
+    min-height: 240px;
     border: 1px solid rgba(255, 255, 255, 0.18);
     background-color: rgba(255, 255, 255, 0.05);
     color: #e3e3e3;
     border-radius: 12px;
-    padding: 12px;
+    padding: 16px;
     font-size: 16px;
+    line-height: 1.6;
     resize: none;
     transition: all 0.3s ease;
   }
@@ -47,42 +91,161 @@
   .textarea:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.6);
+    background-color: rgba(255, 255, 255, 0.08);
   }
 
+  .translate-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-width: 80px;
+  }
 
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
 
-  label {
+  .button {
+    min-width: 48px;
+    height: 48px;
+    font-size: 20px;
+    border-radius: 10px;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+  }
+
+  .button:hover {
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  }
+
+  .button:active {
+    transform: scale(0.96);
+    filter: brightness(1.05);
+  }
+
+  .button-pressed {
+    transform: scale(0.96);
+    filter: brightness(1.05);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.35);
+  }
+
+  .button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* 加载状态指示器 */
+  .loading-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     color: #a5b4fc;
-    margin-bottom: 8px;
-    display: block;
-    font-weight: 500;
+    font-size: 12px;
   }
 
+  .loading-indicator.hidden {
+    display: none;
+  }
 
-  .label-text {
-    text-shadow: 0 0 3px #a5b4fc;
+  .loading-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(165, 180, 252, 0.25);
+    border-top-color: #a5b4fc;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* 底部操作栏 */
+  .bottom-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+  }
+
+  .action-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(165, 180, 252, 0.3);
+    background: rgba(79, 70, 229, 0.1);
+    color: #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .action-btn:hover {
+    background: rgba(79, 70, 229, 0.25);
+    border-color: rgba(129, 140, 248, 0.6);
+    color: #eef2ff;
+    transform: translateY(-2px);
+  }
+
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
   }
 
   /* 响应式设计 */
   @media (max-width: 768px) {
+    .translate-content {
+      padding: 24px;
+    }
+
     .translate-area {
       flex-direction: column;
+      gap: 20px;
     }
 
     .textarea-container {
       max-width: 100%;
       width: 100%;
-      margin-bottom: 20px;
+    }
+
+    .translate-actions {
+      width: 100%;
+      flex-direction: row;
+      min-width: auto;
     }
 
     .buttons {
       flex-direction: row;
-      justify-content: center;
-      margin: 10px 0;
+      gap: 16px;
     }
 
     .button {
-      margin: 0 5px;
+      width: 56px;
+      height: 56px;
+      font-size: 24px;
+    }
+
+    .bottom-actions {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      font-size: 13px;
     }
   }
 </style>
@@ -101,17 +264,52 @@
     <h1 class="title">提示词双向翻译</h1>
     <div class="translate-area">
       <div class="textarea-container">
-        <label for="chinese" class="label-text">中文</label>
-        <textarea id="chinese" class="textarea" oninput="autoResize(this)"></textarea>
+        <div class="textarea-header">
+          <label for="chinese" class="label-text">中文 Chinese</label>
+          <button class="clear-icon-btn" onclick="clearText('left')" title="清空">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          </button>
+        </div>
+        <textarea id="chinese" class="textarea" oninput="autoResize(this)" placeholder="在此输入中文文本..."></textarea>
       </div>
-      <div class="buttons">
-        <button id="zh_to_en" class="button my-[5px] w-[60px]" onclick="do_translate('zh_to_en')">→</button>
-        <button id="en_to_zh" class="button" onclick="do_translate('en_to_zh')">←</button>
+      <div class="translate-actions">
+        <div class="buttons">
+          <button id="zh_to_en" class="button" onclick="do_translate('zh_to_en')" title="中文翻译为英文 (Enter)">→</button>
+          <button id="en_to_zh" class="button" onclick="do_translate('en_to_zh')" title="英文翻译为中文 (Shift+Enter)">←</button>
+        </div>
+        <div id="loading-indicator" class="loading-indicator hidden">
+          <span class="loading-spinner"></span>
+          <span class="loading-text">翻译中…</span>
+        </div>
       </div>
       <div class="textarea-container">
-        <label for="english" class="label-text">英文</label>
-        <textarea id="english" class="textarea" oninput="autoResize(this)"></textarea>
+        <div class="textarea-header">
+          <label for="english" class="label-text">英文 English</label>
+          <button class="clear-icon-btn" onclick="clearText('right')" title="清空">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          </button>
+        </div>
+        <textarea id="english" class="textarea" oninput="autoResize(this)" placeholder="在此输入英文文本..."></textarea>
       </div>
+    </div>
+    <div class="bottom-actions">
+      <button class="action-btn" onclick="clearText('all')" title="清空所有内容">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        全部清空
+      </button>
     </div>
   </div>
 </div>
@@ -122,19 +320,23 @@
     $.removeCookie('mt_chinese_old');
     $.removeCookie('mt_english_old');
 
-    // 为中文文本框添加回车事件
-    $('#chinese').keypress(function(e) {
-      if (e.which === 13 && !e.shiftKey) {
-        e.preventDefault();
-        do_translate('zh_to_en');
-      }
-    });
+    // 全局翻译中状态，防止重复触发
+    window.isTranslating = false;
 
+    // 为中文文本框添加回车事件
     // 为英文文本框添加回车事件
-    $('#english').keypress(function(e) {
-      if (e.which === 13 && !e.shiftKey) {
+    // 增加全局键盘响应：回车 中->英；Shift+回车 英->中
+    $(document).on('keydown', function(e) {
+      if (e.key === 'Enter') {
         e.preventDefault();
-        do_translate('en_to_zh');
+        if (window.isTranslating) {
+          return;
+        }
+        if (e.shiftKey) {
+          do_translate('en_to_zh');
+        } else {
+          do_translate('zh_to_en');
+        }
       }
     });
   });
@@ -152,7 +354,40 @@
     }, 3000); // 3秒后隐藏提示
   }
 
+  function animateButton(direction) {
+    const btnId = direction === 'zh_to_en' ? 'zh_to_en' : 'en_to_zh';
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.classList.add('button-pressed');
+    setTimeout(() => {
+      btn.classList.remove('button-pressed');
+    }, 150);
+  }
+
+  function clearText(target) {
+    if (window.isTranslating) {
+      return;
+    }
+
+    if (target === 'left' || target === 'all') {
+      $('#chinese').val('');
+      autoResize(document.getElementById('chinese'));
+    }
+
+    if (target === 'right' || target === 'all') {
+      $('#english').val('');
+      autoResize(document.getElementById('english'));
+    }
+  }
+
   function do_translate(direction) {
+    if (window.isTranslating) {
+      return;
+    }
+    window.isTranslating = true;
+    $('#loading-indicator').removeClass('hidden');
+    $('#zh_to_en, #en_to_zh').prop('disabled', true);
+    animateButton(direction);
     const chineseText = $('#chinese').val();
     const englishText = $('#english').val();
     const chineseOld = $.cookie('mt_chinese_old') || '';
@@ -186,6 +421,11 @@
       error: function(error) {
         console.error('Error:', error);
         showToast('翻译失败，请重试。', 'error'); // 添加错误提示
+      },
+      complete: function() {
+        $('#loading-indicator').addClass('hidden');
+        $('#zh_to_en, #en_to_zh').prop('disabled', false);
+        window.isTranslating = false;
       }
     });
   }
