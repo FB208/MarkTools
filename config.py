@@ -7,6 +7,8 @@ class Config:
     PLATFORM_VERSION = os.getenv('PLATFORM_VERSION', '1.0.0')
     MTV2_BASE_URL = os.getenv('MTV2_BASE_URL', 'https://api.mtv2.com/v1/')
     MTV2_API_TOKEN = os.getenv('MTV2_API_TOKEN', 'your_default_mtv2_api_token')
+    SR_BASE_URL = os.getenv('SR_BASE_URL', 'https://api.srp.agnet.top/')
+    SR_API_KEY = os.getenv('SR_API_KEY', 'your_default_srp_api_token')
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'your_default_openai_api_key')
     OPENAI_BASE_URL = os.getenv('OPENAI_BASE_URL', 'https://api.deepseek.com/v1/')
     OPENAI_PROXY_API_KEY = os.getenv('OPENAI_PROXY_API_KEY', 'your_default_openai_proxy_api_key')

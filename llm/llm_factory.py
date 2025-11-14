@@ -10,7 +10,7 @@ from .longcat_llm_service import LongCatLLMService
 from .gb_llm_service import GBLLMService
 from .openrouter_llm_service import OpenRouterLLMService
 from flask import current_app as app
-
+from .singlerouter_llm_service import SingleRouterLLMService
 class LLMFactory:
     @staticmethod
     def get_llm_service(service_type=None):
@@ -26,5 +26,6 @@ class LLMFactory:
             'hsfz': HSFZLLMService(),
             'longcat': LongCatLLMService(),
             'gb': GBLLMService(),
-            'or': OpenRouterLLMService()
+            'or': OpenRouterLLMService(),
+            'sr': SingleRouterLLMService()
         }.get(service_type, DeepSeekLLMService())

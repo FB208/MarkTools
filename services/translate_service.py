@@ -72,7 +72,7 @@ def translate_text(chinese_text, english_text,chinese_old,english_old, direction
         {"role": "user", "content": user_prompt}
     ]
     llm_service = LLMFactory.get_llm_service()
-    completion = llm_service.get_chat_completion(messages)
+    completion = llm_service.get_chat_completion(messages,model="gemini-2.5-flash-lite")
     return llm_service.get_messages(completion)
 
 def extract_content(old_text, new_text):
@@ -111,7 +111,7 @@ def extract_content(old_text, new_text):
         {"role": "user", "content": f"{user_prompt}"}
     ]
     llm_service = LLMFactory.get_llm_service()
-    completion = llm_service.get_json_completion(messages)
+    completion = llm_service.get_json_completion(messages,model="gemini-2.5-flash-lite")
     return llm_service.get_messages(completion)
 
 
@@ -129,7 +129,7 @@ def expert_translate(text):
             {"role": "user", "content": f"{user_prompt}"}
         ]
         llm_service = LLMFactory.get_llm_service()
-        completion = llm_service.get_chat_completion(messages)
+        completion = llm_service.get_chat_completion(messages,model="gemini-2.5-flash-lite")
         return llm_service.get_messages(completion)
     # 反思翻译  
     def reflect_on_translation(source_text, translation_text):
@@ -162,7 +162,7 @@ def expert_translate(text):
             {"role": "user", "content": f"{user_prompt}"}
         ]
         llm_service = LLMFactory.get_llm_service()
-        completion = llm_service.get_chat_completion(messages)
+        completion = llm_service.get_chat_completion(messages,model="gemini-2.5-flash-lite")
         return llm_service.get_messages(completion)
       
     # 最终翻译
@@ -190,7 +190,7 @@ def expert_translate(text):
             {"role": "user", "content": f"{user_prompt}"}
         ]
         llm_service = LLMFactory.get_llm_service()
-        completion = llm_service.get_chat_completion(messages)
+        completion = llm_service.get_chat_completion(messages,model="gemini-2.5-flash-lite")
         return llm_service.get_messages(completion)
     
     translate_text = initial_translation(text)
