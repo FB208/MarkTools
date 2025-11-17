@@ -15,6 +15,7 @@ COPY requirements.txt requirements.txt
 # 改动量比较大，推进使用无缓存模式RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir gunicorn gevent
 
 # 复制项目的所有文件到工作目录
 COPY . .
@@ -27,5 +28,5 @@ ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5000
 
 # 启动Flask应用
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--worker-class", "gevent", "--workers", "2", "--threads", "4", "--keep-alive", "75", "--timeout", "0", "app:app"]
 #CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "6000","--workers", "20", "--threads", "8", "app:app"]

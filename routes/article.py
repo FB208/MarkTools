@@ -107,7 +107,15 @@ def do_rewrite_stream():
 
     # 删除这个uuid的session
     del session[uuid]
-    return Response(generate(), content_type='text/event-stream')
+    return Response(
+        generate(),
+        content_type='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+        }
+    )
 
 # 文稿校验
 @article_bp.route('/verify', methods=['GET'])
@@ -133,7 +141,15 @@ def do_verify_stream():
         
         yield "data: " + json.dumps({"step": "complete", "content": "校验完成"}) + "\n\n"
 
-    return Response(generate(), mimetype='text/event-stream')
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+        }
+    )
 
 @article_bp.route('/workreport', methods=['GET'])
 def workreport():
@@ -156,4 +172,12 @@ def do_workreport_stream():
         
         yield "data: " + json.dumps({"step": "complete", "content": "生成完成"}) + "\n\n"
 
-    return Response(generate(), mimetype='text/event-stream')
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+        }
+    )

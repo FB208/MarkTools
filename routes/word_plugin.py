@@ -57,6 +57,7 @@ def simple_optimize_stream():
         headers={
             'Cache-Control': 'no-cache',
             'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
         }
     )
 
@@ -136,6 +137,7 @@ def super_expand_stream():
         headers={
             'Cache-Control': 'no-cache',
             'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
         }
     )
 
@@ -197,5 +199,6 @@ def inspiration2outline_stream():
         headers={
             'Cache-Control': 'no-cache',
             'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
         }
     )
