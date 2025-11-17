@@ -32,8 +32,8 @@ def generate_redbook():
             {"role": "system", "content": html2pic_prompt.wenan_system_prompt()},
             {"role": "user", "content": origin_content}
         ]
-        llm_service = LLMFactory.get_llm_service("or")
-        completion = llm_service.get_chat_completion(model="x-ai/grok-4-fast:free",messages=messages)
+        llm_service = LLMFactory.get_llm_service()
+        completion = llm_service.get_chat_completion(model="LongCat-Flash-Thinking",messages=messages)
         wenan = llm_service.get_messages(completion)
         return wenan
     
@@ -46,8 +46,8 @@ def generate_redbook():
             {"role": "system", "content": html2pic_prompt.chaifen_system_prompt()},
             {"role": "user", "content": wenan}
         ]
-        llm_service = LLMFactory.get_llm_service("or")
-        completion = llm_service.get_json_completion(model="x-ai/grok-4-fast:free",messages=messages)
+        llm_service = LLMFactory.get_llm_service()
+        completion = llm_service.get_json_completion(model="LongCat-Flash-Thinking",messages=messages)
         chaifen = llm_service.get_messages(completion)
 
         obj = robust_parse_json_like(chaifen, max_unwrap=2)
@@ -90,7 +90,7 @@ def generate_redbook():
                     {"role": "system", "content": html2pic_prompt.kapian_system_prompt(index)},
                     {"role": "user", "content": convert_to_string(chaifen_content)}
                 ]
-                llm_service = LLMFactory.get_llm_service("gb")
+                llm_service = LLMFactory.get_llm_service()
                 completion = llm_service.get_chat_completion(model="gemini-2.5-pro",messages=messages)
                 kapian = llm_service.get_messages(completion)
                 kapian_html = kapian.replace('```html', '').replace('```', '').strip()
