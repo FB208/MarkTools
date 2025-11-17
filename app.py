@@ -15,6 +15,7 @@ from flask_session import Session
 from flask_login import LoginManager
 from dotenv import load_dotenv
 from cachelib import FileSystemCache
+from services.ai_model_service import AIModelCache
 
 # 添加项目根目录到Python路径
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
@@ -52,6 +53,15 @@ def create_app():
         return None
 
     with app.app_context():
+        try:
+            AIModelCache.initialize()
+            ai_models = AIModelCache.get_all()
+            app.config['AI_MODEL_CACHE'] = ai_models
+            app.logger.info("AI 模型缓存已加载，共 %d 条记录", len(ai_models))
+        except Exception as exc:
+            app.logger.exception("AI 模型缓存初始化失败: %s", exc)
+            raise
+
         from routes import main_bp, translate_bp, md2all_bp, speech2text_bp, article_bp, test_bp, wechat_bp, starbot_bp, scheduler_bp, life_bp, word_plugin_bp, auth_bp, fun_bp, text2speech_bp, wechat_sub_account_bp, lighthouse_bp, html2pic_bp
         app.register_blueprint(main_bp)
         app.register_blueprint(translate_bp)
