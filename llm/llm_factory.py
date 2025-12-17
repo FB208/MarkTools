@@ -28,4 +28,4 @@ class LLMFactory:
             'gb': GBLLMService(),
             'or': OpenRouterLLMService(),
             'sr': SingleRouterLLMService()
-        }.get(service_type, DeepSeekLLMService())
+        }.get(service_type, SingleRouterLLMService())

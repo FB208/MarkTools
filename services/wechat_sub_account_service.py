@@ -4,7 +4,9 @@ from prompts.general_system_prompt import get_general_system_prompt
 from utils.redis_util import RedisUtil
 import time
 import threading
+import logging
 from flask import current_app
+from services.ai_model_service import AIModelCache
 
 def process_text_content(from_user, content):
     if content and (content.startswith('k') or content.startswith('K')):
@@ -61,12 +63,13 @@ def run_bg_chat(app, from_user, content):
         with app.app_context():
             redis_util = RedisUtil()
             redis_util.set_value_with_expiry(f"wechat_sub_account_chat:{from_user}", 'null', 60*10)
-            llm = LLMFactory.get_llm_service("glm")
+            llm = LLMFactory.get_llm_service()
             response = llm.get_chat_completion([
                 {"role": "system", "content": get_general_system_prompt()},
                 {"role": "user", "content": content}
-            ])
+            ],model=AIModelCache.get_by_type("微信公众号客服"))
             msg = llm.get_messages(response)
+            logging.info(f"后台任务回复用户 {from_user} : {msg}")
             redis_util.set_value_with_expiry(f"wechat_sub_account_chat:{from_user}", msg, 60*10)
     except Exception as e:
         print(f"后台任务出错: {e}")
