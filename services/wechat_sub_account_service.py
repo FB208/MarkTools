@@ -64,10 +64,12 @@ def run_bg_chat(app, from_user, content):
             redis_util = RedisUtil()
             redis_util.set_value_with_expiry(f"wechat_sub_account_chat:{from_user}", 'null', 60*10)
             llm = LLMFactory.get_llm_service()
+            model_config = AIModelCache.get_by_type("微信公众号客服")
+            model = model_config['ai_model']
             response = llm.get_chat_completion([
                 {"role": "system", "content": get_general_system_prompt()},
                 {"role": "user", "content": content}
-            ],model=AIModelCache.get_by_type("微信公众号客服"))
+            ], model=model)
             msg = llm.get_messages(response)
             logging.info(f"后台任务回复用户 {from_user} : {msg}")
             redis_util.set_value_with_expiry(f"wechat_sub_account_chat:{from_user}", msg, 60*10)
